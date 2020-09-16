@@ -17,6 +17,19 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+sourceSets {
+
+    test {
+        java {
+            srcDirs = ['test']
+        }
+        resources {
+            srcDirs = ['test/resources']
+            exclude '**/*.java'
+        }
+    }
+}
+
 test {
     filter { includeTestsMatching('*NSHM_NZ.*')}
 }
