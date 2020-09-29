@@ -47,7 +47,7 @@ public class Demo02_HikurangiCrustal {
 		
 		File outputFile = new File("/tmp/rupSetLowerNIAndInterface30km.zip");
 	
-		File fsdFile = new File("./data/FaultModels/cfm_test.xml");
+		File fsdFile = new File("./data/FaultModels/CFM_DEMO_crustal_opensha.xml");
 		
 		// load in the fault section data ("parent sections")
 		List<FaultSection> fsd = FaultModels.loadStoredFaultSections(fsdFile);
