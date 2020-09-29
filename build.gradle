@@ -19,6 +19,13 @@ dependencies {
 
 sourceSets {
 
+    main {
+        java {
+            srcDirs = ['src/main/java']
+            exclude 'resources/'
+        }
+    }
+
     test {
         java {
             srcDirs = ['test']
