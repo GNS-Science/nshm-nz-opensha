@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.downDipSubSectTest;
+package nz.cri.gns.NSHM.opensha.ruptures.downDipSubSectTest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.Location;
@@ -29,10 +30,15 @@ public class DownDipSubSectBuilder {
 	private int parentID;
 	private Map<Integer, Integer> idToRowMap;
 	private Map<Integer, Integer> idToColMap;
-	
+	//	private static Random slipRateGenerator = new Random();
 	
 	private static FaultSectionPrefData buildFSD(int sectionId, FaultTrace trace, double upper, double lower, double dip) {
 		FaultSectionPrefData fsd = new FaultSectionPrefData();
+
+		//hack for testing
+		//float divisor = if (sectionId < 100) ? 
+		//		double aveLongTermSlipRate = slipRateGenerator.nextDouble() * 0.2;
+		fsd.setAveSlipRate(25d);
 		fsd.setSectionId(sectionId);
 		fsd.setFaultTrace(trace);
 		fsd.setAveUpperDepth(upper);
@@ -60,6 +66,15 @@ public class DownDipSubSectBuilder {
 			Float.parseFloat((String)row.get(8)), //bottom
 			Float.parseFloat((String)row.get(6))); //dip	
 	}
+
+	/*
+	 * a DownDip Builder is needed for the permutation strategy  
+	 * 
+	 */
+	public DownDipSubSectBuilder(FaultSection parentSection) {
+		this.parentID = parentSection.getSectionId();
+	}
+	
 	/*
 	 * Build subsections from csv data (ex Hikurangi)
 	 * 
@@ -67,12 +82,13 @@ public class DownDipSubSectBuilder {
 	public DownDipSubSectBuilder(String sectName, FaultSection parentSection, int startID, InputStream csvStream) throws IOException {
 		this.sectName = sectName;
 		this.parentID = parentSection.getSectionId();
+
 		Integer colIndex = 0;
 		Integer rowIndex = 0;
 		
 		CSVFile<String> csv = CSVFile.readStream(csvStream, false);
 		
-		subSects = new FaultSectionPrefData[35][35];
+		subSects = new FaultSectionPrefData[100][25];
 		idToRowMap = new HashMap<>();
 		idToColMap = new HashMap<>();
 		
@@ -81,6 +97,7 @@ public class DownDipSubSectBuilder {
 			FaultSectionPrefData fs = buildFaultSectionFromCsvRow(startID, csvLine);
 			fs.setParentSectionId(parentSection.getSectionId());
 			fs.setParentSectionName(parentSection.getSectionName());
+			fs.setSectionName(parentSection.getSectionName() + "; col: " + csvLine.get(0) + ", row: " + csvLine.get(1));
 			colIndex = Integer.parseInt(csvLine.get(0));
 			rowIndex = Integer.parseInt(csvLine.get(1));
 			

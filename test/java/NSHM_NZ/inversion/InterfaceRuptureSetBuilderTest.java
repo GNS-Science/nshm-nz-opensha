@@ -5,6 +5,11 @@ import static org.junit.Assert.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import nz.cri.gns.NSHM.opensha.ruptures.downDipSubSectTest.DownDipSubSectBuilder;
+import nz.cri.gns.NSHM.opensha.ruptures.downDipSubSectTest.DownDipTestPermutationStrategy;
+import nz.cri.gns.NSHM.opensha.ruptures.downDipSubSectTest.RectangularityFilter;
+
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -38,11 +43,6 @@ import scratch.UCERF3.inversion.laughTest.UCERF3PlausibilityConfig;
 import scratch.UCERF3.inversion.SectionClusterList;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
-import scratch.kevin.ucerf3.downDipSubSectTest.RectangularityFilter;
-import scratch.kevin.ucerf3.downDipSubSectTest.DownDipSubSectBuilder;
-//import scratch.kevin.ucerf3.downDipSubSectTestOld.DownDipTestPlausibilityConfig;
-//import scratch.UCERF3.inversion.UCERF3SectionConnectionStrategy;
-import scratch.kevin.ucerf3.downDipSubSectTest.DownDipTestPermutationStrategy;
 
 /*
  * Build FaultSections from a CSV fixture containing 9 10km * 10km subsections of the Hikurangi Interface geometry.
@@ -91,7 +91,7 @@ public class InterfaceRuptureSetBuilderTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		InputStream csvdata = InterfaceRuptureSetBuilderTest.class.getResourceAsStream("fixtures/patch_4_10.csv");
+		InputStream csvdata = InterfaceRuptureSetBuilderTest.class.getResourceAsStream("patch_4_10.csv");
 		CSVFile<String> csv = CSVFile.readStream(csvdata, false);
 		
 		FaultSectionPrefData parentSection = new FaultSectionPrefData();
@@ -121,7 +121,7 @@ public class InterfaceRuptureSetBuilderTest {
 		parentSection.setSectionId(10000);
 		parentSection.setSectionName("Test SubSect Down-Dip Fault");
 		
-		InputStream csvdata = InterfaceRuptureSetBuilderTest.class.getResourceAsStream("fixtures/patch_4_10.csv");
+		InputStream csvdata = InterfaceRuptureSetBuilderTest.class.getResourceAsStream("patch_4_10.csv");
 		
 		//	the builder
 		DownDipSubSectBuilder downDipBuilder = new DownDipSubSectBuilder(
@@ -140,7 +140,7 @@ public class InterfaceRuptureSetBuilderTest {
 		parentSection.setSectionId(10000);
 		parentSection.setSectionName("ParentSection 10000 - Test SubSect Down-Dip Fault\"");
 		
-		InputStream csvdata = InterfaceRuptureSetBuilderTest.class.getResourceAsStream("fixtures/patch_4_10.csv");
+		InputStream csvdata = InterfaceRuptureSetBuilderTest.class.getResourceAsStream("patch_4_10.csv");
 		DownDipSubSectBuilder downDipBuilder = new DownDipSubSectBuilder(sectName, parentSection, startID, csvdata);
 
 		List<FaultSection> subSections = new ArrayList<>();

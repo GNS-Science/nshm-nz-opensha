@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.downDipSubSectTest.demo;
+package nz.cri.gns.NSHM.opensha.demo;
 
 import java.io.File;
 import java.io.IOException;
