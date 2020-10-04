@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import nz.cri.gns.NSHM.opensha.util.FaultSectionList;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -47,7 +49,7 @@ public class SectionXml2Csv {
 	 * @param subSections
 	 * @throws IOException
 	 */
-	private static void printCSVRows(PrintStream out, List<FaultSection> subSections) throws IOException {
+	private static void printCSVRows(PrintStream out, List<? extends FaultSection> subSections) throws IOException {
 		for (FaultSection section : subSections) {
 			out.println(section2String(section));
 		}
@@ -133,22 +135,22 @@ public class SectionXml2Csv {
 		Predicate<FaultSection> filter = makeSectionFilter(cmd);
 
 		File fsdFile = new File(cmd.getOptionValue("file"));
-		List<FaultSection> sections = FaultModels.loadStoredFaultSections(fsdFile);
+		FaultSectionList sections = FaultSectionList.fromList(FaultModels.loadStoredFaultSections(fsdFile));
 
 		out.println(
 				"parent id, id, ave dip, ave lower depth, ave rake, aseismic slip factor, coupling coeff, dip direction,"
 						+ "DateOfLastEvent, OrigAveSlipRate, OrigAveUpperDepth, OrigSlipRateStdDev, SlipInLastEvent,"
 						+ "locations as lat;lon;depth triples");
 
-		int index = 0;
+		FaultSectionList allSections = new FaultSectionList();
 		for (FaultSection section : sections) {
 			if (filter.test(section)) {
 				double ddw = section.getOrigDownDipWidth();
 				double maxSectLength = ddw * maxSubSectionLength;
-				List<FaultSection> subSections = (List<FaultSection>) section.getSubSectionsList(maxSectLength, index,
+				List<? extends FaultSection> subSections = section.getSubSectionsList(maxSectLength, allSections.getSafeId(),
 						minSections);
 				printCSVRows(out, subSections);
-				index += subSections.size();
+				allSections.addAll(subSections);
 			}
 		}
 	}
