@@ -30,6 +30,7 @@ import org.opensha.sha.earthquake.faultSysSolution.inversion.constraints.impl.Sl
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.ClusterRupture;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.ClusterRuptureBuilder;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.FaultSubsectionCluster;
+import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.PlausibilityConfiguration;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.PlausibilityFilter;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.CumulativeAzimuthChangeFilter;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.JumpAzimuthChangeFilter;
@@ -83,13 +84,14 @@ public class scriptCrustalInversionRunner {
 		Options options = new Options()
 				.addRequiredOption("f", "fsdFile", true, "an opensha-xml Fault Source file")
 				.addRequiredOption("o", "outputDir", true, "an existing directory to receive output file(s)")
-				.addOption("l", "maxLength", true, "maximum sub section length (in units of DDW) default")
+				.addOption("l", "maxSubSectionLength", true, "maximum sub section length (in units of DDW) default")
 				.addOption("d", "maxDistance", true, "max distance for linking multi fault ruptures, km")
 				.addOption("d", "maxFaultSections", true, "(for testing) set number fault ruptures to process, default 1000")
 				.addOption("k", "skipFaultSections", true, "(for testing) skip n fault ruptures, default 0")
 				.addOption("i", "inversionMins", true, "run inversions for this many minutes")
 				.addOption("y", "syncInterval", true, "seconds between inversion synchronisations")
 				.addOption("r", "runInversion", true, "run inversion stage")
+				.addOption("p", "minSubSectsPerParent", true, "min number of subsections per parent fault, when building ruptures")
 				.addOption(faultIdInOption);				
 		return new DefaultParser().parse(options, args);
 	}
@@ -108,6 +110,8 @@ public class scriptCrustalInversionRunner {
 		double maxDistance = 0.25; // max distance for linking multi fault ruptures, km
 		long maxFaultSections = 1000; // maximum fault ruptures to process
 		long skipFaultSections = 0; // skip n fault ruptures, default 0"
+		int numThreads = Runtime.getRuntime().availableProcessors(); // use all available processors
+		int minSubSectsPerParent = 2; //
 		Set<Integer> faultIdIn = Collections.emptySet();
 				
 		File outputDir = new File(cmd.getOptionValue("outputDir")); 
@@ -119,9 +123,9 @@ public class scriptCrustalInversionRunner {
 		System.out.println("fsdFile: " + cmd.getOptionValue("fsdFile"));
 		System.out.println("outputDir: " + outputDir);
 				
-		if (cmd.hasOption("maxLength")) {
-			System.out.println("set maxSubSectionLength to " + cmd.getOptionValue("maxLength"));
-			maxSubSectionLength = Double.parseDouble(cmd.getOptionValue("maxLength"));
+		if (cmd.hasOption("maxSubSectionLength")) {
+			System.out.println("set maxSubSectionLength to " + cmd.getOptionValue("maxSubSectionLength"));
+			maxSubSectionLength = Double.parseDouble(cmd.getOptionValue("maxSubSectionLength"));
 		}
 		if (cmd.hasOption("maxDistance")) {
 			System.out.println("set maxDistance to " + cmd.getOptionValue("maxDistance"));
@@ -157,6 +161,11 @@ public class scriptCrustalInversionRunner {
 ////			faultNameContains = Set();
 //			faultIdContains = Stream.of(cmd.getOptionValues("faultNameContains")).map(name -> name).collect(Collectors.toSet());			
 //		}
+		if (cmd.hasOption("minSubSectsPerParent")) {
+			System.out.println("set minSubSectsPerParent to " + cmd.getOptionValue("minSubSectsPerParent"));
+			minSubSectsPerParent = Integer.parseInt(cmd.getOptionValue("minSubSectsPerParent"));
+		}			
+			
 		System.out.println("=========");
 
 		// load in the fault section data ("parent sections")
@@ -199,39 +208,32 @@ public class scriptCrustalInversionRunner {
 		
 		downDipBuilder = new DownDipSubSectBuilder(interfaceParentSection);
 		
-		// instantiate plausibility filters
-		List<PlausibilityFilter> filters = new ArrayList<>();
-//		int minDimension = 1; // minimum numer of rows or columns
-//		double maxAspectRatio = 3d; // max aspect ratio of rows/cols or cols/rows
-//		filters.add(new RectangularityFilter(downDipBuilder, minDimension, maxAspectRatio));
-			
-		Predicate<FaultSubsectionCluster> pFilter = new SubSectionParentFilter().makeParentIdFilter(faultIdIn);
-		PlausibilityFilter idFilter = new SubSectionParentFilter(pFilter);
-		filters.add(idFilter);
-		
 		SectionDistanceAzimuthCalculator distAzCalc = new SectionDistanceAzimuthCalculator(subSections);
 		JumpAzimuthChangeFilter.AzimuthCalc azimuthCalc = new JumpAzimuthChangeFilter.SimpleAzimuthCalc(distAzCalc);
-		filters.add(new JumpAzimuthChangeFilter(azimuthCalc, 60f));
-		filters.add(new TotalAzimuthChangeFilter(azimuthCalc, 60f, true, true));
-		filters.add(new CumulativeAzimuthChangeFilter(azimuthCalc, 580f));
 
-		
 		// this creates rectangular permutations only for our down-dip fault to speed up rupture building
 		ClusterPermutationStrategy permutationStrategy = new DownDipTestPermutationStrategy(downDipBuilder);
 		// connection strategy: parent faults connect at closest point, and only when dist <=5 km
-		ClusterConnectionStrategy connectionStrategy = new DistCutoffClosestSectClusterConnectionStrategy(maxDistance);
+		ClusterConnectionStrategy connectionStrategy = new DistCutoffClosestSectClusterConnectionStrategy(subSections, distAzCalc, maxDistance);
 		int maxNumSplays = 0; // don't allow any splays
-		
-		// Now we get the clusters first as they're needed for the next filter
-		List<FaultSubsectionCluster> clusters = ClusterRuptureBuilder.buildClusters(subSections,
-				connectionStrategy, distAzCalc);
 
-		// configure the filter
-		filters.add(new MinSectsPerParentFilter(2, true, clusters));
+		Predicate<FaultSubsectionCluster> pFilter = new SubSectionParentFilter().makeParentIdFilter(faultIdIn);
+		PlausibilityConfiguration config =
+				PlausibilityConfiguration.builder(connectionStrategy, distAzCalc)
+						.maxSplays(maxNumSplays)
+						.add(new SubSectionParentFilter(pFilter))
+						.add(new JumpAzimuthChangeFilter(azimuthCalc, 60f))
+						.add(new TotalAzimuthChangeFilter(azimuthCalc, 60f, true, true))
+						.add(new CumulativeAzimuthChangeFilter(azimuthCalc, 560f))
+						.add(new MinSectsPerParentFilter(minSubSectsPerParent, true, true, connectionStrategy))
+						.build();
+		
+		//Saving rup set with 182272 rups to: /tmp/CFM_crustal_rupture_set.zip w no pFilter
+		//Saving rup set with 182272 rups to: /tmp/CFM_crustal_rupture_set.zip w pFilter
 		
 		// Builder can now proceed using the clusters and all the filters...
-		ClusterRuptureBuilder builder = new ClusterRuptureBuilder(clusters, filters, maxNumSplays);
-		List<ClusterRupture> ruptures = builder.build(permutationStrategy);
+		ClusterRuptureBuilder builder = new ClusterRuptureBuilder(config);
+		List<ClusterRupture> ruptures = builder.build(permutationStrategy, numThreads);
 		System.out.println("Built "+ruptures.size()+" total ruptures");
 		
 		MySlipEnabledRupSet rupSet = new MySlipEnabledRupSet(ruptures, subSections,
@@ -304,9 +306,6 @@ public class scriptCrustalInversionRunner {
 			// Bring up window to track progress
 			// criteria = new ProgressTrackingCompletionCriteria(criteria, progressReport, 0.1d);
 			
-			// this will use all available processors
-			int numThreads = Runtime.getRuntime().availableProcessors();
-
 			// this is the "sub completion criteria" - the amount of time (or iterations) between synchronization
 			CompletionCriteria subCompletionCriteria = TimeCompletionCriteria.getInSeconds(syncInterval); // 1 second;
 			
