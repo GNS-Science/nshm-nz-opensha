@@ -2,6 +2,7 @@ package nz.cri.gns.NSHM.opensha.util;
 import java.io.File;
 import java.io.IOException;
 
+import nz.cri.gns.NSHM.opensha.hazard.NSHMHazardCalculatorBuilder;
 import org.dom4j.DocumentException;
 
 import nz.cri.gns.NSHM.opensha.inversion.NSHMInversionRunner;
@@ -19,12 +20,15 @@ public class NSHMPythonGateway {
 
 	static CachedNSHMRuptureSetBuilder builder = new CachedNSHMRuptureSetBuilder();
 	static CachedNSHMInversionRunner runner = new CachedNSHMInversionRunner();
+	static NSHMHazardCalculatorBuilder calculator = new NSHMHazardCalculatorBuilder();
 	
 	public static CachedNSHMRuptureSetBuilder getBuilder() {
 		return builder;
 	}
 
 	public static NSHMInversionRunner getRunner() {return runner;}
+
+	public static NSHMHazardCalculatorBuilder getCalculator() {return calculator;}
 
 	public static void main(String[] args) {
 		NSHMPythonGateway app = new NSHMPythonGateway();
@@ -51,15 +55,37 @@ public class NSHMPythonGateway {
 			super.setPermutationStrategy(RupturePermutationStrategy.valueOf(permutationStrategyClass));
 			return this;
 		}
+
+		/**
+		 * Sets the FaultModel file for all crustal faults
+		 * @param fsdFileName the XML FaultSection data file containing source fault information
+		 * @return this builder
+		 */
+		public CachedNSHMRuptureSetBuilder setFaultModelFile(String fsdFileName){
+			setFaultModelFile(new File(fsdFileName));
+			return this;
+		}
+
+		/**
+		 * Sets the subduction fault. At the moment, only one fault can be set.
+		 * @param faultName The name fo the fault.
+		 * @param fileName the CSV file containing all sections.
+		 * @return this builder
+		 */
+		public CachedNSHMRuptureSetBuilder setSubductionFault(String faultName, String fileName){
+			setSubductionFault(faultName, new File(fileName));
+			return this;
+		}
 		
 		/**
 		 * Caches the results of the build
 		 */
 		@Override
-		public SlipAlongRuptureModelRupSet buildRuptureSet(String fsdFileName) throws DocumentException, IOException {
-			ruptureSet = super.buildRuptureSet(fsdFileName);
+		public SlipAlongRuptureModelRupSet buildRuptureSet() throws DocumentException, IOException {
+			ruptureSet = super.buildRuptureSet();
 			return ruptureSet;
 		}
+
 		/**
 		 * Write the cached rupture set to disk.
 		 *  
