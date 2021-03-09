@@ -114,9 +114,10 @@ public class FaultIdFilterTest {
         when(u2.size()).thenReturn(parentIds.length - 1);
 
         Constructor<ClusterRupture> con = ClusterRupture.class.getDeclaredConstructor(
-                FaultSubsectionCluster[].class, ImmutableSet.class, ImmutableMap.class, UniqueRupture.class, UniqueRupture.class);
+               FaultSubsectionCluster[].class, ImmutableSet.class, ImmutableMap.class, UniqueRupture.class, UniqueRupture.class, Boolean.TYPE);
+        
         con.setAccessible(true);
-        return con.newInstance(clusters, ImmutableSet.copyOf(jumps), ImmutableMap.of(), u1, u2);
+        return con.newInstance(clusters, ImmutableSet.copyOf(jumps), ImmutableMap.of(), u1, u2, true);
     }
 
     public Jump mockJump(int toParentId) {
