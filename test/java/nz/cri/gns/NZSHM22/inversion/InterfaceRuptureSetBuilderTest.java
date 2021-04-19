@@ -7,9 +7,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import nz.cri.gns.NSHM.opensha.ruptures.downDip.DownDipRegistry;
-import nz.cri.gns.NSHM.opensha.ruptures.downDip.DownDipSubSectBuilder;
-import nz.cri.gns.NSHM.opensha.ruptures.downDip.DownDipPermutationStrategy;
+import nz.cri.gns.NZSHM22.opensha.ruptures.downDip.DownDipPermutationStrategy;
+import nz.cri.gns.NZSHM22.opensha.ruptures.downDip.DownDipRegistry;
+import nz.cri.gns.NZSHM22.opensha.ruptures.downDip.DownDipSubSectBuilder;
 
 import java.io.InputStream;
 import java.io.IOException;

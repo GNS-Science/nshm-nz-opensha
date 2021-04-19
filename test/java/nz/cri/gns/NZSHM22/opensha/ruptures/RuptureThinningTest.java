@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.Lists;
 
-import nz.cri.gns.NSHM.opensha.ruptures.RuptureThinning;
+import nz.cri.gns.NZSHM22.opensha.ruptures.RuptureThinning;
 
 import org.junit.Test;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.ClusterRupture;

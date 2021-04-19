@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.Sets;
 
-import nz.cri.gns.NSHM.opensha.ruptures.NSHMRuptureSetBuilder;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMRuptureSetBuilder;
 
 import org.dom4j.DocumentException;
 import org.junit.Test;

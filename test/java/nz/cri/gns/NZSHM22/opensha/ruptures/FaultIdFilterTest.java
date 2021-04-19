@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import nz.cri.gns.NSHM.opensha.ruptures.FaultIdFilter;
+
+import nz.cri.gns.NZSHM22.opensha.ruptures.FaultIdFilter;
+
 import org.junit.Test;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.ClusterRupture;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.FaultSubsectionCluster;

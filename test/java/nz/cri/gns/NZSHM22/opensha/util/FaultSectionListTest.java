@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 
-import nz.cri.gns.NSHM.opensha.util.FaultSectionList;
+import nz.cri.gns.NZSHM22.opensha.util.FaultSectionList;
 
 import org.junit.Test;
 import org.opensha.sha.faultSurface.FaultSection;

@@ -15,9 +15,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import nz.cri.gns.NSHM.opensha.inversion.NSHMInversionRunner;
-import nz.cri.gns.NSHM.opensha.inversion.NSHM_InversionConfiguration;
-import nz.cri.gns.NSHM.opensha.inversion.NSHM_InversionFaultSystemRuptSet;
+import nz.cri.gns.NZSHM22.opensha.inversion.NSHMInversionRunner;
+import nz.cri.gns.NZSHM22.opensha.inversion.NSHM_InversionConfiguration;
+import nz.cri.gns.NZSHM22.opensha.inversion.NSHM_InversionFaultSystemRuptSet;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;

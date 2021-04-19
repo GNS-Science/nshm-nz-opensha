@@ -4,10 +4,11 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.Lists;
 
-import nz.cri.gns.NSHM.opensha.ruptures.downDip.DownDipPermutationStrategy;
-import nz.cri.gns.NSHM.opensha.ruptures.downDip.DownDipRegistry;
-import nz.cri.gns.NSHM.opensha.ruptures.downDip.DownDipSubSectBuilder;
-import nz.cri.gns.NSHM.opensha.util.FaultSectionList;
+import nz.cri.gns.NZSHM22.opensha.ruptures.downDip.DownDipPermutationStrategy;
+import nz.cri.gns.NZSHM22.opensha.ruptures.downDip.DownDipRegistry;
+import nz.cri.gns.NZSHM22.opensha.ruptures.downDip.DownDipSubSectBuilder;
+import nz.cri.gns.NZSHM22.opensha.util.FaultSectionList;
+
 import org.junit.Test;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.FaultSubsectionCluster;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.strategies.ExhaustiveUnilateralRuptureGrowingStrategy;
