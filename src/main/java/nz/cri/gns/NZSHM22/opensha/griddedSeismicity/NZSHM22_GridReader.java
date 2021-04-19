@@ -12,11 +12,11 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import nz.cri.gns.NZSHM22.opensha.data.region.NewZealandRegions;
-import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NSHM_SpatialSeisPDF;
-import nz.cri.gns.NZSHM22.opensha.util.NSHM_DataUtils;
+import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NZSHM22_SpatialSeisPDF;
+import nz.cri.gns.NZSHM22.opensha.util.NZSHM22_DataUtils;
 import scratch.UCERF3.griddedSeismicity.GridReader;
 
-public class NSHM_GridReader extends GridReader {
+public class NZSHM22_GridReader extends GridReader {
 	
 	protected static final NewZealandRegions.NZ_TEST_GRIDDED region = 
 			new NewZealandRegions.NZ_TEST_GRIDDED();
@@ -25,7 +25,7 @@ public class NSHM_GridReader extends GridReader {
 	 * Constructs a new grid reader for the supplied filename.
 	 * @param filename
 	 */
-	public NSHM_GridReader(String filename) {
+	public NZSHM22_GridReader(String filename) {
 		super(filename);
 	}
 
@@ -46,7 +46,7 @@ public class NSHM_GridReader extends GridReader {
 		
 		try {
 			String DATA_DIR = "seismicityGrids";
-			BufferedReader br = new BufferedReader(NSHM_DataUtils.getReader(DATA_DIR, filename));
+			BufferedReader br = new BufferedReader(NZSHM22_DataUtils.getReader(DATA_DIR, filename));
 			Iterator<String> dat;
 			String line = br.readLine();
 			while (line != null) {
@@ -126,30 +126,30 @@ public class NSHM_GridReader extends GridReader {
 		// see also missingTableEntries() method
 		// so for now, just leavintg these examples in main()
 		
-		GriddedRegion reg = NSHM_GridReader.region.clone();
-		NSHM_GridReader gr = new NSHM_GridReader("BEST2FLTOLDNC1246.txt");
+		GriddedRegion reg = NZSHM22_GridReader.region.clone();
+		NZSHM22_GridReader gr = new NZSHM22_GridReader("BEST2FLTOLDNC1246.txt");
 		gr.missingTableEntries(reg);
 		
-		double[] pdf = NSHM_SpatialSeisPDF.NZSHM22_1246.getPDF();
+		double[] pdf = NZSHM22_SpatialSeisPDF.NZSHM22_1246.getPDF();
 		System.out.println("N22 1256  " + DataUtils.sum(pdf));
 		System.out.println("N22 1256 min " + DataUtils.min(pdf));
 		System.out.println("N22 1256 max " + DataUtils.max(pdf));
 
-		pdf = NSHM_SpatialSeisPDF.NZSHM22_1456.getPDF();
+		pdf = NZSHM22_SpatialSeisPDF.NZSHM22_1456.getPDF();
 		System.out.println("N22 1456  " + DataUtils.sum(pdf));
 	
-		pdf = NSHM_SpatialSeisPDF.NZSHM22_1246R.getPDF();
+		pdf = NZSHM22_SpatialSeisPDF.NZSHM22_1246R.getPDF();
 		System.out.println("N22 R1256 " + DataUtils.sum(pdf));
 
-		pdf = NSHM_SpatialSeisPDF.NZSHM22_1456R.getPDF();
+		pdf = NZSHM22_SpatialSeisPDF.NZSHM22_1456R.getPDF();
 		System.out.println("N22 R1456 " + DataUtils.sum(pdf));
 
 		GriddedRegion nzregion = new NewZealandRegions.NZ_TEST_GRIDDED();
-		double fir = NSHM_SpatialSeisPDF.NZSHM22_1246.getFractionInRegion(nzregion);
+		double fir = NZSHM22_SpatialSeisPDF.NZSHM22_1246.getFractionInRegion(nzregion);
 		System.out.println("n22 FractionInRegion " + fir);
 		
 //		GriddedRegion region = new GriddedRegion(getRegionNZ(), 0.1d, null);
-//		double fir = NSHM_SpatialSeisPDF.NZSHM22_1456.getFractionInRegion(region);
+//		double fir = NZSHM22_SpatialSeisPDF.NZSHM22_1456.getFractionInRegion(region);
 //		System.out.println("n22 FractionInRegion " + fir);		
 
 		

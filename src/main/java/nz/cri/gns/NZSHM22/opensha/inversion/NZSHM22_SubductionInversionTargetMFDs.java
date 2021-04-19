@@ -18,10 +18,10 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import nz.cri.gns.NZSHM22.opensha.analysis.NSHM_FaultSystemRupSetCalc;
+import nz.cri.gns.NZSHM22.opensha.analysis.NZSHM22_FaultSystemRupSetCalc;
 import nz.cri.gns.NZSHM22.opensha.data.region.NewZealandRegions;
-import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NSHM_SpatialSeisPDF;
-import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMSlipEnabledRuptureSet;
+import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NZSHM22_SpatialSeisPDF;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_SlipEnabledRuptureSet;
 import scratch.UCERF3.SlipEnabledRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 
@@ -60,7 +60,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @author chrisbc
  *
  */
-public class NSHM_SubductionInversionTargetMFDs extends InversionTargetMFDs {
+public class NZSHM22_SubductionInversionTargetMFDs extends InversionTargetMFDs {
 
 	boolean MFD_STATS = true; //print some curves for analytics
 	
@@ -94,7 +94,7 @@ public class NSHM_SubductionInversionTargetMFDs extends InversionTargetMFDs {
     
       
    	@SuppressWarnings("unused")
-	public NSHM_SubductionInversionTargetMFDs(NSHM_InversionFaultSystemRuptSet invRupSet) {
+	public NZSHM22_SubductionInversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
 		this.invRupSet = invRupSet;
 
 		// TODO: we're getting a UCERF3 LTB now, this needs to be replaced with NSHM

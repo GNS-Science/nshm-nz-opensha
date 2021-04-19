@@ -32,7 +32,7 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
  * configurations for: - plausability - rupture permutation Strategy (with
  * different strategies available for test purposes)
  */
-public class NSHMRuptureSetBuilder {
+public class NZSHM22_RuptureSetBuilder {
 
 	final DownDipRegistry downDipRegistry;
 	final FaultSectionList subSections;
@@ -70,9 +70,9 @@ public class NSHMRuptureSetBuilder {
 	}
 
 	/**
-	 * Constructs a new NSHMRuptureSetBuilder with the default NSHM configuration.
+	 * Constructs a new NZSHM22_RuptureSetBuilder with the default NSHM configuration.
 	 */
-	public NSHMRuptureSetBuilder() {
+	public NZSHM22_RuptureSetBuilder() {
 		subSections = new FaultSectionList();
 		downDipRegistry = new DownDipRegistry(subSections);
 	}
@@ -82,9 +82,9 @@ public class NSHMRuptureSetBuilder {
 	 *
 	 * @param filterType The behaviour of the filter. See FaultIdFilter.
 	 * @param faultIds   A set of fault section integer ids.
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setFaultIdFilter(FaultIdFilter.FilterType filterType, Set<Integer> faultIds) {
+	public NZSHM22_RuptureSetBuilder setFaultIdFilter(FaultIdFilter.FilterType filterType, Set<Integer> faultIds) {
 		this.faultIds = faultIds;
 		this.faultIdfilterType = filterType;
 		return this;
@@ -94,9 +94,9 @@ public class NSHMRuptureSetBuilder {
 	 * Sets the maximum jump distance allowed between fault sections
 	 *
 	 * @param maxDistance km
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setMaxJumpDistance(double maxDistance) {
+	public NZSHM22_RuptureSetBuilder setMaxJumpDistance(double maxDistance) {
 		this.maxDistance = maxDistance;
 		return this;
 	}
@@ -106,9 +106,9 @@ public class NSHMRuptureSetBuilder {
 	 * rupture must be at least 10% more than the previous count.
 	 *
 	 * @param thinningFactor
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setThinningFactor(double thinningFactor) {
+	public NZSHM22_RuptureSetBuilder setThinningFactor(double thinningFactor) {
 		if (thinningFactor > 0.0) {
 			this.thinningFactor = thinningFactor;
 		} else {
@@ -121,9 +121,9 @@ public class NSHMRuptureSetBuilder {
 	 * Used for testing only!
 	 *
 	 * @param maxFaultSections the maximum number of fault sections to be processed.
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setMaxFaultSections(int maxFaultSections) {
+	public NZSHM22_RuptureSetBuilder setMaxFaultSections(int maxFaultSections) {
 		this.maxFaultSections = maxFaultSections;
 		return this;
 	}
@@ -132,9 +132,9 @@ public class NSHMRuptureSetBuilder {
 	 * Used for testing only!
 	 *
 	 * @param skipFaultSections sets the number fault sections to be skipped.
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setSkipFaultSections(int skipFaultSections) {
+	public NZSHM22_RuptureSetBuilder setSkipFaultSections(int skipFaultSections) {
 		this.skipFaultSections = skipFaultSections;
 		return this;
 	}
@@ -142,9 +142,9 @@ public class NSHMRuptureSetBuilder {
 	/**
 	 * @param minSubSectsPerParent sets the minimum subsections per parent, 2 is
 	 *                             standard as per UCERF3
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setMinSubSectsPerParent(int minSubSectsPerParent) {
+	public NZSHM22_RuptureSetBuilder setMinSubSectsPerParent(int minSubSectsPerParent) {
 		this.minSubSectsPerParent = minSubSectsPerParent;
 		return this;
 	}
@@ -158,9 +158,9 @@ public class NSHMRuptureSetBuilder {
 	 *
 	 * @param maxSubSectionLength defaults to 0.5, meaning the desired minimum
 	 *                            length is half of the DDW.
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setMaxSubSectionLength(double maxSubSectionLength) {
+	public NZSHM22_RuptureSetBuilder setMaxSubSectionLength(double maxSubSectionLength) {
 		this.maxSubSectionLength = maxSubSectionLength;
 		return this;
 	}
@@ -168,9 +168,9 @@ public class NSHMRuptureSetBuilder {
 	/**
 	 * @param permutationStrategyClass sets the rupture permuation strategy
 	 *                                 implementation
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setPermutationStrategy(RupturePermutationStrategy permutationStrategyClass) {
+	public NZSHM22_RuptureSetBuilder setPermutationStrategy(RupturePermutationStrategy permutationStrategyClass) {
 		this.permutationStrategyClass = permutationStrategyClass;
 		return this;
 	}
@@ -179,24 +179,24 @@ public class NSHMRuptureSetBuilder {
 	 * Some internal classes support parallelisation.
 	 *
 	 * @param numThreads sets munber of threads to be used.
-	 * @return NSHMRuptureSetBuilder the builder
+	 * @return NZSHM22_RuptureSetBuilder the builder
 	 */
-	public NSHMRuptureSetBuilder setNumThreads(int numThreads) {
+	public NZSHM22_RuptureSetBuilder setNumThreads(int numThreads) {
 		this.numThreads = numThreads;
 		return this;
 	}
 
-	public NSHMRuptureSetBuilder setMaxAzimuthChange(float maxAzimuthChange) {
+	public NZSHM22_RuptureSetBuilder setMaxAzimuthChange(float maxAzimuthChange) {
 		this.maxAzimuthChange = maxAzimuthChange;
 		return this;
 	}
 
-	public NSHMRuptureSetBuilder setMaxTotalAzimuthChange(float maxTotalAzimuthChange) {
+	public NZSHM22_RuptureSetBuilder setMaxTotalAzimuthChange(float maxTotalAzimuthChange) {
 		this.maxTotalAzimuthChange = maxTotalAzimuthChange;
 		return this;
 	}
 
-	public NSHMRuptureSetBuilder setMaxCumulativeAzimuthChange(float maxCumulativeAzimuthChange) {
+	public NZSHM22_RuptureSetBuilder setMaxCumulativeAzimuthChange(float maxCumulativeAzimuthChange) {
 		this.maxCumulativeAzimuthChange = maxCumulativeAzimuthChange;
 		return this;
 	}
@@ -208,7 +208,7 @@ public class NSHMRuptureSetBuilder {
 	 *                information
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setFaultModelFile(File fsdFile) {
+	public NZSHM22_RuptureSetBuilder setFaultModelFile(File fsdFile) {
 		this.fsdFile = fsdFile;
 		return this;
 	}
@@ -220,7 +220,7 @@ public class NSHMRuptureSetBuilder {
 	 * @param downDipFile the CSV file containing all sections.
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setSubductionFault(String faultName, File downDipFile) {
+	public NZSHM22_RuptureSetBuilder setSubductionFault(String faultName, File downDipFile) {
 		this.downDipFaultName = faultName;
 		this.downDipFile = downDipFile;
 		return this;
@@ -233,7 +233,7 @@ public class NSHMRuptureSetBuilder {
 	 * @param maxAspect the maximum aspect ratio
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setDownDipAspectRatio(double minAspect, double maxAspect) {
+	public NZSHM22_RuptureSetBuilder setDownDipAspectRatio(double minAspect, double maxAspect) {
 		this.downDipMinAspect = minAspect;
 		this.downDipMaxAspect = maxAspect;
 		return this;
@@ -250,7 +250,7 @@ public class NSHMRuptureSetBuilder {
 	 * 
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setDownDipAspectRatio(double minAspect, double maxAspect, int depthThreshold) {
+	public NZSHM22_RuptureSetBuilder setDownDipAspectRatio(double minAspect, double maxAspect, int depthThreshold) {
 		this.downDipMinAspect = minAspect;
 		this.downDipMaxAspect = maxAspect;
 		this.downDipAspectDepthThreshold = depthThreshold;
@@ -265,7 +265,7 @@ public class NSHMRuptureSetBuilder {
 	 * @param minFill the minimum fill of the rupture rectangle
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setDownDipMinFill(double minFill) {
+	public NZSHM22_RuptureSetBuilder setDownDipMinFill(double minFill) {
 		this.downDipMinFill = minFill;
 		return this;
 	}
@@ -276,7 +276,7 @@ public class NSHMRuptureSetBuilder {
 	 * @param epsilon epsilon
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setDownDipPositionCoarseness(double epsilon) {
+	public NZSHM22_RuptureSetBuilder setDownDipPositionCoarseness(double epsilon) {
 		this.downDipPositionCoarseness = epsilon;
 		return this;
 	}
@@ -287,7 +287,7 @@ public class NSHMRuptureSetBuilder {
 	 * @param epsilon epsilon
 	 * @return this builder
 	 */
-	public NSHMRuptureSetBuilder setDownDipSizeCoarseness(double epsilon) {
+	public NZSHM22_RuptureSetBuilder setDownDipSizeCoarseness(double epsilon) {
 		this.downDipSizeCoarseness = epsilon;
 		return this;
 	}
@@ -424,11 +424,11 @@ public class NSHMRuptureSetBuilder {
 
 		// TODO: consider overloading this for Hikurangi to provide
 		// Slip{DOWNDIP}RuptureModel (or similar) see [KKS,CBC]
-		NSHMSlipEnabledRuptureSet rupSet = null;
+		NZSHM22_SlipEnabledRuptureSet rupSet = null;
 		try {
-			rupSet = new NSHMSlipEnabledRuptureSet(ruptures, subSections,
+			rupSet = new NZSHM22_SlipEnabledRuptureSet(ruptures, subSections,
 					ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.UNIFORM);
-//			rupSet = new NSHMSlipEnabledRuptureSet(ruptures, subSections,
+//			rupSet = new NZSHM22_SlipEnabledRuptureSet(ruptures, subSections,
 //					ScalingRelationships.TMG_SUB_2017, SlipAlongRuptureModels.UNIFORM);
 			
 			rupSet.setPlausibilityConfiguration(getPlausibilityConfig());	

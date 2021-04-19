@@ -3,12 +3,12 @@ package nz.cri.gns.NZSHM22.opensha.util;
 import java.io.File;
 import java.io.IOException;
 
-//import nz.cri.gns.NZSHM22.util.NSHMInversionDiagnosticsReportBuilder;
+//import nz.cri.gns.NZSHM22.util.NZSHM22_InversionDiagnosticsReportBuilder;
 import org.dom4j.DocumentException;
 
-import nz.cri.gns.NZSHM22.opensha.hazard.NSHMHazardCalculatorBuilder;
-import nz.cri.gns.NZSHM22.opensha.inversion.NSHMInversionRunner;
-import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMRuptureSetBuilder;
+import nz.cri.gns.NZSHM22.opensha.hazard.NZSHM22_HazardCalculatorBuilder;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_RuptureSetBuilder;
 import py4j.GatewayServer;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SlipAlongRuptureModelRupSet;
@@ -18,11 +18,11 @@ import scratch.UCERF3.utils.FaultSystemIO;
  * A py4j gateway for building ruptures and running inversions.
  * 
  */
-public class NSHMPythonGateway {
+public class NZSHM22_PythonGateway {
 
 	static CachedNSHMRuptureSetBuilder builder;
 	static CachedNSHMInversionRunner runner;
-	static NSHMHazardCalculatorBuilder calculator = new NSHMHazardCalculatorBuilder();
+	static NZSHM22_HazardCalculatorBuilder calculator = new NZSHM22_HazardCalculatorBuilder();
 
 	/**
 	 * Get a new cached rupture set builder. Note that we want a new builder for
@@ -39,17 +39,17 @@ public class NSHMPythonGateway {
 	 * setup is clean, but this can maybe be optimised. The produced solution is
 	 * cached to allow inspection etc.
 	 */
-	public static NSHMInversionRunner getRunner() {
+	public static NZSHM22_InversionRunner getRunner() {
 		runner = new CachedNSHMInversionRunner();
 		return runner;
 	}
 
-	public static NSHMHazardCalculatorBuilder getCalculator() {
+	public static NZSHM22_HazardCalculatorBuilder getCalculator() {
 		return calculator;
 	}
 
 	public static void main(String[] args) {
-		NSHMPythonGateway app = new NSHMPythonGateway();
+		NZSHM22_PythonGateway app = new NZSHM22_PythonGateway();
 
 		// app is now the gateway.entry_point
 		GatewayServer server = new GatewayServer(app);
@@ -57,10 +57,10 @@ public class NSHMPythonGateway {
 	}
 
 	/**
-	 * Provide a little help for python clients using NSHMRuptureSetBuilder
+	 * Provide a little help for python clients using NZSHM22_RuptureSetBuilder
 	 * 
 	 */
-	static class CachedNSHMRuptureSetBuilder extends NSHMRuptureSetBuilder {
+	static class CachedNSHMRuptureSetBuilder extends NZSHM22_RuptureSetBuilder {
 		SlipAlongRuptureModelRupSet ruptureSet;
 
 		/**
@@ -68,7 +68,7 @@ public class NSHMPythonGateway {
 		 * @param permutationStrategyClass one of 'DOWNDIP', 'POINTS', 'UCERF3'
 		 * @return this
 		 */
-		public NSHMRuptureSetBuilder setPermutationStrategy(String permutationStrategyClass) {
+		public NZSHM22_RuptureSetBuilder setPermutationStrategy(String permutationStrategyClass) {
 
 			super.setPermutationStrategy(RupturePermutationStrategy.valueOf(permutationStrategyClass));
 			return this;
@@ -120,9 +120,9 @@ public class NSHMPythonGateway {
 	}
 
 	/**
-	 * Python helper that wraps NSHMInversionRunner
+	 * Python helper that wraps NZSHM22_InversionRunner
 	 */
-	static class CachedNSHMInversionRunner extends NSHMInversionRunner {
+	static class CachedNSHMInversionRunner extends NZSHM22_InversionRunner {
 		FaultSystemSolution solution = null;
 
 		/**
@@ -151,8 +151,8 @@ public class NSHMPythonGateway {
 	}
 
 	// TODO: restore this with the required upstream changes in opensha-ucerf3
-//    public static NSHMInversionDiagnosticsReportBuilder createReportBuilder() {
-//        return new NSHMInversionDiagnosticsReportBuilder();
+//    public static NZSHM22_InversionDiagnosticsReportBuilder createReportBuilder() {
+//        return new NZSHM22_InversionDiagnosticsReportBuilder();
 //    }
 
 }

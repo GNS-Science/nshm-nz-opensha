@@ -35,7 +35,7 @@ import com.google.common.base.Preconditions;
 //import com.google.common.collect.Lists;
 //import com.google.common.collect.Maps;
 
-import nz.cri.gns.NZSHM22.opensha.analysis.NSHM_FaultSystemRupSetCalc;
+import nz.cri.gns.NZSHM22.opensha.analysis.NZSHM22_FaultSystemRupSetCalc;
 //import cern.colt.function.tdouble.IntIntDoubleFunction;
 //import cern.colt.list.tdouble.DoubleArrayList;
 //import cern.colt.list.tint.IntArrayList;
@@ -63,7 +63,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
  *
  *
  */
-public class NSHM_InversionInputGenerator extends InversionInputGenerator {
+public class NZSHM22_InversionInputGenerator extends InversionInputGenerator {
 
 	private static final boolean D = false;
 	/**
@@ -74,14 +74,14 @@ public class NSHM_InversionInputGenerator extends InversionInputGenerator {
 	private static final boolean QUICK_GETS_SETS = true;
 
 	// inputs
-	private NSHM_InversionFaultSystemRuptSet rupSet;
-	private NSHM_InversionConfiguration config;
+	private NZSHM22_InversionFaultSystemRuptSet rupSet;
+	private NZSHM22_InversionConfiguration config;
 	private List<PaleoRateConstraint> paleoRateConstraints;
 	private List<AveSlipConstraint> aveSlipConstraints;
 	private double[] improbabilityConstraint;
 	private PaleoProbabilityModel paleoProbabilityModel;
 
-	public NSHM_InversionInputGenerator(NSHM_InversionFaultSystemRuptSet rupSet, NSHM_InversionConfiguration config,
+	public NZSHM22_InversionInputGenerator(NZSHM22_InversionFaultSystemRuptSet rupSet, NZSHM22_InversionConfiguration config,
 			List<PaleoRateConstraint> paleoRateConstraints, List<AveSlipConstraint> aveSlipConstraints,
 			double[] improbabilityConstraint, // may become an object in the future
 			PaleoProbabilityModel paleoProbabilityModel) {
@@ -110,8 +110,8 @@ public class NSHM_InversionInputGenerator extends InversionInputGenerator {
 		return defaultProbModel;
 	}
 
-	private static List<InversionConstraint> buildConstraints(NSHM_InversionFaultSystemRuptSet rupSet,
-			NSHM_InversionConfiguration config, List<PaleoRateConstraint> paleoRateConstraints,
+	private static List<InversionConstraint> buildConstraints(NZSHM22_InversionFaultSystemRuptSet rupSet,
+			NZSHM22_InversionConfiguration config, List<PaleoRateConstraint> paleoRateConstraints,
 			List<AveSlipConstraint> aveSlipConstraints, PaleoProbabilityModel paleoProbabilityModel) {
 
 		System.out.println("buildConstraints");
@@ -188,7 +188,7 @@ public class NSHM_InversionInputGenerator extends InversionInputGenerator {
 		// MFD Subsection nucleation MFD constraint
 		ArrayList<SectionMFD_constraint> MFDConstraints = null;
 		if (config.getNucleationMFDConstraintWt() > 0.0) {
-			MFDConstraints = NSHM_FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
+			MFDConstraints = NZSHM22_FaultSystemRupSetCalc.getCharInversionSectMFD_Constraints(rupSet);
 			constraints.add(new MFDSubSectNuclInversionConstraint(rupSet, config.getNucleationMFDConstraintWt(),
 					MFDConstraints));
 		}
@@ -230,7 +230,7 @@ public class NSHM_InversionInputGenerator extends InversionInputGenerator {
 		return constraints;
 	}
 
-	private static double[] buildWaterLevel(NSHM_InversionConfiguration config, FaultSystemRupSet rupSet) {
+	private static double[] buildWaterLevel(NZSHM22_InversionConfiguration config, FaultSystemRupSet rupSet) {
 		double minimumRuptureRateFraction = config.getMinimumRuptureRateFraction();
 		if (minimumRuptureRateFraction > 0) {
 			// set up minimum rupture rates (water level)
@@ -319,7 +319,7 @@ public class NSHM_InversionInputGenerator extends InversionInputGenerator {
 		return distanceAlongRup;
 	}
 
-	public NSHM_InversionConfiguration getConfig() {
+	public NZSHM22_InversionConfiguration getConfig() {
 		return config;
 	}
 

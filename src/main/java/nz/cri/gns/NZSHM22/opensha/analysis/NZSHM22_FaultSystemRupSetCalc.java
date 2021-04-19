@@ -10,7 +10,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 
-public class NSHM_FaultSystemRupSetCalc extends FaultSystemRupSetCalc {
+public class NZSHM22_FaultSystemRupSetCalc extends FaultSystemRupSetCalc {
 
 	/**
 	 * Override the UCERF3 implementation which does something special when

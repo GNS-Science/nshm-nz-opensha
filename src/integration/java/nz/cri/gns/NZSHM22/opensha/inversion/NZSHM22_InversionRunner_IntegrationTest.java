@@ -15,16 +15,16 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import nz.cri.gns.NZSHM22.opensha.inversion.NSHMInversionRunner;
-import nz.cri.gns.NZSHM22.opensha.inversion.NSHM_InversionConfiguration;
-import nz.cri.gns.NZSHM22.opensha.inversion.NSHM_InversionFaultSystemRuptSet;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionConfiguration;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionFaultSystemRuptSet;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 
-public class NSHMInversionRunnerIntegration {
+public class NZSHM22_InversionRunner_IntegrationTest {
 	
 	private static URL alpineVernonRupturesUrl;
 	private static File tempFolder;
@@ -46,7 +46,7 @@ public class NSHMInversionRunnerIntegration {
 	}
 	
 	/**
-	 * Test showing how we create a new NSHM_InversionFaultSystemRuptSet from an existing rupture set
+	 * Test showing how we create a new NZSHM22_InversionFaultSystemRuptSet from an existing rupture set
 	 * 
 	 * @throws IOException
 	 * @throws DocumentException
@@ -56,12 +56,12 @@ public class NSHMInversionRunnerIntegration {
 	public void testLoadRuptureSetForInversion() throws IOException, DocumentException, URISyntaxException {
 		LogicTreeBranch branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT;
 		FaultSystemRupSet rupSetA = FaultSystemIO.loadRupSet(new File(alpineVernonRupturesUrl.toURI()));
-		NSHM_InversionFaultSystemRuptSet ruptureSet = new NSHM_InversionFaultSystemRuptSet(rupSetA, branch);
+		NZSHM22_InversionFaultSystemRuptSet ruptureSet = new NZSHM22_InversionFaultSystemRuptSet(rupSetA, branch);
 		assertEquals(3101, ruptureSet.getClusterRuptures().size());
 	}
 	
 	/**
-	 * Test create a new NSHM_InversionFaultSystemRuptSet from an existing rupture set with no cluster json
+	 * Test create a new NZSHM22_InversionFaultSystemRuptSet from an existing rupture set with no cluster json
 	 * 
 	 * @throws IOException
 	 * @throws DocumentException
@@ -72,12 +72,12 @@ public class NSHMInversionRunnerIntegration {
 		LogicTreeBranch branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT;
 		FaultSystemRupSet rupSetA = FaultSystemIO.loadRupSet(new File(alpineVernonRupturesUrl.toURI()));
 		rupSetA.setClusterRuptures(null); //forces cluster rebuild
-		NSHM_InversionFaultSystemRuptSet ruptureSet = new NSHM_InversionFaultSystemRuptSet(rupSetA, branch);
+		NZSHM22_InversionFaultSystemRuptSet ruptureSet = new NZSHM22_InversionFaultSystemRuptSet(rupSetA, branch);
 		assertEquals(3101, ruptureSet.getClusterRuptures().size());		
 	}	
 		
 	/**
-	 * Top-level NSHMInversionRunner API test
+	 * Top-level NZSHM22_InversionRunner API test
 	 * 
 	 * @throws IOException
 	 * @throws DocumentException
@@ -90,7 +90,7 @@ public class NSHMInversionRunnerIntegration {
         long syncInterval = 1; // seconds between inversion synchronisations
         File solFile = new File(tempFolder, "testAlpineVernonInversion.zip");
 
-           NSHMInversionRunner runner = new NSHMInversionRunner()
+           NZSHM22_InversionRunner runner = new NZSHM22_InversionRunner()
                 .setInversionSeconds(inversionSecs) // or use inversionMinutes
                 .setSyncInterval(syncInterval)
         		.setRuptureSetFile(new File(alpineVernonRupturesUrl.toURI()))

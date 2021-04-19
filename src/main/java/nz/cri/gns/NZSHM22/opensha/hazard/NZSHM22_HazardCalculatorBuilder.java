@@ -24,9 +24,9 @@ import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
- * Creates a NSHMHazardCalculator
+ * Creates a NZSHM22_HazardCalculator
  */
-public class NSHMHazardCalculatorBuilder {
+public class NZSHM22_HazardCalculatorBuilder {
 
     // config
     File solutionFile;
@@ -39,7 +39,7 @@ public class NSHMHazardCalculatorBuilder {
      * @param solutionFile the solution file
      * @return this builder
      */
-    public NSHMHazardCalculatorBuilder setSolutionFile(File solutionFile) {
+    public NZSHM22_HazardCalculatorBuilder setSolutionFile(File solutionFile) {
         this.solutionFile = solutionFile;
         return this;
     }
@@ -49,7 +49,7 @@ public class NSHMHazardCalculatorBuilder {
      * @param solutionFileName the file name of the solution file
      * @return this builder
      */
-    public NSHMHazardCalculatorBuilder setSolutionFile(String solutionFileName) {
+    public NZSHM22_HazardCalculatorBuilder setSolutionFile(String solutionFileName) {
         return setSolutionFile(new File(solutionFileName));
     }
 
@@ -58,7 +58,7 @@ public class NSHMHazardCalculatorBuilder {
      * @param duration the duration in years
      * @return this builder
      */
-    public NSHMHazardCalculatorBuilder setForecastTimespan(double duration) {
+    public NZSHM22_HazardCalculatorBuilder setForecastTimespan(double duration) {
         this.forecastTimespan = duration;
         return this;
     }
@@ -68,7 +68,7 @@ public class NSHMHazardCalculatorBuilder {
      * @param distance the distance in km
      * @return this builder.
      */
-    public NSHMHazardCalculatorBuilder setMaxDistance(double distance) {
+    public NZSHM22_HazardCalculatorBuilder setMaxDistance(double distance) {
         this.maxDistance = distance;
         return this;
     }
@@ -78,7 +78,7 @@ public class NSHMHazardCalculatorBuilder {
      * @param linear whether the result should be a linear curve
      * @return this builder.
      */
-    public NSHMHazardCalculatorBuilder setLinear(boolean linear) {
+    public NZSHM22_HazardCalculatorBuilder setLinear(boolean linear) {
         this.linear = linear;
         return this;
     }
@@ -108,18 +108,18 @@ public class NSHMHazardCalculatorBuilder {
     }
 
     /**
-     * Builds and NSHMHazardCalculator based on the settings.
-     * @return the NSHMHazardCalculator
+     * Builds and NZSHM22_HazardCalculator based on the settings.
+     * @return the NZSHM22_HazardCalculator
      * @throws IOException
      * @throws DocumentException
      */
-    public NSHMHazardCalculator build() throws IOException, DocumentException {
+    public NZSHM22_HazardCalculator build() throws IOException, DocumentException {
         FaultSystemSolutionERF erf = loadERF();
         ScalarIMR gmpe = createGmpe();
         return new ConcreteNSHMHazardCalculator(erf, gmpe);
     }
 
-    class ConcreteNSHMHazardCalculator implements NSHMHazardCalculator {
+    class ConcreteNSHMHazardCalculator implements NZSHM22_HazardCalculator {
 
         FaultSystemSolutionERF erf;
         ScalarIMR gmpe;

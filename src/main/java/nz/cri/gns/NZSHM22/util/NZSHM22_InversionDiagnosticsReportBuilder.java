@@ -4,31 +4,31 @@ import org.dom4j.DocumentException;
 
 import java.io.IOException;
 
-public class NSHMInversionDiagnosticsReportBuilder {
+public class NZSHM22_InversionDiagnosticsReportBuilder {
     String name;
     String ruptureSetName;
     String outputDir;
     String faultFilter;
 
-    public NSHMInversionDiagnosticsReportBuilder() {
+    public NZSHM22_InversionDiagnosticsReportBuilder() {
     }
 
-    public NSHMInversionDiagnosticsReportBuilder setName(String name) {
+    public NZSHM22_InversionDiagnosticsReportBuilder setName(String name) {
         this.name = name;
         return this;
     }
 
-    public NSHMInversionDiagnosticsReportBuilder setRuptureSetName(String ruptureSetName) {
+    public NZSHM22_InversionDiagnosticsReportBuilder setRuptureSetName(String ruptureSetName) {
         this.ruptureSetName = ruptureSetName;
         return this;
     }
 
-    public NSHMInversionDiagnosticsReportBuilder setOutputDir(String outputDir) {
+    public NZSHM22_InversionDiagnosticsReportBuilder setOutputDir(String outputDir) {
         this.outputDir = outputDir;
         return this;
     }
     
-    public NSHMInversionDiagnosticsReportBuilder setFaultFilter(String faultFilter) {
+    public NZSHM22_InversionDiagnosticsReportBuilder setFaultFilter(String faultFilter) {
     	this.faultFilter = faultFilter;
     	return this;
     }
@@ -38,7 +38,7 @@ public class NSHMInversionDiagnosticsReportBuilder {
                 {"--name", name,
                   "--rupture-set", ruptureSetName,
                   "--output-dir", outputDir};        
-        NSHM_InversionRateDiagnosticsPlot.create(args).generatePage();
+        NZSHM22_InversionRateDiagnosticsPlot.create(args).generatePage();
     }
 
     public void generateFilteredInversionDiagnosticsReport() throws IOException, DocumentException {
@@ -47,9 +47,9 @@ public class NSHMInversionDiagnosticsReportBuilder {
                   "--rupture-set", ruptureSetName,
                   "--output-dir", outputDir,
                   "--fault-name", faultFilter};
-        NSHM_FilteredInversionDiagnosticsReport.parseArgs(args);
-        NSHM_FilteredInversionDiagnosticsReport.getReportBuilder().generatePage();
-        //        NSHM_FilteredInversionDiagnosticsReport.createReportBuilder(args).generatePage();
+        NZSHM22_FilteredInversionDiagnosticsReport.parseArgs(args);
+        NZSHM22_FilteredInversionDiagnosticsReport.getReportBuilder().generatePage();
+        //        NZSHM22_FilteredInversionDiagnosticsReport.createReportBuilder(args).generatePage();
     }
     
     

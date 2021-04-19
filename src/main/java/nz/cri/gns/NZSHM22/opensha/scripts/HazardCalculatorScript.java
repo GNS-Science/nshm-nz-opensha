@@ -3,8 +3,8 @@ package nz.cri.gns.NZSHM22.opensha.scripts;
 import org.apache.commons.cli.*;
 import org.dom4j.DocumentException;
 
-import nz.cri.gns.NZSHM22.opensha.hazard.NSHMHazardCalculator;
-import nz.cri.gns.NZSHM22.opensha.hazard.NSHMHazardCalculatorBuilder;
+import nz.cri.gns.NZSHM22.opensha.hazard.NZSHM22_HazardCalculator;
+import nz.cri.gns.NZSHM22.opensha.hazard.NZSHM22_HazardCalculatorBuilder;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ public class HazardCalculatorScript {
 
     public static void main(String[] args) throws ParseException, IOException, DocumentException {
         CommandLine cmd = parseCommandLine(args);
-        NSHMHazardCalculatorBuilder builder = new NSHMHazardCalculatorBuilder()
+        NZSHM22_HazardCalculatorBuilder builder = new NZSHM22_HazardCalculatorBuilder()
                 .setForecastTimespan(Double.parseDouble(cmd.getOptionValue("t")))
                 .setSolutionFile(cmd.getOptionValue("f"))
                 .setLinear("true".equals(cmd.getOptionValue("linear", "false")));
@@ -32,7 +32,7 @@ public class HazardCalculatorScript {
             builder.setMaxDistance(Double.parseDouble(cmd.getOptionValue("maxDistance")));
         }
 
-        NSHMHazardCalculator calculator = builder.build();
+        NZSHM22_HazardCalculator calculator = builder.build();
         System.out.println(
                 calculator.calc(Double.parseDouble(cmd.getOptionValue("lat")),
                         Double.parseDouble(cmd.getOptionValue("lon"))));

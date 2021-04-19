@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.Sets;
 
-import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMRuptureSetBuilder;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_RuptureSetBuilder;
 
 import org.dom4j.DocumentException;
 import org.junit.Test;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NSHMRuptureSetBuilderIntegration {
+public class NZSHM22_RuptureSetBuilder_IntegrationTest {
 
     public boolean hasRuptureWithFaults(Set<Integer> faults, SlipAlongRuptureModelRupSet rupSet) {
         for (ClusterRupture rupture : rupSet.getClusterRuptures()) {
@@ -40,7 +40,7 @@ public class NSHMRuptureSetBuilderIntegration {
         Set<Integer> kaikouraFaults = Sets.newHashSet(95, 132, 136, 149, 162, 178, 189, 245, 310, 387, 400);
 
         SlipAlongRuptureModelRupSet ruptureSet =
-                new NSHMRuptureSetBuilder()
+                new NZSHM22_RuptureSetBuilder()
                         .setFaultModelFile(new File("src/integration/resources/KAIK2016.xml"))
                         .buildRuptureSet();
 
@@ -55,7 +55,7 @@ public class NSHMRuptureSetBuilderIntegration {
         Set<Integer> faults = Sets.newHashSet( 23, 24, 130, 50, 48, 46, 585);
 
         SlipAlongRuptureModelRupSet ruptureSet =
-                new NSHMRuptureSetBuilder()
+                new NZSHM22_RuptureSetBuilder()
                         .setFaultModelFile(new File("src/integration/resources/alpine-vernon.xml"))
                         .buildRuptureSet();
 

@@ -18,10 +18,10 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import nz.cri.gns.NZSHM22.opensha.analysis.NSHM_FaultSystemRupSetCalc;
+import nz.cri.gns.NZSHM22.opensha.analysis.NZSHM22_FaultSystemRupSetCalc;
 import nz.cri.gns.NZSHM22.opensha.data.region.NewZealandRegions;
-import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NSHM_SpatialSeisPDF;
-import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMSlipEnabledRuptureSet;
+import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NZSHM22_SpatialSeisPDF;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_SlipEnabledRuptureSet;
 import scratch.UCERF3.SlipEnabledRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 
@@ -60,10 +60,10 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @author chrisbc
  *
  */
-public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
+public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 
-	NSHM_SpatialSeisPDF spatialSeisPDF;
-	NSHM_SpatialSeisPDF spatialSeisPDFforOnFaultRates;
+	NZSHM22_SpatialSeisPDF spatialSeisPDF;
+	NZSHM22_SpatialSeisPDF spatialSeisPDFforOnFaultRates;
 
 	boolean MFD_STATS = true; //print some curves for analytics
 	
@@ -105,7 +105,7 @@ public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
      * @param mfdMax
      * @return
      */
-    public NSHM_InversionTargetMFDs setGutenbergRichterMFD(double totalRateM5, double bValue, 
+    public NZSHM22_InversionTargetMFDs setGutenbergRichterMFD(double totalRateM5, double bValue, 
     		double mfdTransitionMag, int mfdNum, double mfdMin, double mfdMax ) {
         this.totalRateM5 = totalRateM5; 
         this.bValue = bValue;
@@ -121,7 +121,7 @@ public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
      * @param mfdInequalityConstraintWt
      * @return
      */
-    public NSHM_InversionTargetMFDs setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt, 
+    public NZSHM22_InversionTargetMFDs setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt, 
     		double mfdInequalityConstraintWt) {
     	this.mfdEqualityConstraintWt = mfdEqualityConstraintWt;
     	this.mfdInequalityConstraintWt = mfdInequalityConstraintWt;
@@ -129,7 +129,7 @@ public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
     }       
     
 	@SuppressWarnings("unused")
-	public NSHM_InversionTargetMFDs(NSHM_InversionFaultSystemRuptSet invRupSet) {
+	public NZSHM22_InversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
 		this.invRupSet = invRupSet;
 
 		// TODO: we're getting a UCERF3 LTB now, this needs to be replaced with NSHM
@@ -144,7 +144,7 @@ public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
 		this.mMaxOffFault = 8.05d;
 		this.applyImpliedCouplingCoeff = logicTreeBranch.getValue(MomentRateFixes.class).isApplyCC();	// true if MomentRateFixes = APPLY_IMPLIED_CC or APPLY_CC_AND_RELAX_MFD
 //		this.spatialSeisPDF = logicTreeBranch.getValue(SpatialSeisPDF.class);
-		this.spatialSeisPDF = NSHM_SpatialSeisPDF.NZSHM22_1246;
+		this.spatialSeisPDF = NZSHM22_SpatialSeisPDF.NZSHM22_1246;
 
 		// convert mMaxOffFault to bin center
 		mMaxOffFault -= DELTA_MAG / 2;
@@ -199,15 +199,15 @@ public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
 		// TODO: this is weighted by moment, so exponentially biased to larger ruptures (WHY?)
 		// Kevin weighted by moment (which comes from slip rate) so higher momentrate faults WILL predominate 
 		// NZ many tiny faults will not really contribute much
-		double tempMag = NSHM_FaultSystemRupSetCalc.getMeanMinMag(invRupSet, true);
+		double tempMag = NZSHM22_FaultSystemRupSetCalc.getMeanMinMag(invRupSet, true);
 		
 		//TODO: why derive this from the rupt set and not use mMaxOffFault??
 		aveMinSeismoMag = totalTargetGR.getX(totalTargetGR.getClosestXIndex(tempMag));	// round to nearest MFD value
 		
 		//TODO: why aveMinSeismoMag (Ned??)
 		// seems to calculate our corner magnitude for tapered GR
-		trulyOffFaultMFD = NSHM_FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR, onFaultRegionRateMgt5, aveMinSeismoMag, mMaxOffFault);
-		subSeismoOnFaultMFD_List = NSHM_FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(invRupSet, gridSeisUtils, totalTargetGR);
+		trulyOffFaultMFD = NZSHM22_FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR, onFaultRegionRateMgt5, aveMinSeismoMag, mMaxOffFault);
+		subSeismoOnFaultMFD_List = NZSHM22_FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(invRupSet, gridSeisUtils, totalTargetGR);
 
 		//What are the min magnitude per section
 		if (MFD_STATS) {
@@ -218,11 +218,11 @@ public class NSHM_InversionTargetMFDs extends InversionTargetMFDs {
 		
 		//MATT debug
 		if (MFD_STATS && false) {		
-			//	HistogramFunction hist = NSHM_FaultSystemRupSetCalc.getMagHistogram(invRupSet, MIN_MAG, NUM_MAG+10, DELTA_MAG);
+			//	HistogramFunction hist = NZSHM22_FaultSystemRupSetCalc.getMagHistogram(invRupSet, MIN_MAG, NUM_MAG+10, DELTA_MAG);
 			//
 			// Build our own histogram
 			// using systemWideMinMag of 0.0 here, to get actual values
-			double [] sect_mins =  NSHM_FaultSystemRupSetCalc.computeMinSeismoMagForSections(invRupSet, 0.0d);
+			double [] sect_mins =  NZSHM22_FaultSystemRupSetCalc.computeMinSeismoMagForSections(invRupSet, 0.0d);
 			HistogramFunction hist = new HistogramFunction(0.0d, 90, 0.1d);
 			for (int r=0;r<invRupSet.getNumRuptures(); r++) {
 				hist.add(invRupSet.getMagForRup(r), 1.0);

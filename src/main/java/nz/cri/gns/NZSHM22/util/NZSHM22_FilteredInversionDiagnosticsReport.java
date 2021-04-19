@@ -25,7 +25,7 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 
-public class NSHM_FilteredInversionDiagnosticsReport {
+public class NZSHM22_FilteredInversionDiagnosticsReport {
 	
 	private static FaultSystemRupSet inputRupSet, filtRupSet;
 	private static FaultSystemSolution inputSol, filtSol;

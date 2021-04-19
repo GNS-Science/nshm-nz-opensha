@@ -38,12 +38,12 @@ import java.util.Map;
 /**
  * Runs the standard NSHM inversion on a rupture set.
  */
-public class NSHMInversionRunner {
+public class NZSHM22_InversionRunner {
 
 	protected long inversionSecs = 60;
 	protected long syncInterval = 10;
 	protected int numThreads = Runtime.getRuntime().availableProcessors();
-	protected NSHM_InversionFaultSystemRuptSet rupSet = null;
+	protected NZSHM22_InversionFaultSystemRuptSet rupSet = null;
 	protected List<InversionConstraint> constraints = new ArrayList<>();
 	protected List<CompletionCriteria> completionCriterias = new ArrayList<>();
 	private EnergyChangeCompletionCriteria energyChangeCompletionCriteria = null;
@@ -83,12 +83,12 @@ public class NSHMInversionRunner {
 	protected double mfdEqualityConstraintWt = 10;
 	protected double mfdInequalityConstraintWt = 1000;
 
-	private NSHM_InversionConfiguration inversionConfiguration;
+	private NZSHM22_InversionConfiguration inversionConfiguration;
 
 	/**
-	 * Creates a new NSHMInversionRunner with defaults.
+	 * Creates a new NZSHM22_InversionRunner with defaults.
 	 */
-	public NSHMInversionRunner() {
+	public NZSHM22_InversionRunner() {
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class NSHMInversionRunner {
 	 * @param inversionMinutes the duration of the inversion in minutes.
 	 * @return this runner.
 	 */
-	public NSHMInversionRunner setInversionMinutes(long inversionMinutes) {
+	public NZSHM22_InversionRunner setInversionMinutes(long inversionMinutes) {
 		this.inversionSecs = inversionMinutes * 60;
 		return this;
 	}
@@ -108,7 +108,7 @@ public class NSHMInversionRunner {
 	 * @param inversionSeconds the duration of the inversion in seconds.
 	 * @return this runner.
 	 */
-	public NSHMInversionRunner setInversionSeconds(long inversionSeconds) {
+	public NZSHM22_InversionRunner setInversionSeconds(long inversionSeconds) {
 		this.inversionSecs = inversionSeconds;
 		return this;
 	}
@@ -119,7 +119,7 @@ public class NSHMInversionRunner {
 	 * @param lookBackMins
 	 * @return
 	 */
-	public NSHMInversionRunner setEnergyChangeCompletionCriteria(double energyDelta, double energyPercentDelta,
+	public NZSHM22_InversionRunner setEnergyChangeCompletionCriteria(double energyDelta, double energyPercentDelta,
 			double lookBackMins) {
 		this.energyChangeCompletionCriteria = new EnergyChangeCompletionCriteria(energyDelta, energyPercentDelta,
 				lookBackMins);
@@ -132,7 +132,7 @@ public class NSHMInversionRunner {
 	 * @param syncInterval the interval in seconds.
 	 * @return this runner.
 	 */
-	public NSHMInversionRunner setSyncInterval(long syncInterval) {
+	public NZSHM22_InversionRunner setSyncInterval(long syncInterval) {
 		this.syncInterval = syncInterval;
 		return this;
 	}
@@ -144,7 +144,7 @@ public class NSHMInversionRunner {
 	 * @param numThreads the number of threads.
 	 * @return this runner.
 	 */
-	public NSHMInversionRunner setNumThreads(int numThreads) {
+	public NZSHM22_InversionRunner setNumThreads(int numThreads) {
 		this.numThreads = numThreads;
 		return this;
 	}
@@ -157,7 +157,7 @@ public class NSHMInversionRunner {
 	 * @throws DocumentException
 	 * @throws IOException
 	 */
-	public NSHMInversionRunner setRuptureSetFile(String ruptureSetFileName) throws IOException, DocumentException {
+	public NZSHM22_InversionRunner setRuptureSetFile(String ruptureSetFileName) throws IOException, DocumentException {
 		File rupSetFile = new File(ruptureSetFileName);
 		this.setRuptureSetFile(rupSetFile);
 		return this;
@@ -171,11 +171,11 @@ public class NSHMInversionRunner {
 	 * @throws DocumentException
 	 * @throws IOException
 	 */
-	public NSHMInversionRunner setRuptureSetFile(File ruptureSetFile) throws IOException, DocumentException {
+	public NZSHM22_InversionRunner setRuptureSetFile(File ruptureSetFile) throws IOException, DocumentException {
 		FaultSystemRupSet rupSetA = FaultSystemIO.loadRupSet(ruptureSetFile);
 		LogicTreeBranch branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT;
 
-		this.rupSet = new NSHM_InversionFaultSystemRuptSet(rupSetA, branch);
+		this.rupSet = new NZSHM22_InversionFaultSystemRuptSet(rupSetA, branch);
 		return this;
 
 		/*
@@ -242,7 +242,7 @@ public class NSHMInversionRunner {
 	 * @param mfdMax
 	 * @return
 	 */
-	public NSHMInversionRunner setGutenbergRichterMFD(double totalRateM5, double bValue, double mfdTransitionMag,
+	public NZSHM22_InversionRunner setGutenbergRichterMFD(double totalRateM5, double bValue, double mfdTransitionMag,
 			int mfdNum, double mfdMin, double mfdMax) {
 		this.totalRateM5 = totalRateM5;
 		this.bValue = bValue;
@@ -258,7 +258,7 @@ public class NSHMInversionRunner {
 	 * @param mfdInequalityConstraintWt
 	 * @return
 	 */
-	public NSHMInversionRunner setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt,
+	public NZSHM22_InversionRunner setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt,
 			double mfdInequalityConstraintWt) {
 		this.mfdEqualityConstraintWt = mfdEqualityConstraintWt;
 		this.mfdInequalityConstraintWt = mfdInequalityConstraintWt;
@@ -276,7 +276,7 @@ public class NSHMInversionRunner {
 	 * @param unnormalizedWt
 	 * @return
 	 */
-	public NSHMInversionRunner setSlipRateConstraint(
+	public NZSHM22_InversionRunner setSlipRateConstraint(
 			UCERF3InversionConfiguration.SlipRateConstraintWeightingType weightingType, double normalizedWt,
 			double unnormalizedWt) {
 		this.slipRateWeighting = weightingType;
@@ -285,21 +285,21 @@ public class NSHMInversionRunner {
 		return this;
 	}
 
-	public NSHMInversionRunner setInversionConfiguration(NSHM_InversionConfiguration config) {
+	public NZSHM22_InversionRunner setInversionConfiguration(NZSHM22_InversionConfiguration config) {
 		System.out.println("Building Inversion Configuration");
 		inversionConfiguration = config;
 		return this;
 	}
 
-	public NSHMInversionRunner configure() {
+	public NZSHM22_InversionRunner configure() {
 		LogicTreeBranch logicTreeBranch = this.rupSet.getLogicTreeBranch();
 		InversionModels inversionModel = logicTreeBranch.getValue(InversionModels.class);
 
 		// this contains all inversion weights
-		inversionConfiguration = NSHM_InversionConfiguration.forModel(inversionModel, rupSet, mfdEqualityConstraintWt,
+		inversionConfiguration = NZSHM22_InversionConfiguration.forModel(inversionModel, rupSet, mfdEqualityConstraintWt,
 				mfdInequalityConstraintWt);
 		
-//		inversionConfiguration = NSHM_SubductionInversionConfiguration.forModel(inversionModel, rupSet,
+//		inversionConfiguration = NZSHM22_SubductionInversionConfiguration.forModel(inversionModel, rupSet,
 //				mfdEqualityConstraintWt, mfdInequalityConstraintWt);
 		return this;
 	}
@@ -336,7 +336,7 @@ public class NSHMInversionRunner {
 		// System.exit(1);
 		// }
 
-		NSHM_InversionInputGenerator inputGen = new NSHM_InversionInputGenerator(rupSet, inversionConfiguration, null,
+		NZSHM22_InversionInputGenerator inputGen = new NZSHM22_InversionInputGenerator(rupSet, inversionConfiguration, null,
 				aveSlipConstraints, null, null);
 
 		inputGen.generateInputs(true);

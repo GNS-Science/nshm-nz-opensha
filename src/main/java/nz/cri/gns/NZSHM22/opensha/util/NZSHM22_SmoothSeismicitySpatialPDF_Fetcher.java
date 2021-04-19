@@ -12,7 +12,7 @@ import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.util.ExceptionUtils;
 
-import nz.cri.gns.NZSHM22.opensha.griddedSeismicity.NSHM_GridReader;
+import nz.cri.gns.NZSHM22.opensha.griddedSeismicity.NZSHM22_GridReader;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -28,7 +28,7 @@ import scratch.UCERF3.griddedSeismicity.GridReader;
  *
  */
 
-public class NSHM_SmoothSeismicitySpatialPDF_Fetcher {
+public class NZSHM22_SmoothSeismicitySpatialPDF_Fetcher {
 
 	public static final String SUBDIR = "SeismicityGrids";
 	public static final String FILENAME_1246 = "BEST2FLTOLDNC1246.txt";
@@ -37,19 +37,19 @@ public class NSHM_SmoothSeismicitySpatialPDF_Fetcher {
 	public static final String FILENAME_1456_R = "BESTFLTOLDNC1456r.txt";
 
 	public static double[] get1246() {
-		return new NSHM_GridReader(FILENAME_1246).getValues();
+		return new NZSHM22_GridReader(FILENAME_1246).getValues();
 	}
 
 	public static double[] get1456() {
-		return new NSHM_GridReader(FILENAME_1456).getValues();
+		return new NZSHM22_GridReader(FILENAME_1456).getValues();
 	}
 
 	public static double[] get1246R() {
-		return new NSHM_GridReader(FILENAME_1246_R).getValues();
+		return new NZSHM22_GridReader(FILENAME_1246_R).getValues();
 	}
 
 	public static double[] get1456R() {
-		return new NSHM_GridReader(FILENAME_1456_R).getValues();
+		return new NZSHM22_GridReader(FILENAME_1456_R).getValues();
 	}
 
 //	public static GriddedGeoDataSet getUCERF2pdfAsGeoData() {

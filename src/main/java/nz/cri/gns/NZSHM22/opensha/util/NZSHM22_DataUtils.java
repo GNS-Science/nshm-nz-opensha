@@ -10,7 +10,7 @@ import java.net.URLConnection;
 
 import com.google.common.base.Preconditions;
 
-public class NSHM_DataUtils {
+public class NZSHM22_DataUtils {
 
 	static final String s = File.separator;
 
@@ -37,7 +37,7 @@ public class NSHM_DataUtils {
 	 */
 	public static URL locateResource(String... pathElements) {
 		String relativePath = getRelativePath(pathElements);
-		URL url = NSHM_DataUtils.class.getResource(relativePath);
+		URL url = NZSHM22_DataUtils.class.getResource(relativePath);
 		Preconditions.checkNotNull(url,
 				"Resource '" + pathElements[pathElements.length - 1] + "' could not be located: " + relativePath);
 		return url;
@@ -69,7 +69,7 @@ public class NSHM_DataUtils {
 	 */
 	public static InputStream locateResourceAsStream(String... pathElements) {
 		String relativePath = getRelativePath(pathElements);
-		InputStream stream = NSHM_DataUtils.class.getResourceAsStream(relativePath);
+		InputStream stream = NZSHM22_DataUtils.class.getResourceAsStream(relativePath);
 		Preconditions.checkNotNull(stream,
 				"Resource '" + pathElements[pathElements.length - 1] + "' could not be located: " + relativePath);
 		return stream;

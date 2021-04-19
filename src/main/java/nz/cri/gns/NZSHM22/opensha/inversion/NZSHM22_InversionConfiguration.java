@@ -28,7 +28,7 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
  * @author chrisbc
  *
  */
-public class NSHM_InversionConfiguration implements XMLSaveable {
+public class NZSHM22_InversionConfiguration implements XMLSaveable {
 
 	public static final String XML_METADATA_NAME = "InversionConfiguration";
 
@@ -76,10 +76,10 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 	/**
 	 * 
 	 */
-	public NSHM_InversionConfiguration() {
+	public NZSHM22_InversionConfiguration() {
 	}
 
-//	NSHM_InversionConfiguration(
+//	NZSHM22_InversionConfiguration(
 //			double slipRateConstraintWt_normalized,
 //			double slipRateConstraintWt_unnormalized,
 //			SlipRateConstraintWeightingType slipRateWeighting,
@@ -172,7 +172,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 	 * @param rupSet
 	 * @return
 	 */
-	public static NSHM_InversionConfiguration forModel(InversionModels model, NSHM_InversionFaultSystemRuptSet rupSet) {
+	public static NZSHM22_InversionConfiguration forModel(InversionModels model, NZSHM22_InversionFaultSystemRuptSet rupSet) {
 		double mfdEqualityConstraintWt = DEFAULT_MFD_EQUALITY_WT;
 		double mfdInequalityConstraintWt = DEFAULT_MFD_INEQUALITY_WT;
 
@@ -193,7 +193,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 	 *                                  (recommended: 1000)
 	 * @return
 	 */
-	public static NSHM_InversionConfiguration forModel(InversionModels model, NSHM_InversionFaultSystemRuptSet rupSet,
+	public static NZSHM22_InversionConfiguration forModel(InversionModels model, NZSHM22_InversionFaultSystemRuptSet rupSet,
 			double mfdEqualityConstraintWt, double mfdInequalityConstraintWt) {
 		return forModel(model, rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt, null);
 	}
@@ -214,7 +214,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 	 *                                  null)
 	 * @return
 	 */
-	public static NSHM_InversionConfiguration forModel(InversionModels model, NSHM_InversionFaultSystemRuptSet rupSet,
+	public static NZSHM22_InversionConfiguration forModel(InversionModels model, NZSHM22_InversionFaultSystemRuptSet rupSet,
 			double mfdEqualityConstraintWt, double mfdInequalityConstraintWt, CommandLine modifiers) {
 
 		/*
@@ -270,7 +270,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		double momentConstraintWt = 0;
 
 		// get MFD constraints
-		List<MFD_InversionConstraint> mfdConstraints = ((NSHM_InversionTargetMFDs) rupSet.getInversionTargetMFDs())
+		List<MFD_InversionConstraint> mfdConstraints = ((NZSHM22_InversionTargetMFDs) rupSet.getInversionTargetMFDs())
 				.getMFDConstraints();
 
 		double MFDTransitionMag = 7.85; // magnitude to switch from MFD equality to MFD inequality
@@ -388,7 +388,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		}
 
 		// NSHM-style config using setter methods...
-		NSHM_InversionConfiguration newConfig = new NSHM_InversionConfiguration()
+		NZSHM22_InversionConfiguration newConfig = new NZSHM22_InversionConfiguration()
 		// MFD config
 //				.setMagnitudeEqualityConstraintWt(mfdEqualityConstraintWt)
 //				.setMagnitudeInequalityConstraintWt(mfdInequalityConstraintWt)
@@ -443,7 +443,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return slipRateConstraintWt_normalized;
 	}
 
-	public NSHM_InversionConfiguration setSlipRateConstraintWt_normalized(double slipRateConstraintWt_normalized) {
+	public NZSHM22_InversionConfiguration setSlipRateConstraintWt_normalized(double slipRateConstraintWt_normalized) {
 		this.slipRateConstraintWt_normalized = slipRateConstraintWt_normalized;
 		return this;
 	}
@@ -452,7 +452,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return slipRateConstraintWt_unnormalized;
 	}
 
-	public NSHM_InversionConfiguration setSlipRateConstraintWt_unnormalized(double slipRateConstraintWt_unnormalized) {
+	public NZSHM22_InversionConfiguration setSlipRateConstraintWt_unnormalized(double slipRateConstraintWt_unnormalized) {
 		this.slipRateConstraintWt_unnormalized = slipRateConstraintWt_unnormalized;
 		return this;
 	}
@@ -461,7 +461,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return slipRateWeighting;
 	}
 
-	public NSHM_InversionConfiguration setSlipRateWeightingType(SlipRateConstraintWeightingType slipRateWeighting) {
+	public NZSHM22_InversionConfiguration setSlipRateWeightingType(SlipRateConstraintWeightingType slipRateWeighting) {
 		this.slipRateWeighting = slipRateWeighting;
 		return this;
 	}
@@ -486,7 +486,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return magnitudeEqualityConstraintWt;
 	}
 
-	public NSHM_InversionConfiguration setMagnitudeEqualityConstraintWt(double relativeMagnitudeEqualityConstraintWt) {
+	public NZSHM22_InversionConfiguration setMagnitudeEqualityConstraintWt(double relativeMagnitudeEqualityConstraintWt) {
 		this.magnitudeEqualityConstraintWt = relativeMagnitudeEqualityConstraintWt;
 		return this;
 	}
@@ -495,7 +495,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return magnitudeInequalityConstraintWt;
 	}
 
-	public NSHM_InversionConfiguration setMagnitudeInequalityConstraintWt(
+	public NZSHM22_InversionConfiguration setMagnitudeInequalityConstraintWt(
 			double relativeMagnitudeInequalityConstraintWt) {
 		this.magnitudeInequalityConstraintWt = relativeMagnitudeInequalityConstraintWt;
 		return this;
@@ -505,7 +505,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 //		return rupRateConstraintWt;
 //	}
 //
-//	public NSHM_InversionConfiguration setRupRateConstraintWt(double relativeRupRateConstraintWt) {
+//	public NZSHM22_InversionConfiguration setRupRateConstraintWt(double relativeRupRateConstraintWt) {
 //		this.rupRateConstraintWt = relativeRupRateConstraintWt;
 //		return this;
 //	}
@@ -532,7 +532,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return minimizationConstraintWt;
 	}
 
-	public NSHM_InversionConfiguration setMinimizationConstraintWt(double relativeMinimizationConstraintWt) {
+	public NZSHM22_InversionConfiguration setMinimizationConstraintWt(double relativeMinimizationConstraintWt) {
 		this.minimizationConstraintWt = relativeMinimizationConstraintWt;
 		return this;
 	}
@@ -558,7 +558,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return initialRupModel;
 	}
 
-	public NSHM_InversionConfiguration setInitialRupModel(double[] initialRupModel) {
+	public NZSHM22_InversionConfiguration setInitialRupModel(double[] initialRupModel) {
 		this.initialRupModel = initialRupModel;
 		return this;
 	}
@@ -567,7 +567,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return minimumRuptureRateBasis;
 	}
 
-	public NSHM_InversionConfiguration setMinimumRuptureRateBasis(double[] minimumRuptureRateBasis) {
+	public NZSHM22_InversionConfiguration setMinimumRuptureRateBasis(double[] minimumRuptureRateBasis) {
 		this.minimumRuptureRateBasis = minimumRuptureRateBasis;
 		return this;
 	}
@@ -585,7 +585,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return nucleationMFDConstraintWt;
 	}
 
-	public NSHM_InversionConfiguration setNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
+	public NZSHM22_InversionConfiguration setNucleationMFDConstraintWt(double relativeNucleationMFDConstraintWt) {
 		this.nucleationMFDConstraintWt = relativeNucleationMFDConstraintWt;
 		return this;
 	}
@@ -610,7 +610,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return mfdEqualityConstraints;
 	}
 
-	public NSHM_InversionConfiguration setMfdEqualityConstraints(List<MFD_InversionConstraint> mfdEqualityConstraints) {
+	public NZSHM22_InversionConfiguration setMfdEqualityConstraints(List<MFD_InversionConstraint> mfdEqualityConstraints) {
 		this.mfdEqualityConstraints = mfdEqualityConstraints;
 		return this;
 	}
@@ -619,7 +619,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return mfdInequalityConstraints;
 	}
 
-	public NSHM_InversionConfiguration setMfdInequalityConstraints(
+	public NZSHM22_InversionConfiguration setMfdInequalityConstraints(
 			List<MFD_InversionConstraint> mfdInequalityConstraints) {
 		this.mfdInequalityConstraints = mfdInequalityConstraints;
 		return this;
@@ -629,7 +629,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return minimumRuptureRateFraction;
 	}
 
-	public NSHM_InversionConfiguration setMinimumRuptureRateFraction(double minimumRuptureRateFraction) {
+	public NZSHM22_InversionConfiguration setMinimumRuptureRateFraction(double minimumRuptureRateFraction) {
 		this.minimumRuptureRateFraction = minimumRuptureRateFraction;
 		return this;
 	}
@@ -650,7 +650,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 //		return eventRateSmoothnessWt;
 //	}
 //
-//	public NSHM_InversionConfiguration setEventRateSmoothnessWt(double eventRateSmoothnessWt) {
+//	public NZSHM22_InversionConfiguration setEventRateSmoothnessWt(double eventRateSmoothnessWt) {
 //		this.eventRateSmoothnessWt = eventRateSmoothnessWt;
 //	}
 //	
@@ -658,7 +658,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 //		return rupRateSmoothingConstraintWt;
 //	}
 //
-//	public NSHM_InversionConfiguration setRupRateSmoothingConstraintWt(double rupRateSmoothingConstraintWt) {
+//	public NZSHM22_InversionConfiguration setRupRateSmoothingConstraintWt(double rupRateSmoothingConstraintWt) {
 //		this.rupRateSmoothingConstraintWt = rupRateSmoothingConstraintWt;
 //	}
 
@@ -672,7 +672,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 		return MFDTransitionMag;
 	}
 
-	public NSHM_InversionConfiguration setMFDTransitionMag(double mFDTransitionMag) {
+	public NZSHM22_InversionConfiguration setMFDTransitionMag(double mFDTransitionMag) {
 		MFDTransitionMag = mFDTransitionMag;
 		return this;
 	}
@@ -740,7 +740,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 			subEls.get(i).addAttribute("index", i + "");
 	}
 
-//	public static NSHM_InversionConfiguration fromXMLMetadata(Element confEl) {
+//	public static NZSHM22_InversionConfiguration fromXMLMetadata(Element confEl) {
 //		double slipRateConstraintWt_normalized = Double.parseDouble(confEl.attributeValue("slipRateConstraintWt_normalized"));
 //		double slipRateConstraintWt_unnormalized = Double.parseDouble(confEl.attributeValue("slipRateConstraintWt_unnormalized"));
 //		SlipRateConstraintWeightingType slipRateWeighting = SlipRateConstraintWeightingType.valueOf(confEl.attributeValue("slipRateWeighting"));
@@ -766,7 +766,7 @@ public class NSHM_InversionConfiguration implements XMLSaveable {
 //		List<MFD_InversionConstraint> mfdEqualityConstraints = mfdsFromXML(confEl.element("MFD_EqualityConstraints"));
 //		List<MFD_InversionConstraint> mfdInequalityConstraints = mfdsFromXML(confEl.element("MFD_InequalityConstraints"));
 //		
-//		return new NSHM_InversionConfiguration(slipRateConstraintWt_normalized, slipRateConstraintWt_unnormalized, slipRateWeighting, paleoRateConstraintWt,
+//		return new NZSHM22_InversionConfiguration(slipRateConstraintWt_normalized, slipRateConstraintWt_unnormalized, slipRateWeighting, paleoRateConstraintWt,
 //				paleoSlipConstraintWt, magnitudeEqualityConstraintWt, magnitudeInequalityConstraintWt, rupRateConstraintWt,
 //				participationSmoothnessConstraintWt, participationConstraintMagBinSize, nucleationMFDConstraintWt,
 //				mfdSmoothnessConstraintWt, mfdSmoothnessConstraintWtForPaleoParents, rupRateSmoothingConstraintWt,

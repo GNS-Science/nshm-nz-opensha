@@ -28,7 +28,7 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
  * @author chrisbc
  *
  */
-public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfiguration {
+public class NZSHM22_SubductionInversionConfiguration extends NZSHM22_InversionConfiguration {
 
 	public static final String XML_METADATA_NAME = "InversionConfiguration";
 
@@ -59,7 +59,7 @@ public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfigu
 	/**
 	 *
 	 */
-	public NSHM_SubductionInversionConfiguration() {
+	public NZSHM22_SubductionInversionConfiguration() {
 	}
 
 	public static final double DEFAULT_MFD_EQUALITY_WT = 10;
@@ -73,8 +73,8 @@ public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfigu
 	 * @param rupSet
 	 * @return
 	 */
-	public static NSHM_SubductionInversionConfiguration forModel(InversionModels model,
-			NSHM_InversionFaultSystemRuptSet rupSet) {
+	public static NZSHM22_SubductionInversionConfiguration forModel(InversionModels model,
+			NZSHM22_InversionFaultSystemRuptSet rupSet) {
 		double mfdEqualityConstraintWt = DEFAULT_MFD_EQUALITY_WT;
 		double mfdInequalityConstraintWt = DEFAULT_MFD_INEQUALITY_WT;
 
@@ -95,8 +95,8 @@ public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfigu
 	 *                                  (recommended: 1000)
 	 * @return
 	 */
-	public static NSHM_SubductionInversionConfiguration forModel(InversionModels model,
-			NSHM_InversionFaultSystemRuptSet rupSet, double mfdEqualityConstraintWt, double mfdInequalityConstraintWt) {
+	public static NZSHM22_SubductionInversionConfiguration forModel(InversionModels model,
+			NZSHM22_InversionFaultSystemRuptSet rupSet, double mfdEqualityConstraintWt, double mfdInequalityConstraintWt) {
 		return forModel(model, rupSet, mfdEqualityConstraintWt, mfdInequalityConstraintWt, null);
 	}
 
@@ -116,8 +116,8 @@ public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfigu
 	 *                                  null)
 	 * @return
 	 */
-	public static NSHM_SubductionInversionConfiguration forModel(InversionModels model,
-			NSHM_InversionFaultSystemRuptSet rupSet, double mfdEqualityConstraintWt, double mfdInequalityConstraintWt,
+	public static NZSHM22_SubductionInversionConfiguration forModel(InversionModels model,
+			NZSHM22_InversionFaultSystemRuptSet rupSet, double mfdEqualityConstraintWt, double mfdInequalityConstraintWt,
 			CommandLine modifiers) {
 
 		/*
@@ -166,7 +166,7 @@ public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfigu
 //		double momentConstraintWt = 0;
 
 		// setup MFD constraints
-		NSHM_SubductionInversionTargetMFDs inversionMFDs = new NSHM_SubductionInversionTargetMFDs(rupSet);
+		NZSHM22_SubductionInversionTargetMFDs inversionMFDs = new NZSHM22_SubductionInversionTargetMFDs(rupSet);
 		rupSet.setInversionTargetMFDs(inversionMFDs);
 		List<MFD_InversionConstraint> mfdConstraints = inversionMFDs.getMFDConstraints();
 
@@ -223,7 +223,7 @@ public class NSHM_SubductionInversionConfiguration extends NSHM_InversionConfigu
 		}
 
 		// NSHM-style config using setter methods...
-		NSHM_SubductionInversionConfiguration newConfig = (NSHM_SubductionInversionConfiguration) new NSHM_SubductionInversionConfiguration()
+		NZSHM22_SubductionInversionConfiguration newConfig = (NZSHM22_SubductionInversionConfiguration) new NZSHM22_SubductionInversionConfiguration()
 				// MFD config
 				.setMagnitudeEqualityConstraintWt(mfdEqualityConstraintWt)
 				.setMagnitudeInequalityConstraintWt(mfdInequalityConstraintWt)

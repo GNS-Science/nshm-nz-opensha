@@ -20,12 +20,12 @@ import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
  * TODO: examine why/how this is different to standard UCERF3 code.
  *
  */
-public class NSHMSlipEnabledRuptureSet extends SlipAlongRuptureModelRupSet {
+public class NZSHM22_SlipEnabledRuptureSet extends SlipAlongRuptureModelRupSet {
 
 	private double[] rupAveSlips;
 	private static final long serialVersionUID = -4984738430816137976L;
 
-	public NSHMSlipEnabledRuptureSet(List<ClusterRupture> ruptures, List<FaultSection> subSections,
+	public NZSHM22_SlipEnabledRuptureSet(List<ClusterRupture> ruptures, List<FaultSection> subSections,
 			ScalingRelationships scale, SlipAlongRuptureModels slipAlongModel) {
 		super(slipAlongModel);
 

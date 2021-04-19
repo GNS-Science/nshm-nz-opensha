@@ -33,7 +33,7 @@ import org.opensha.sha.earthquake.faultSysSolution.ruptures.util.*;
 import com.google.common.base.Preconditions;
 
 
-public class NSHM_InversionRateDiagnosticsPlot extends RupSetDiagnosticsPageGen {
+public class NZSHM22_InversionRateDiagnosticsPlot extends RupSetDiagnosticsPageGen {
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		System.setProperty("java.awt.headless", "true");
@@ -41,7 +41,7 @@ public class NSHM_InversionRateDiagnosticsPlot extends RupSetDiagnosticsPageGen 
 		System.out.println("Done!");
 	}
 
-	public static NSHM_InversionRateDiagnosticsPlot create(String[] args) throws IOException, DocumentException {
+	public static NZSHM22_InversionRateDiagnosticsPlot create(String[] args) throws IOException, DocumentException {
 		Options options = createOptions();
 
 		CommandLineParser parser = new DefaultParser();
@@ -56,10 +56,10 @@ public class NSHM_InversionRateDiagnosticsPlot extends RupSetDiagnosticsPageGen 
 			formatter.printHelp(ClassUtils.getClassNameWithoutPackage(RupSetDiagnosticsPageGen.class), options, true);
 			System.exit(2);
 		}
-		return new NSHM_InversionRateDiagnosticsPlot(cmd);
+		return new NZSHM22_InversionRateDiagnosticsPlot(cmd);
 	}
 
-	public NSHM_InversionRateDiagnosticsPlot(CommandLine cmd) throws IOException, DocumentException {
+	public NZSHM22_InversionRateDiagnosticsPlot(CommandLine cmd) throws IOException, DocumentException {
 		super(cmd);
 	};
 

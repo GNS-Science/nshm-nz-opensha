@@ -15,11 +15,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
 
-import nz.cri.gns.NZSHM22.opensha.inversion.NSHMInversionRunner;
-import nz.cri.gns.NZSHM22.opensha.inversion.NSHM_InversionConfiguration;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionConfiguration;
 import nz.cri.gns.NZSHM22.opensha.ruptures.FaultIdFilter;
-import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMRuptureSetBuilder;
-import nz.cri.gns.NZSHM22.opensha.ruptures.NSHMRuptureSetBuilder.RupturePermutationStrategy;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_RuptureSetBuilder;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_RuptureSetBuilder.RupturePermutationStrategy;
 
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.ClusterRupture;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.FaultSubsectionCluster;
@@ -65,7 +65,7 @@ public class scriptCrustalInversionRunner {
 //        File rupSetFile = new File(outputDir, "CFM_crustal_rupture_set.zip");
         File rupSetFile = new File(outputDir, "CFM_hk_slipdef50_TMG2_rupture_set.zip");
 
-        NSHMRuptureSetBuilder builder = new NSHMRuptureSetBuilder();
+        NZSHM22_RuptureSetBuilder builder = new NZSHM22_RuptureSetBuilder();
 
         //		.setFaultIdIn(Sets.newHashSet(89, 90, 91, 92, 93));
         //		.setMaxFaultSections(2000) 	// overide defauls like so
@@ -186,7 +186,7 @@ public class scriptCrustalInversionRunner {
             syncInterval = Long.parseLong(cmd.getOptionValue("syncInterval"));
         }
 
-        NSHMInversionRunner runner = new NSHMInversionRunner()
+        NZSHM22_InversionRunner runner = new NZSHM22_InversionRunner()
                 .setInversionMinutes(inversionMins)
                 .setSyncInterval(syncInterval)
         		.setRuptureSetFile(rupSetFile)

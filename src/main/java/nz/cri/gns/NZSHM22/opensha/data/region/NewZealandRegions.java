@@ -7,7 +7,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
 
-import nz.cri.gns.NZSHM22.opensha.util.NSHM_DataUtils;
+import nz.cri.gns.NZSHM22.opensha.util.NZSHM22_DataUtils;
 
 public class NewZealandRegions {
 
@@ -102,7 +102,7 @@ public class NewZealandRegions {
 	private static LocationList readCoords(String filename, boolean latitudeFirst) {
 		BufferedReader br;
 		try {
-			br = new BufferedReader(NSHM_DataUtils.getReader(DATA_DIR, filename));
+			br = new BufferedReader(NZSHM22_DataUtils.getReader(DATA_DIR, filename));
 			LocationList ll = new LocationList();
 			String[] vals;
 			String s;

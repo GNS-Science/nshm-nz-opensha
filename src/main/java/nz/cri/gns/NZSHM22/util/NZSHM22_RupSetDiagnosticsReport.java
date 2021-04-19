@@ -60,7 +60,7 @@ class FaultMeta {
 	}
 }
 
-public class NSHM_RupSetDiagnosticsReport {
+public class NZSHM22_RupSetDiagnosticsReport {
 	
 	private static FaultSystemRupSet inputRupSet, filtRupSet;
 	private static FaultSystemSolution inputSol, filtSol;

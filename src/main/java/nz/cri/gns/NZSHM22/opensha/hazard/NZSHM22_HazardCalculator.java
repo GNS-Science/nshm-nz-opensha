@@ -5,7 +5,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 /**
  * Encapsulates everything needed to calculate a hazard.
  */
-public interface NSHMHazardCalculator {
+public interface NZSHM22_HazardCalculator {
 
     /**
      * Takes a site and returns the hazard.
