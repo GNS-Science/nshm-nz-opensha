@@ -146,13 +146,6 @@ public class NZSHM22_RupSetDiagnosticsReport {
 	
 		System.out.println("Done!");
 	}
-
-//	public static RupSetDiagnosticsPageGen getReportBuilder() throws IOException, DocumentException {
-//		//		Preconditions.checkState(filtRupSet != null,
-//		//				"filtRupSet is null, please applyFilter() before this method");
-//		//applyFilter(filterExpression); 
-//		return new RupSetDiagnosticsPageGen(filtRupSet, filtSol, inputName, outputDir);
-//	}
 	
 //	static void parseArgs(String [] args) throws IOException, DocumentException {
 //		Options options = RupSetDiagnosticsPageGen.createOptions();
