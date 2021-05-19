@@ -17,12 +17,15 @@ from dateutil.tz import tzutc
 from nshm_toshi_client.general_task import GeneralTask
 from scaling.rupture_set_task_factory import RuptureSetTaskFactory
 
+
 API_URL  = os.getenv('TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
 API_KEY = os.getenv('TOSHI_API_KEY', "")
 S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
 
+USE_API = False
+JAVA_THREADS = 4
 
-def run_tasks(general_task_id, models, crustal_files, jump_limits, ddw_ratios, strategies,
+def run_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors, max_sections = 1000):
 
     #set up a task_factory with default config
@@ -92,18 +95,44 @@ def run_tasks(general_task_id, models, crustal_files, jump_limits, ddw_ratios, s
                                 os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
                                 yield str(script_file_path)
-                            return
+
 
 if __name__ == "__main__":
 
-    USE_API = True
-    JAVA_THREADS = 4
+    t0 = dt.datetime.utcnow()
 
-    #get the root path for the task local data
-    root_folder = PurePath(os.getcwd())
+    general_task_id = None
 
-    #limit test size, nomally 1000 for NZ CFM
-    max_sections = 200
+    """
+    Notes from Andy Nicol discussion
+
+    1) Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults
+
+    With all else being 'standard' UCERF3 settings, build rupture sets from
+    these NZ fault models:
+
+    permutations:
+     - thinning_factors = [0.0, 0.1]
+     - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90", "CFM_0_9_ALL_D90"]
+
+    NB "SANSTVZ" means without Taupo Volcanic Zone faults. Note that a
+    few TVZ faults are re-included in the CFM0.9 version Fault model.
+
+
+    2) Examine practical limits, varying UCERF3 max jump distance.
+
+    Goal: Explore the practical limits of jump distance using the NZ CFM fault models.
+
+    All other parameters as per UCERF3.
+
+    Running on cluster nodes (with 1TB memory) and up to 24 hour wall time, what
+    rupture sets can we sucessfully build.
+
+    permutations:
+
+    jump_limits = [5.0, 6.0, 7.0. 8.0, 9.0 , 10.0]
+
+    """
 
     if USE_API:
         headers={"x-api-key":API_KEY}
@@ -112,23 +141,28 @@ if __name__ == "__main__":
         general_task_id = general_api.create_task(
             created=dt.datetime.now(tzutc()).isoformat(),
             agent_name=pwd.getpwuid(os.getuid()).pw_name,
-            title="Build crustal ruptures with run_rupture_sets.py with new FM enum",
-            description="""with more sub-tasks and max_sections=200
+            title="Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults",
 
-            FM with pooling for paralleled tasks
-            """
+            description="""With all else being 'standard' UCERF3 settings, build rupture sets from these NZ fault models:
+
+permutations:
+ - thinning_factors = [0.0, 0.1]
+ - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90", "CFM_0_9_ALL_D90"]
+
+NB "SANSTVZ" means without Taupo Volcanic Zone faults. Note that a few TVZ faults are re-included in the CFM0.9 version Fault model."""
         )
 
     ##Test parameters
-    crustal_files = {}
-    models = ["CFM_0_3_SANSTVZ"] #"CFM_0_9_SANSTVZ_D90"]
-
+    models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90", "CFM_0_9_ALL_D90"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
-    jump_limits = [4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
+    jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
     min_sub_sects_per_parents = [2,] #3,4]
     max_cumulative_azimuths = [560.0,] # 580.0, 600.0]
-    thinning_factors = [0.0,] # 0.05, 0.1, 0.2]
+    thinning_factors = [0.0, 0.1] #, 0.05, 0.1, 0.2]
+
+    #limit test size, nomally 1000 for NZ CFM
+    max_sections = 2000
 
     #Run the tasks....
     #actually run them ....
@@ -136,7 +170,7 @@ if __name__ == "__main__":
 
     scripts = []
     for script_file in run_tasks(general_task_id, models,
-        crustal_files, jump_limits, ddw_ratios, strategies,
+        jump_limits, ddw_ratios, strategies,
         max_cumulative_azimuths, min_sub_sects_per_parents,
         thinning_factors, max_sections):
 
@@ -151,4 +185,4 @@ if __name__ == "__main__":
     pool.close()
     pool.join()
 
-    print("Done!")
+    print("Done! in %s secs" % (dt.datetime.utcnow() - t0).total_seconds())

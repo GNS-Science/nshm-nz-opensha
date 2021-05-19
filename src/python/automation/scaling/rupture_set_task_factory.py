@@ -31,7 +31,7 @@ class RuptureSetTaskFactory():
         self._pbs_nodes = 1 #always ust one PBS node (and which one we don't know)
         self._pbs_wall_hours = pbs_wall_hours #defines maximum time the jobs is allocated by PBS
 
-        self._jre_path = jre_path or "/opt/sw/java/java-se-8u41-ri/bin"
+        self._jre_path = jre_path or "/opt/sw/java/java-11-openjdk-amd64/bin/java"
         self._app_jar_path = app_jar_path or "~/NSHM/opensha/nshm-nz-opensha/build/libs/nshm-nz-opensha-all.jar"
         self._config_path = task_config_path or os.getcwd()
         self._script_path = os.path.dirname(scaling.rupture_set_builder_task.__file__) #path to the actual task script
