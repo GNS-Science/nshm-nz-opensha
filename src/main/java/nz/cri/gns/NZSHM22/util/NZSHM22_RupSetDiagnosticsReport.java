@@ -75,8 +75,8 @@ public class NZSHM22_RupSetDiagnosticsReport {
 
 		ArrayList<FileMeta> metadataList = new ArrayList<FileMeta>();
 		
-		inputDir = new File("../DATA");
-		File outputRoot = new File("../DATA");
+		inputDir = new File("../DATA/2022-05-19-02");
+		File outputRoot = new File("../DATA/2022-05-19-02");
 				
 		//Set up metadata
 //		metadataList.add(new FileMeta(
@@ -106,18 +106,18 @@ public class NZSHM22_RupSetDiagnosticsReport {
 				"CFM0.9", "UCERF3", "dflt"));
 		metadataList.add(new FileMeta(
 				"RupSet_Az_FM(CFM_0_3_SANSTVZ)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip",
-				"CFM0.3", "UCERF33", "dflt"));		
+				"CFM0.3", "UCERF3", "dflt"));		
 		metadataList.add(new FileMeta(
 				"RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip",
 				"CFM0.9", "UCERF3", "thin 0.1"));
 		metadataList.add(new FileMeta(
 				"RupSet_Az_FM(CFM_0_3_SANSTVZ)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip",
-				"CFM0.3", "UCERF33", "thin 0.1"));		
+				"CFM0.3", "UCERF3", "thin 0.1"));		
 		
 		ArrayList<FaultMeta> faultList = new ArrayList<FaultMeta>();		
-		faultList.add(new FaultMeta("Wellington Hutt Valley", "WHV"));
-		faultList.add(new FaultMeta("Alpine Kaniere to Springs Junction", "AKSJ"));
-		faultList.add(new FaultMeta("Kekerengu", "KKR"));
+//		faultList.add(new FaultMeta("Wellington Hutt Valley", "WHV"));
+//		faultList.add(new FaultMeta("Alpine Kaniere to Springs Junction", "AKSJ"));
+//		faultList.add(new FaultMeta("Kekerengu", "KKR"));
 		
 		for (FileMeta metadata : metadataList) {
 
@@ -128,7 +128,7 @@ public class NZSHM22_RupSetDiagnosticsReport {
 			
 			inputRupSet = FaultSystemIO.loadRupSet(new File(inputDir, metadata.filename));
 			inputSol = null;
-			inputName = "Azimuthal May19th, 2021 " + metadata.folderName();
+			inputName = "May 19th, 2021 #2 TMG_CRU_2017 " + metadata.folderName();
 		
 			builder = new RupSetDiagnosticsPageGen(inputRupSet, 
 					inputSol, inputName, outputDir);
@@ -136,7 +136,7 @@ public class NZSHM22_RupSetDiagnosticsReport {
 			builder.setSkipBiasiWesnousky(true);
 			builder.setSkipConnectivity(true);
 			builder.setSkipSegmentation(true);
-			builder.generatePage();		
+			builder.generatePage();
 
 			for (FaultMeta faultmeta : faultList) {
 				System.out.println("Building report for: " +  metadata.folderName() + " " + faultmeta.faultname);
