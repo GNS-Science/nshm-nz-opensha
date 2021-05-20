@@ -15,14 +15,14 @@ import datetime as dt
 from dateutil.tz import tzutc
 
 from nshm_toshi_client.general_task import GeneralTask
-from scaling.rupture_set_task_factory import RuptureSetTaskFactory
+from scaling.opensha_task_factory import OpenshaTaskFactory
 
 
 API_URL  = os.getenv('TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
 API_KEY = os.getenv('TOSHI_API_KEY', "")
 S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
 
-USE_API = True
+USE_API = False
 JAVA_THREADS = 4
 WORKER_POOL_SIZE = 2
 JVM_HEAP_MAX = 10
@@ -39,7 +39,7 @@ def run_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
     jar_path = "/home/chrisbc/DEV/GNS/opensha-new/nshm-nz-opensha/build/libs/nshm-nz-opensha-all.jar"
     root_folder = "/home/chrisbc/DEV/GNS/opensha-new"
 
-    task_factory = RuptureSetTaskFactory(root_folder, work_path, jre_path=my_jre, app_jar_path=jar_path,
+    task_factory = OpenshaTaskFactory(root_folder, work_path, jre_path=my_jre, app_jar_path=jar_path,
         task_config_path=work_path, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,)
     task_count = 0
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     """
     Notes from Andy Nicol discussion
 
-    1) Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults
+    1) Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults  - DONE
 
     With all else being 'standard' UCERF3 settings, build rupture sets from
     these NZ fault models:
@@ -162,7 +162,7 @@ Using TMG_CRU_2017 scaling relationship.
         )
 
     ##Test parameters
-    models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
+    models = ["CFM_0_3_SANSTVZ",] # "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
     jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
@@ -172,7 +172,6 @@ Using TMG_CRU_2017 scaling relationship.
 
     #limit test size, nomally 1000 for NZ CFM
     max_sections = 2000
-
 
     pool = Pool(WORKER_POOL_SIZE)
 

@@ -147,9 +147,6 @@ class RuptureSetBuilderTask():
             pyth_log_file = self._output_folder.joinpath(f"python_script.{job_arguments['java_gateway_port']}.log")
             self._ruptgen_api.upload_task_file(task_id, pyth_log_file, 'WRITE')
 
-        print("building %s started at %s" % (outputfile, dt.datetime.utcnow().isoformat()), end=' ')
-
-
         print("; took %s secs" % (dt.datetime.utcnow() - t0).total_seconds())
 
 

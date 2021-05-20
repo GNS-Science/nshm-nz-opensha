@@ -18,9 +18,9 @@ import os
 import json
 import scaling.rupture_set_builder_task
 
-class RuptureSetTaskFactory():
+class OpenshaTaskFactory():
 
-    def __init__(self, root_path, working_path, jre_path=None, app_jar_path=None, task_config_path=None,
+    def __init__(self, root_path, working_path,  python_script=None, jre_path=None, app_jar_path=None, task_config_path=None,
         pbs_script=False, initial_gateway_port=25333, pbs_ppn=8, pbs_wall_hours=24,
         jvm_heap_start=3, jvm_heap_max=10):
         """
@@ -44,6 +44,7 @@ class RuptureSetTaskFactory():
         self._jvm_heap_start_gb = jvm_heap_start
         self._jvm_heap_max_gb = jvm_heap_max
         self._python = 'python'
+        self._python_script = python_script or 'rupture_set_builder_task.py'
 
 
     def write_task_config(self, task_arguments, job_arguments):
@@ -75,7 +76,7 @@ export NZSHM22_APP_PORT={self._next_port}
 
 cd {self._root_path}
 java -Xms{self._jvm_heap_start_gb}G -Xmx{self._jvm_heap_max_gb}G -classpath ${{JAVA_CLASSPATH}} ${{CLASSNAME}} > {self._working_path}/java_app.{self._next_port}.log &
-{self._python} {self._script_path}/rupture_set_builder_task.py {self._config_path}/config.{self._next_port}.json > {self._working_path}/python_script.{self._next_port}.log
+{self._python} {self._script_path}/{self._python_script} {self._config_path}/config.{self._next_port}.json > {self._working_path}/python_script.{self._next_port}.log
 
 #Kill the Java gateway server
 kill -9 $!
