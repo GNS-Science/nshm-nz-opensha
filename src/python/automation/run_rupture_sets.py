@@ -22,7 +22,7 @@ API_URL  = os.getenv('TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
 API_KEY = os.getenv('TOSHI_API_KEY', "")
 S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
 
-USE_API = False
+USE_API = True
 JAVA_THREADS = 4
 WORKER_POOL_SIZE = 2
 JVM_HEAP_MAX = 10
