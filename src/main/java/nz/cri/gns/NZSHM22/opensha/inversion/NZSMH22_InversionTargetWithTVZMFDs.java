@@ -41,7 +41,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @author chrisbc
  *
  */
-public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
+public class NZSMH22_InversionTargetWithTVZMFDs extends InversionTargetMFDs {
 	
 //	// debugging flag
 //	final static boolean D = false;
@@ -110,7 +110,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
      * @param mfdMax
      * @return
      */
-    public NZSHM22_InversionTargetMFDs setGutenbergRichterMFD(double totalRateM5, double bValue, 
+    public NZSMH22_InversionTargetWithTVZMFDs setGutenbergRichterMFD(double totalRateM5, double bValue, 
     		double mfdTransitionMag, int mfdNum, double mfdMin, double mfdMax ) {
         this.totalRateM5 = totalRateM5; 
         this.bValue = bValue;
@@ -126,14 +126,14 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
      * @param mfdInequalityConstraintWt
      * @return
      */
-    public NZSHM22_InversionTargetMFDs setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt, 
+    public NZSMH22_InversionTargetWithTVZMFDs setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt, 
     		double mfdInequalityConstraintWt) {
     	this.mfdEqualityConstraintWt = mfdEqualityConstraintWt;
     	this.mfdInequalityConstraintWt = mfdInequalityConstraintWt;
     	return this;
     }       
     
-	public NZSHM22_InversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
+	public NZSMH22_InversionTargetWithTVZMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
 		this.invRupSet=invRupSet;
 		  		
 		//TODO: we're getting a UCERF3 LTB now, this needs to be replaced with NZSHM22 equivalent
