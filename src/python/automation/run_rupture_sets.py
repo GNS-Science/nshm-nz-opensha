@@ -14,7 +14,8 @@ from scaling.opensha_task_factory import OpenshaTaskFactory
 
 # Set up your local config, from environment variables, with some sone defaults
 from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
-    JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS)
+    JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS,
+    API_KEY, API_URL, S3_URL)
 
 # If you wish to override something in the main config, do so here ..
 # WORKER_POOL_SIZE = 3
@@ -50,6 +51,8 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             models, strategies, jump_limits, max_cumulative_azimuths, min_sub_sects_per_parents,
             ddw_ratios, thinning_factors):
 
+        task_count +=1
+
         task_arguments = dict(
             max_sections=max_sections,
             down_dip_width=ddw,
@@ -66,6 +69,7 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
 
 
         job_arguments = dict(
+            task_id = task_count,
             java_threads=JAVA_THREADS,
             java_gateway_port=task_factory.get_next_port(),
             working_path=str(WORK_PATH),
@@ -76,9 +80,7 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
 
         #write a config
         task_factory.write_task_config(task_arguments, job_arguments)
-
         script = task_factory.get_task_script()
-        task_count +=1
 
         script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
         with open(script_file_path, 'w') as f:
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
     min_sub_sects_per_parents = [2,] #3,4]
     max_cumulative_azimuths = [560.0,] # 580.0, 600.0]
-    thinning_factors = [0.0, 0.1, 0.2, 0.05] #, 0.05, 0.1, 0.2]
+    thinning_factors = [0.0,] #, 0.1, 0.2, 0.05] #, 0.05, 0.1, 0.2]
 
     #limit test size, nomally 1000 for NZ CFM
     MAX_SECTIONS = 200
@@ -158,7 +160,6 @@ if __name__ == "__main__":
         models, jump_limits, ddw_ratios, strategies,
         max_cumulative_azimuths, min_sub_sects_per_parents,
         thinning_factors, MAX_SECTIONS):
-
         scripts.append(script_file)
 
     def call_script(script_name):

@@ -14,7 +14,8 @@ from scaling.opensha_task_factory import OpenshaTaskFactory
 
 # Set up your local config, from environment variables, with some sone defaults
 from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
-    JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS)
+    JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS,
+    API_KEY, API_URL, S3_URL)
 
 # If you wish to override something in the main config, do so here ..
 # WORKER_POOL_SIZE = 3
@@ -40,6 +41,9 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
 
     for rupture_set in rupture_sets:
         for completion_energy in completion_energies:
+
+            task_count +=1
+
             task_arguments = dict(
                 rupture_set=rupture_set,
                 completion_energy=completion_energy,
@@ -49,6 +53,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
 
 
             job_arguments = dict(
+                task_id = task_count,
                 java_threads=JAVA_THREADS,
                 java_gateway_port=task_factory.get_next_port(),
                 working_path=str(WORK_PATH),
@@ -61,7 +66,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
             task_factory.write_task_config(task_arguments, job_arguments)
 
             script = task_factory.get_task_script()
-            task_count +=1
+
 
             script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
             with open(script_file_path, 'w') as f:
@@ -97,10 +102,10 @@ if __name__ == "__main__":
         "RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip"
     ]
     rupt_folder = "/home/chrisbc/DEV/GNS/opensha-new/DATA/2022-05-19-02/"
-    rupture_set_paths = [rupt_folder + fname for fname in rupture_sets]
+    rupture_set_paths = [rupt_folder + fname for fname in rupture_sets[:1]]
 
-    completion_energies = [0.1, 0.2] # 0.1, 0.001]
-    max_inversion_time = 1  #units are minutes
+    completion_energies = [0.1,] #, 0.2] # 0.1, 0.001]
+    max_inversion_time = 0.5  #units are minutes
 
     pool = Pool(WORKER_POOL_SIZE)
 

@@ -17,9 +17,9 @@ from nshm_toshi_client.general_task import GeneralTask
 from nshm_toshi_client.task_relation import TaskRelation
 import time
 
-API_URL  = os.getenv('TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
-API_KEY = os.getenv('TOSHI_API_KEY', "")
-S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
+API_URL  = os.getenv('NZSHM22_TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
+API_KEY = os.getenv('NZSHM22_TOSHI_API_KEY', "")
+S3_URL = os.getenv('NZSHM22_TOSHI_S3_URL',"http://localhost:4569")
 
 class BuilderTask():
     """
@@ -37,11 +37,11 @@ class BuilderTask():
         self._repoheads = get_repo_heads(PurePath(job_args['root_folder']), repos)
         self._output_folder = PurePath(job_args.get('working_path'))
 
-        # if self.use_api:
-        #     headers={"x-api-key":API_KEY}
-        #     self._ruptgen_api = RuptureGenerationTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-        #     self._general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-        #     self._task_relation_api = TaskRelation(API_URL, None, with_schema_validation=True, headers=headers)
+        if self.use_api:
+            headers={"x-api-key":API_KEY}
+            self._ruptgen_api = RuptureGenerationTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+            self._general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+            self._task_relation_api = TaskRelation(API_URL, None, with_schema_validation=True, headers=headers)
 
     def run(self, task_arguments, job_arguments):
 
@@ -56,27 +56,23 @@ class BuilderTask():
             "gitref_nshm-nz-opensha":self._repoheads['nshm-nz-opensha'] }
 
         if self.use_api:
-            # #create new task in toshi_api
-            # task_id = self._ruptgen_api.create_task(
-            #     dict(created=dt.datetime.now(tzutc()).isoformat()),
-            #     arguments=task_arguments,
-            #     environment=environment
-            #     )
+            #create new task in toshi_api
+            task_id = self._ruptgen_api.create_task(
+                dict(created=dt.datetime.now(tzutc()).isoformat()),
+                arguments=task_arguments,
+                environment=environment
+                )
 
-            # #link task tp the parent task
-            # self._task_relation_api.create_task_relation(job_arguments['general_task_id'], task_id)
-            # # #link task to the input datafile (*.XML)
-            # # self._ruptgen_api.link_task_file(task_id, crustal_id, 'READ')
+            #link task tp the parent task
+            self._task_relation_api.create_task_relation(job_arguments['general_task_id'], task_id)
+            # #link task to the input datafile (*.XML)
+            # self._ruptgen_api.link_task_file(task_id, crustal_id, 'READ')
             pass
         else:
             task_id = None
 
         # Run the task....
         ta = task_arguments
-
-        # ta['rupture_set']
-        # ta['completion_energy']
-        # ta['max_inversion_time']
 
         print("Starting inversion of up to %s minutes" % ta['max_inversion_time'])
         print("======================================")
@@ -111,44 +107,42 @@ class BuilderTask():
             .configure()\
             .runInversion()
 
-        self._inversion_runner.writeSolution(str(PurePath(job_arguments['working_path'],
-            f"SOLUTION_FILE_{job_arguments['java_gateway_port']}.zip")))
+        output_file = str(PurePath(job_arguments['working_path'], f"SOLUTION_FILE_{job_arguments['java_gateway_port']}.zip"))
+        self._inversion_runner.writeSolution(output_file)
 
         t1 = dt.datetime.utcnow()
         print("Inversion took %s secs" % (t1-t0).total_seconds())
 
-        info = self._inversion_runner.completionCriteriaMetrics()
-        print(info)
+        #capture task metrics
+        duration = (dt.datetime.utcnow() - t0).total_seconds()
 
-        info = self._inversion_runner.momentAndRateMetrics()
-        print(info)
+        metrics = {}
+        # metrics['completion_criteria'] = self._inversion_runner.completionCriteriaMetrics()
+        # metrics['moment_rate'] = self._inversion_runner.momentAndRateMetrics()
+        # metrics['by_fault_name'] = self._inversion_runner.byFaultNameMetrics()
+        # metrics['parent_fault_moment_rates'] = self._inversion_runner.parentFaultMomentRates()
 
-        info = self._inversion_runner.byFaultNameMetrics()
-        print(info)
+        if self.use_api:
+            #record the completed task
+            done_args = {
+             'task_id':task_id,
+             'duration':duration,
+             'result':"SUCCESS",
+             'state':"DONE",
+            }
+            self._ruptgen_api.complete_task(done_args, metrics)
 
-        info = self._inversion_runner.parentFaultMomentRates()
-        print(info)
-        print()
+            #upload the task output
+            self._ruptgen_api.upload_task_file(task_id, output_file, 'WRITE', meta=task_arguments)
 
-        # if self.use_api:
-        #     #record the completed task
-        #     done_args = {
-        #      'task_id':task_id,
-        #      'duration':duration,
-        #      'result':"SUCCESS",
-        #      'state':"DONE",
-        #     }
-        #     self._ruptgen_api.complete_task(done_args, metrics)
+            #and the log files, why not
+            java_log_file = self._output_folder.joinpath(f"java_app.{job_arguments['java_gateway_port']}.log")
+            self._ruptgen_api.upload_task_file(task_id, java_log_file, 'WRITE')
+            pyth_log_file = self._output_folder.joinpath(f"python_script.{job_arguments['java_gateway_port']}.log")
+            self._ruptgen_api.upload_task_file(task_id, pyth_log_file, 'WRITE')
 
-        #     #upload the task output
-        #     self._ruptgen_api.upload_task_file(task_id, outputfile, 'WRITE', meta=task_arguments)
-
-        #     #and the log files, why not
-        #     java_log_file = self._output_folder.joinpath(f"java_app.{job_arguments['java_gateway_port']}.log")
-        #     self._ruptgen_api.upload_task_file(task_id, java_log_file, 'WRITE')
-        #     pyth_log_file = self._output_folder.joinpath(f"python_script.{job_arguments['java_gateway_port']}.log")
-        #     self._ruptgen_api.upload_task_file(task_id, pyth_log_file, 'WRITE')
-
+        else:
+            print(metrics)
         print("; took %s secs" % (dt.datetime.utcnow() - t0).total_seconds())
 
 
@@ -170,8 +164,10 @@ if __name__ == "__main__":
     f= open(config_file, 'r', encoding='utf-8')
     config = json.load(f)
 
-    # Wait for 5 seconds
-    time.sleep(5) # maybe the JVM App is a little slow to get listening
+    # maybe the JVM App is a little slow to get listening
+    time.sleep(5)
+    # Wait for some more time, scaled by taskid to avoid S3 consistency issue
+    time.sleep(config['job_arguments']['task_id'] * 0.333)
 
     # print(config)
     task = BuilderTask(config['job_arguments'])
