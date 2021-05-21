@@ -17,7 +17,6 @@ from dateutil.tz import tzutc
 from nshm_toshi_client.general_task import GeneralTask
 from scaling.opensha_task_factory import OpenshaTaskFactory
 
-
 API_URL  = os.getenv('TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
 API_KEY = os.getenv('TOSHI_API_KEY', "")
 S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
@@ -25,21 +24,23 @@ S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
 USE_API = True
 JAVA_THREADS = 4
 WORKER_POOL_SIZE = 2
-JVM_HEAP_MAX = 10
+JVM_HEAP_MAX = 24
 JVM_HEAP_START = 4
-
+CLUSTER_MODE = True
 
 def run_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors, max_sections = 1000):
 
     #set up a task_factory with default config
     # readlink -e $(which java)
-    my_jre = os.path.dirname("/usr/lib/jvm/java-11-openjdk-amd64/bin/java")
+    my_jre = os.path.dirname("/opt/sw/java/jdk-11.0.2/bin")
+    #/usr/lib/jvm/java-11-openjdk-amd64/bin/java")
     work_path = PurePath(os.getcwd(), "tmp")
-    jar_path = "/home/chrisbc/DEV/GNS/opensha-new/nshm-nz-opensha/build/libs/nshm-nz-opensha-all.jar"
-    root_folder = "/home/chrisbc/DEV/GNS/opensha-new"
+    jar_path = "~/NSHM/opensha-new/nshm-nz-opensha/build/libs/nshm-nz-opensha-all.jar"
+    root_folder = "~/NSHM/opensha-new"
 
     task_factory = OpenshaTaskFactory(root_folder, work_path, jre_path=my_jre, app_jar_path=jar_path,
+        pbs_script=CLUSTER_MODE, python='python3.6',
         task_config_path=work_path, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,)
     task_count = 0
 
@@ -88,10 +89,9 @@ def run_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
                                 script = task_factory.get_task_script()
                                 task_count +=1
 
-
-                                # print((">" * 4) + f"TASK {task_count} " + (">" * 10))
-                                # print(script)
-                                # print('<' * 20)
+                                print((">" * 4) + f"TASK {task_count} " + (">" * 10))
+                                print(script)
+                                print('<' * 20)
 
                                 script_file_path = PurePath(work_path, f"task_{task_count}.sh")
                                 with open(script_file_path, 'w') as f:
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     permutations:
      - thinning_factors = [0.0, 0.1]
-     - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90", "CFM_0_9_ALL_D90"]
+     - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90",] # "CFM_0_9_ALL_D90"]
 
     NB "SANSTVZ" means without Taupo Volcanic Zone faults. Note that a
     few TVZ faults are re-included in the CFM0.9 version Fault model.
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         general_task_id = general_api.create_task(
             created=dt.datetime.now(tzutc()).isoformat(),
             agent_name=pwd.getpwuid(os.getuid()).pw_name,
-            title="Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults",
+            title="CLUSTER Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults",
 
             description="""With 'typical' UCERF3 settings, build rupture sets from these NZ fault models:
 
@@ -162,16 +162,16 @@ Using TMG_CRU_2017 scaling relationship.
         )
 
     ##Test parameters
-    models = ["CFM_0_3_SANSTVZ",] # "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
+    models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
     jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
     min_sub_sects_per_parents = [2,] #3,4]
-    max_cumulative_azimuths = [560.0,] # 580.0, 600.0]
+    max_cumulative_azimuths = [560.0, 570.0,] # 580.0, 59600.0]
     thinning_factors = [0.0, 0.1] #, 0.05, 0.1, 0.2]
 
     #limit test size, nomally 1000 for NZ CFM
-    max_sections = 2000
+    max_sections = 200
 
     pool = Pool(WORKER_POOL_SIZE)
 
@@ -186,7 +186,7 @@ Using TMG_CRU_2017 scaling relationship.
 
     def call_script(script_name):
         print("call_script called with:", script_name)
-        check_call(['bash', script_name])
+        check_call(['qsub', script_name])
 
     pool.map(call_script, scripts)
     pool.close()

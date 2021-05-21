@@ -22,6 +22,7 @@ class OpenshaTaskFactory():
 
     def __init__(self, root_path, working_path,  python_script=None, jre_path=None, app_jar_path=None, task_config_path=None,
         pbs_script=False, initial_gateway_port=25333, pbs_ppn=8, pbs_wall_hours=24,
+        python='python',
         jvm_heap_start=3, jvm_heap_max=10):
         """
         pbs_script: boolean is this a PBS job?
@@ -43,7 +44,7 @@ class OpenshaTaskFactory():
 
         self._jvm_heap_start_gb = jvm_heap_start
         self._jvm_heap_max_gb = jvm_heap_max
-        self._python = 'python'
+        self._python = python
         self._python_script = python_script or 'rupture_set_builder_task.py'
 
 
@@ -89,6 +90,15 @@ kill -9 $!
         return f"""
 #PBS -l nodes={self._pbs_nodes}:ppn={self._pbs_ppn}
 #PBS -l walltime={self._pbs_wall_hours}:00:00
+
+source ~/NSHM/opensha-new/nshm-nz-opensha/src/python/automation/bin/activate
+
+export http_proxy=http://beavan:8899/
+export https_proxy=${{http_proxy}}
+export HTTP_PROXY=${{http_proxy}}
+export HTTPS_PROXY=${{http_proxy}}
+export no_proxy="127.0.0.1,localhost"
+export NO_PROXY=${{no_proxy}}
 
 {self._get_bash_script()}
 
