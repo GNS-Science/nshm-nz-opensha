@@ -1,13 +1,8 @@
-import json
-import git
-import csv
 import os
 import pwd
-from pathlib import PurePath
-import platform
-
+import itertools
 import stat
-
+from pathlib import PurePath
 from subprocess import check_call
 from multiprocessing.dummy import Pool
 
@@ -17,31 +12,31 @@ from dateutil.tz import tzutc
 from nshm_toshi_client.general_task import GeneralTask
 from scaling.opensha_task_factory import OpenshaTaskFactory
 
+# Set up your local config, from environment variables, with some sone defaults
+from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
+    JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS)
 
-API_URL  = os.getenv('TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
-API_KEY = os.getenv('TOSHI_API_KEY', "")
-S3_URL = os.getenv('TOSHI_S3_URL',"http://localhost:4569")
-
-USE_API = False
-JAVA_THREADS = 4
+# If you wish to override something in the main config, do so here ..
+# WORKER_POOL_SIZE = 3
 WORKER_POOL_SIZE = 1
-JVM_HEAP_MAX = 24
-JVM_HEAP_START = 4
+JVM_HEAP_MAX = os.getenv('NZSHM22_INVERSIONS_JVM_HEAP_MAX', 24)
+JAVA_THREADS = 12
 
+#If using API give this task a descriptive setting...
+TASK_TITLE = "Baseline Inversion energy completion"
+TASK_DESCRIPTION = """
+Test inversion energy Completion impacts:
+
+permutations:
+ -
+
+ """
 
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_time):
-
-    #set up a task_factory with default config
-    # readlink -e $(which java)
-    my_jre = os.path.dirname("/usr/lib/jvm/java-11-openjdk-amd64/bin/java")
-    work_path = PurePath(os.getcwd(), "tmp")
-    jar_path = "/home/chrisbc/DEV/GNS/opensha-new/nshm-nz-opensha/build/libs/nshm-nz-opensha-all.jar"
-    root_folder = "/home/chrisbc/DEV/GNS/opensha-new"
-
-    task_factory = OpenshaTaskFactory(root_folder, work_path, python_script="inversion_solution_builder_task.py",
-        jre_path=my_jre, app_jar_path=jar_path,
-        task_config_path=work_path, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,)
     task_count = 0
+    task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, python_script="inversion_solution_builder_task.py",
+        jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
+        task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,)
 
     for rupture_set in rupture_sets:
         for completion_energy in completion_energies:
@@ -56,8 +51,8 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
             job_arguments = dict(
                 java_threads=JAVA_THREADS,
                 java_gateway_port=task_factory.get_next_port(),
-                working_path=str(work_path),
-                root_folder=root_folder,
+                working_path=str(WORK_PATH),
+                root_folder=OPENSHA_ROOT,
                 general_task_id=general_task_id,
                 use_api = USE_API,
                 )
@@ -68,11 +63,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
             script = task_factory.get_task_script()
             task_count +=1
 
-            # print((">" * 4) + f"TASK {task_count} " + (">" * 10))
-            # print(script)
-            # print('<' * 20)
-
-            script_file_path = PurePath(work_path, f"task_{task_count}.sh")
+            script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
             with open(script_file_path, 'w') as f:
                 f.write(script)
 
@@ -87,29 +78,17 @@ if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
 
-    general_task_id = None
-
-    """
-    1) Baseline Inversion energy completion
-
-    Test inversion energy Completion impacts:
-
-    """
+    GENERAL_TASK_ID = None
 
     if USE_API:
         headers={"x-api-key":API_KEY}
         general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
         #create new task in toshi_api
-        general_task_id = general_api.create_task(
+        GENERAL_TASK_ID = general_api.create_task(
             created=dt.datetime.now(tzutc()).isoformat(),
             agent_name=pwd.getpwuid(os.getuid()).pw_name,
-            title="Baseline Inversion energy completion",
-
-            description="""Test inversion energy Completion impacts:
-
-permutations:
- -
-"""
+            title=TASK_TITLE,
+            description=TASK_DESCRIPTION
         )
 
     ##Parameters
@@ -120,19 +99,22 @@ permutations:
     rupt_folder = "/home/chrisbc/DEV/GNS/opensha-new/DATA/2022-05-19-02/"
     rupture_set_paths = [rupt_folder + fname for fname in rupture_sets]
 
-    completion_energies = [0.1,] # 0.1, 0.001]
+    completion_energies = [0.1, 0.2] # 0.1, 0.001]
     max_inversion_time = 1  #units are minutes
 
     pool = Pool(WORKER_POOL_SIZE)
 
     scripts = []
-    for script_file in run_tasks(general_task_id, rupture_set_paths, completion_energies, max_inversion_time):
+    for script_file in run_tasks(GENERAL_TASK_ID, rupture_set_paths, completion_energies, max_inversion_time):
         print('scheduling: ', script_file)
         scripts.append(script_file)
 
     def call_script(script_name):
-        print("call_script called with:", script_name)
+        print("call_script with:", script_name)
         check_call(['bash', script_name])
+
+    print('task count: ', len(scripts))
+    print('worker count: ', WORKER_POOL_SIZE)
 
     pool.map(call_script, scripts)
     pool.close()
