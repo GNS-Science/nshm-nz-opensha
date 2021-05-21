@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     permutations:
      - thinning_factors = [0.0, 0.1]
-     - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90", "CFM_0_9_ALL_D90"]
+     - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90",] # "CFM_0_9_ALL_D90"]
 
     NB "SANSTVZ" means without Taupo Volcanic Zone faults. Note that a
     few TVZ faults are re-included in the CFM0.9 version Fault model.
@@ -136,10 +136,11 @@ if __name__ == "__main__":
             agent_name=pwd.getpwuid(os.getuid()).pw_name,
             title=TASK_TITLE,
             description=TASK_DESCRIPTION
+
         )
 
     ##Test parameters
-    models = ["CFM_0_3_SANSTVZ",] # "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
+    models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
     jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
