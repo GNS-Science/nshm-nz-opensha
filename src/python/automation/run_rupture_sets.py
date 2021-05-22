@@ -22,18 +22,18 @@ from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults"
+
+TASK_TITLE = "CLUSTER 2.4 Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults"
+
 TASK_DESCRIPTION = """
 With 'typical' UCERF3 settings, build rupture sets from NZ fault models
 
-permutations:
- - thinning_factors = [0.0, 0.1]
- - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90", "CFM_0_9_ALL_D90"]
+NOW 160 tasks w + 1.333 task interval
 
-NB "SANSTVZ" means without Taupo Volcanic Zone faults. Note that a few TVZ faults are re-included in the CFM0.9 version Fault model.
-
-Using TMG_CRU_2017 scaling relationship.
+testing read/write consistency
 """
+
+CLUSTER_MODE = True
 
 def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors,
@@ -44,7 +44,8 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
     """
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
-        task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,)
+        task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
+        pbs_script=CLUSTER_MODE)
 
     for (model, strategy, distance, max_cumulative_azimuth, min_sub_sects_per_parent,
         ddw, thinning_factor)in itertools.product(
@@ -98,37 +99,6 @@ if __name__ == "__main__":
 
     GENERAL_TASK_ID = None
 
-    """
-    Notes from Andy Nicol discussion
-
-    1) Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults  - DONE
-
-    With all else being 'standard' UCERF3 settings, build rupture sets from
-    these NZ fault models:
-
-    permutations:
-     - thinning_factors = [0.0, 0.1]
-     - models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90",] # "CFM_0_9_ALL_D90"]
-
-    NB "SANSTVZ" means without Taupo Volcanic Zone faults. Note that a
-    few TVZ faults are re-included in the CFM0.9 version Fault model.
-
-
-    2) Examine practical limits, varying UCERF3 max jump distance.
-
-    Goal: Explore the practical limits of jump distance using the NZ CFM fault models.
-
-    All other parameters as per UCERF3.
-
-    Running on cluster nodes (with 1TB memory) and up to 24 hour wall time, what
-    rupture sets can we sucessfully build.
-
-    permutations:
-
-    jump_limits = [5.0, 6.0, 7.0. 8.0, 9.0 , 10.0]
-
-    """
-
     if USE_API:
         headers={"x-api-key":API_KEY}
         general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
@@ -138,20 +108,19 @@ if __name__ == "__main__":
             agent_name=pwd.getpwuid(os.getuid()).pw_name,
             title=TASK_TITLE,
             description=TASK_DESCRIPTION
-
         )
 
     ##Test parameters
     models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
-    jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
+    jump_limits = [4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
     min_sub_sects_per_parents = [2,] #3,4]
-    max_cumulative_azimuths = [560.0,] # 580.0, 600.0]
-    thinning_factors = [0.0,] #, 0.1, 0.2, 0.05] #, 0.05, 0.1, 0.2]
+    max_cumulative_azimuths = [560.0, 570.0, 580, 590.0, 600] # 580.0, 600.0]
+    thinning_factors = [0.05, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 200
+    MAX_SECTIONS = 2000
 
     pool = Pool(WORKER_POOL_SIZE)
 
@@ -164,7 +133,10 @@ if __name__ == "__main__":
 
     def call_script(script_name):
         print("call_script with:", script_name)
-        check_call(['bash', script_name])
+        if CLUSTER_MODE:
+            check_call(['qsub', script_name])
+        else:
+            check_call(['bash', script_name])
 
     print('task count: ', len(scripts))
     print('worker count: ', WORKER_POOL_SIZE)
