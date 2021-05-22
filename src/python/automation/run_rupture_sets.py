@@ -15,7 +15,7 @@ from scaling.opensha_task_factory import OpenshaTaskFactory
 # Set up your local config, from environment variables, with some sone defaults
 from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
     JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS,
-    API_KEY, API_URL, S3_URL)
+    API_KEY, API_URL, S3_URL, CLUSTER_MODE)
 
 # If you wish to override something in the main config, do so here ..
 # WORKER_POOL_SIZE = 3
@@ -32,8 +32,6 @@ NOW 160 tasks w + 1.333 task interval
 
 testing read/write consistency
 """
-
-CLUSTER_MODE = True
 
 def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors,
