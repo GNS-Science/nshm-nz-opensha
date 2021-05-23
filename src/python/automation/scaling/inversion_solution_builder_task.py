@@ -82,7 +82,7 @@ class BuilderTask():
             .setNumThreads(int(job_arguments["java_threads"]))\
             .setSyncInterval(30)\
             .setRuptureSetFile(str(PurePath(job_arguments['working_path'], ta['rupture_set'])))
-
+            
         mfd = SimpleNamespace(**dict(
             total_rate_m5 = 8.8,
             b_value = 1.0,
@@ -107,7 +107,8 @@ class BuilderTask():
             .configure()\
             .runInversion()
 
-        output_file = str(PurePath(job_arguments['working_path'], f"SOLUTION_FILE_{job_arguments['java_gateway_port']}.zip"))
+        #output_file = str(PurePath(job_arguments['working_path'], f"SOLUTION_FILE_{job_arguments['java_gateway_port']}.zip"))
+        output_file = str(PurePath(job_arguments['output_file']))
         self._inversion_runner.writeSolution(output_file)
 
         t1 = dt.datetime.utcnow()
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     # maybe the JVM App is a little slow to get listening
     time.sleep(5)
     # Wait for some more time, scaled by taskid to avoid S3 consistency issue
-    time.sleep(config['job_arguments']['task_id'] * 0.333 * 2 * 2)
+    time.sleep(config['job_arguments']['task_id'] * 0.333 * 2 * 4)
 
     # print(config)
     task = BuilderTask(config['job_arguments'])

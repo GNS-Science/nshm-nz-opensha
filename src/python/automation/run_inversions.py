@@ -20,18 +20,17 @@ from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 # If you wish to override something in the main config, do so here ..
 # WORKER_POOL_SIZE = 3
 WORKER_POOL_SIZE = 1
-JVM_HEAP_MAX = os.getenv('NZSHM22_INVERSIONS_JVM_HEAP_MAX', 24)
-JAVA_THREADS = 12
+JVM_HEAP_MAX = 32
+JAVA_THREADS = 4
+USE_API = True
 
 #If using API give this task a descriptive setting...
 TASK_TITLE = "Baseline Inversion energy completion"
 TASK_DESCRIPTION = """
 Test inversion energy Completion impacts:
 
-permutations:
- -
-
- """
+Fixed duration comparisons
+"""
 
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
     task_count = 0
@@ -40,45 +39,47 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
 
-    for rupture_set in rupture_sets:
-        for completion_energy in completion_energies:
-            for max_inversion_time in max_inversion_times:
+    for round in rounds:
+        for (rid, rupture_set) in rupture_sets.items():
+            for completion_energy in completion_energies:
+                for max_inversion_time in max_inversion_times:
+    
+                    task_count +=1
+    
+                    task_arguments = dict(                     
+                        round = round,
+                        rupture_set=rupture_set,
+                        completion_energy=completion_energy,
+                        max_inversion_time=max_inversion_time,
+                        )
 
-                task_count +=1
+                    job_arguments = dict(
+                        task_id = task_count,
+                        round = round,
+                        java_threads=JAVA_THREADS,
+                        java_gateway_port=task_factory.get_next_port(),
+                        working_path=str(WORK_PATH),
+                        root_folder=OPENSHA_ROOT,
+                        general_task_id=general_task_id,
+                        use_api = USE_API,
+                        output_file = f"{str(WORK_PATH)}/InversionSolution-{str(rid)}-rnd{round}-t{max_inversion_time}.zip",
+                        )
 
-                task_arguments = dict(
-                    rupture_set=rupture_set,
-                    completion_energy=completion_energy,
-                    max_inversion_time=max_inversion_time,
-                    scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD'
-                    )
-
-
-                job_arguments = dict(
-                    task_id = task_count,
-                    java_threads=JAVA_THREADS,
-                    java_gateway_port=task_factory.get_next_port(),
-                    working_path=str(WORK_PATH),
-                    root_folder=OPENSHA_ROOT,
-                    general_task_id=general_task_id,
-                    use_api = USE_API,
-                    )
-
-                #write a config
-                task_factory.write_task_config(task_arguments, job_arguments)
-
-                script = task_factory.get_task_script()
+                    #write a config
+                    task_factory.write_task_config(task_arguments, job_arguments)
+    
+                    script = task_factory.get_task_script()
 
 
-                script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
-                with open(script_file_path, 'w') as f:
-                    f.write(script)
+                    script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
+                    with open(script_file_path, 'w') as f:
+                        f.write(script)
 
-                #make file executable
-                st = os.stat(script_file_path)
-                os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
+                    #make file executable
+                    st = os.stat(script_file_path)
+                    os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
-                yield str(script_file_path)
+                    yield str(script_file_path)
 
 
 if __name__ == "__main__":
@@ -99,20 +100,23 @@ if __name__ == "__main__":
         )
 
     ##Parameters
-    rupture_sets = [
-        "RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip",
-        "RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip"
-    ]
-    rupt_folder = "/home/chrisbc/DEV/GNS/opensha-new/DATA/2022-05-19-02/"
-    rupture_set_paths = [rupt_folder + fname for fname in rupture_sets[:1]]
+    rupt_folder = "/home/chrisch/NSHM/opensha-new/work/save/"
+    rupture_sets = {
+        "CFM09_tf0.0": rupt_folder + "RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip",
+        "CFM09_tf0.1": rupt_folder +"RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip",
+        "CFM03_tf0.0": rupt_folder +"RupSet_Az_FM(CFM_0_3_SANSTVZ)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip",
+        "CFM03_tf0.1": rupt_folder +"RupSet_Az_FM(CFM_0_3_SANSTVZ)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip",
+    }
 
-    completion_energies = [0.1,] #, 0.2] # 0.1, 0.001]
-    max_inversion_times = [0.5,]  #units are minutes
+    rounds = range(3)
+    completion_energies = [0.000001,] #, 0.2] # 0.1, 0.001]
+    max_inversion_times = [10, 30, 60, 120, 4*60, 8*60, 16*60,]  #units are minutes
+    max_inversion_times.reverse()
 
     pool = Pool(WORKER_POOL_SIZE)
 
     scripts = []
-    for script_file in run_tasks(GENERAL_TASK_ID, rupture_set_paths, completion_energies, max_inversion_times):
+    for script_file in run_tasks(GENERAL_TASK_ID, rupture_sets, completion_energies, max_inversion_times):
         print('scheduling: ', script_file)
         scripts.append(script_file)
 
