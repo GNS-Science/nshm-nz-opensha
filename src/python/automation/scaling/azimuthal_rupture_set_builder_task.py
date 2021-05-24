@@ -32,7 +32,7 @@ class RuptureSetBuilderTask():
         #setup the java gateway binding
         gateway = JavaGateway(gateway_parameters=GatewayParameters(port=job_args['java_gateway_port']))
         app = gateway.entry_point
-        self._builder = app.getBuilder('azimuth')
+        self._builder = app.getAzimuthalRuptureSetBuilder()
 
         #get the root path for the task local data
         # root_folder = PurePath(os.getcwd())
@@ -54,13 +54,13 @@ class RuptureSetBuilderTask():
 
 
     def ruptureSetMetrics(self):
-        conf = self._builder.getPlausibilityConfig()
         metrics = {}
         metrics["subsection_count"] = self._builder.getSubSections().size()
         metrics["rupture_count"] = self._builder.getRuptures().size()
-        ## metrics["possible_cluster_connections"] = conf.getConnectionStrategy().getClusterConnectionCount()
+        #metrics["possible_cluster_connections"] = conf.getConnectionStrategy().getClusterConnectionCount()
 
-        # get info from the configuratiion
+        # # get info from the configuratiion
+        conf = self._builder.getPlausibilityConfig()
         conf_diags = json.loads(conf.toJSON())
         conns = 0
         for cluster in conf_diags['connectionStrategy']['clusters']:
@@ -111,7 +111,7 @@ class RuptureSetBuilderTask():
             .setFaultModel(ta["fault_model"])
 
         #name the output file
-        outputfile = self._output_folder.joinpath(self._builder.getDescriptiveString()+ ".zip")
+        outputfile = self._output_folder.joinpath(self._builder.getDescriptiveName()+ ".zip")
         print("building %s started at %s" % (outputfile, dt.datetime.utcnow().isoformat()), end=' ')
 
         self._builder \

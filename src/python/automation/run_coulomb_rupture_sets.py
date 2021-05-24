@@ -16,7 +16,7 @@ import scaling.coulomb_rupture_set_builder_task
 
 
 # Set up your local config, from environment variables, with some sone defaults
-from local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
+from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
     JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS,
     API_KEY, API_URL, S3_URL, CLUSTER_MODE)
 
@@ -51,16 +51,10 @@ def build_tasks(general_task_id, models, jump_limits, thinning_factors,
 
         task_arguments = dict(
             max_sections=max_sections,
-            # down_dip_width=ddw,
-            # connection_strategy=strategy,
-            # crustal_filename=None,
-            # filekey=None,
             fault_model=model, #instead of filename. filekey
             max_jump_distance=max_jump_distance,
-            # max_cumulative_azimuth=max_cumulative_azimuth,
-            # min_sub_sects_per_parent=min_sub_sects_per_parent,
             thinning_factor=thinning_factor,
-            scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD'
+            scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD' TODO this is currenlty not a settable parameter!
             )
 
 
@@ -110,15 +104,11 @@ if __name__ == "__main__":
 
     ##Test parameters
     models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
-    #strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
-    jump_limits = [4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
-    #ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
-    #min_sub_sects_per_parents = [2,] #3,4]
-    #max_cumulative_azimuths = [560.0, 570.0, 580, 590.0, 600] # 580.0, 600.0]
+    jump_limits = [15, ] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     thinning_factors = [0.0, ] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 2000
+    MAX_SECTIONS = 100
 
     pool = Pool(WORKER_POOL_SIZE)
 

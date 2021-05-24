@@ -16,6 +16,8 @@ from nshm_toshi_client.general_task import GeneralTask
 from nshm_toshi_client.task_relation import TaskRelation
 import time
 
+
+CLUSTER_MODE = os.getenv('NZSHM22_SCRIPT_CLUSTER_MODE', False)
 API_URL  = os.getenv('NZSHM22_TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
 API_KEY = os.getenv('NZSHM22_TOSHI_API_KEY', "")
 S3_URL = os.getenv('NZSHM22_TOSHI_S3_URL',"http://localhost:4569")
@@ -31,7 +33,7 @@ class RuptureSetBuilderTask():
         #setup the java gateway binding
         gateway = JavaGateway(gateway_parameters=GatewayParameters(port=job_args['java_gateway_port']))
         app = gateway.entry_point
-        self._builder = app.getBuilder('coulomb')
+        self._builder = app.getCoulombRuptureSetBuilder()
 
         repos = ["opensha", "nshm-nz-opensha"]
         self._output_folder = PurePath(job_args.get('working_path')) #.joinpath('tmp').joinpath(dt.datetime.utcnow().isoformat().replace(':','-'))
@@ -48,19 +50,9 @@ class RuptureSetBuilderTask():
 
 
     def ruptureSetMetrics(self):
-        conf = self._builder.getPlausibilityConfig()
         metrics = {}
         metrics["subsection_count"] = self._builder.getSubSections().size()
         metrics["rupture_count"] = self._builder.getRuptures().size()
-        ## metrics["possible_cluster_connections"] = conf.getConnectionStrategy().getClusterConnectionCount()
-
-        # get info from the configuratiion
-        conf_diags = json.loads(conf.toJSON())
-        conns = 0
-        for cluster in conf_diags['connectionStrategy']['clusters']:
-            conns += len(cluster.get('connections',[]))
-        metrics["cluster_connections"] = conns
-
         return metrics
 
     def run(self, task_arguments, job_arguments):
@@ -100,12 +92,12 @@ class RuptureSetBuilderTask():
 
         self._builder \
             .setMaxFaultSections(int(ta["max_sections"]))\
-            .setMaxJumpDist(float(ta["max_jump_distance"]))\
+            .setMaxJumpDistance(float(ta["max_jump_distance"]))\
             .setAdaptiveSectFract(float(ta["thinning_factor"]))\
             .setFaultModel(ta["fault_model"])
 
         #name the output file
-        outputfile = self._output_folder.joinpath(self._builder.getDescriptiveString()+ ".zip")
+        outputfile = self._output_folder.joinpath(self._builder.getDescriptiveName()+ ".zip")
         print("building %s started at %s" % (outputfile, dt.datetime.utcnow().isoformat()), end=' ')
 
         self._builder \
@@ -160,10 +152,12 @@ if __name__ == "__main__":
     f= open(config_file, 'r', encoding='utf-8')
     config = json.load(f)
 
-    # maybe the JVM App is a little slow to get listening
-    time.sleep(5)
-    # Wait for some more time, scaled by taskid to avoid S3 consistency issue
-    time.sleep(config['job_arguments']['task_id'] * 0.333 * 2 * 2)
+
+    if CLUSTER_MODE:
+        # maybe the JVM App is a little slow to get listening
+        time.sleep(5)
+        # Wait for some more time, scaled by taskid to avoid S3 consistency issue
+        time.sleep(config['job_arguments']['task_id'] * 0.333 * 2 * 2)
 
     # print(config)
     task = RuptureSetBuilderTask(config['job_arguments'])
