@@ -32,7 +32,7 @@ class RuptureSetBuilderTask():
         #setup the java gateway binding
         gateway = JavaGateway(gateway_parameters=GatewayParameters(port=job_args['java_gateway_port']))
         app = gateway.entry_point
-        self._builder = app.getBuilder()
+        self._builder = app.getBuilder('azimuth')
 
         #get the root path for the task local data
         # root_folder = PurePath(os.getcwd())
@@ -51,10 +51,7 @@ class RuptureSetBuilderTask():
             self._ruptgen_api = RuptureGenerationTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
             self._general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
             self._task_relation_api = TaskRelation(API_URL, None, with_schema_validation=True, headers=headers)
-        # else:
-        #     self._ruptgen_api = None
-        #     self._general_api = None
-        #     self._task_relation_api = None
+
 
     def ruptureSetMetrics(self):
         conf = self._builder.getPlausibilityConfig()
@@ -158,42 +155,6 @@ def get_repo_heads(rootdir, repos):
         result[reponame] = headcommit.hexsha
     return result
 
-# class CSVResultWriter:
-#     def __init__(self, file, repos):
-#         create_names = { #create_args
-#                      'created': None,
-#                      'permutation_strategy': None,
-#                      'opensha_core': None,
-#                      'opensha_commons': None,
-#                      'opensha_ucerf3': None,
-#                      'nshm_nz_opensha': None,
-#                      'max_jump_distance': None,
-#                      'max_sub_section_length': None,
-#                      'max_cumulative_azimuth': None,
-#                      'min_sub_sections_per_parent': None,
-#                      'thinning_factor': None
-#                     }.keys()
-
-#         done_names = { #done_args
-#                      'task_id': None,
-#                      'duration': None,
-#                      'result': None,
-#                      'state': None,
-#                      'rupture_count': None,
-#                      'subsection_count': None,
-#                      'cluster_connection_count': None,
-#                     }.keys()
-#         fieldnames = ['output_file']
-#         fieldnames.extend(create_names)
-#         fieldnames.extend(done_names)
-
-#         self._file = file
-#         self._writer = csv.DictWriter(file, fieldnames)
-#         self._writer.writeheader()
-
-#     def writerow(self, **kwargs):
-#         self._writer.writerow(kwargs)
-#         self._file.flush() #we want to see the data in the csv ASAP
 
 if __name__ == "__main__":
 
