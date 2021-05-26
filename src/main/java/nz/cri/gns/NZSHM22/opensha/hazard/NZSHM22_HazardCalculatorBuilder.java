@@ -21,7 +21,6 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
-import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
  * Creates a NZSHM22_HazardCalculator
@@ -83,20 +82,20 @@ public class NZSHM22_HazardCalculatorBuilder {
         return this;
     }
 
-    FaultSystemSolutionERF loadERF() throws IOException, DocumentException {
-        FaultSystemSolution fss = FaultSystemIO.loadSol(solutionFile);
+    protected FaultSystemSolutionERF loadERF() throws IOException, DocumentException {
+        FaultSystemSolution fss = NZSHM22_InversionFaultSystemSolution.fromFile(solutionFile);
 
         FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fss);
         if (forecastTimespan != null) {
             erf.getTimeSpan().setDuration(forecastTimespan); // 50 years
         }
-        erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+        erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE); // change this
         erf.updateForecast();
 //        System.out.println("ERF has " + erf.getNumSources() + " sources");
         return erf;
     }
 
-    ScalarIMR createGmpe() {
+    protected ScalarIMR createGmpe() {
         ScalarIMR gmpe = AttenRelRef.ASK_2014.instance(null);
         gmpe.setParamDefaults();
         // for PGA (units: g)
