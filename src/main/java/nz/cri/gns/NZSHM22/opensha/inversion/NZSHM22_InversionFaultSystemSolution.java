@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import nz.cri.gns.NZSHM22.opensha.griddedSeismicity.NZSHM22_GridSourceGenerator;
+
 public class NZSHM22_InversionFaultSystemSolution extends InversionFaultSystemSolution {
 
     private NZSHM22_InversionFaultSystemSolution(InversionFaultSystemRupSet rupSet, double[] rates,
@@ -32,8 +34,7 @@ public class NZSHM22_InversionFaultSystemSolution extends InversionFaultSystemSo
                 solution.getInversionConfiguration(),
                 solution.getEnergies());
 
-        // this will come with the hazards branch
-        //ifss.setGridSourceProvider(new NZSHM22_GridSourceGenerator(ifss));
+        ifss.setGridSourceProvider(new NZSHM22_GridSourceGenerator(ifss));
         return ifss;
     }
 
@@ -63,7 +64,7 @@ public class NZSHM22_InversionFaultSystemSolution extends InversionFaultSystemSo
             List<Integer> ruptures = rupSet.getRupturesForParentSection(parentSectionID);
             if (ruptures != null) {
                 rups.addAll(ruptures);
-            }else{
+            } else {
                 System.out.println("nothing for " + parentSectionID);
             }
         }

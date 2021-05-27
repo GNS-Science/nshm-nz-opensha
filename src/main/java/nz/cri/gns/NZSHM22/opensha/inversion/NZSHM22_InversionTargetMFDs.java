@@ -358,4 +358,8 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 		throw new UnsupportedOperationException();
 	}
 
+	public double[] getPDF(){
+		return spatialSeisPDF.getPDF();
+	}
+
 }
