@@ -91,10 +91,13 @@ public enum NZSHM22_FaultModels implements LogicTreeBranchNode<NZSHM22_FaultMode
         if (namedFaultsMapAlt == null) {
             synchronized (this) {
                 if (namedFaultsMapAlt == null) {
-                    try (Reader reader = new InputStreamReader(getStream(fileName + ".FaultsByNameAlt.txt"))) {
-                        namedFaultsMapAlt = FaultModels.parseNamedFaultsAltFile(reader);
-                    } catch (Throwable t) {
-                        throw ExceptionUtils.asRuntimeException(t);
+                    InputStream in = getStream(fileName + ".FaultsByNameAlt.txt");
+                    if (in != null) {
+                        try (Reader reader = new InputStreamReader(in)) {
+                            namedFaultsMapAlt = FaultModels.parseNamedFaultsAltFile(reader);
+                        } catch (Throwable t) {
+                            throw ExceptionUtils.asRuntimeException(t);
+                        }
                     }
                 }
             }
