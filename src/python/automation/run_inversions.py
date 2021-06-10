@@ -31,15 +31,19 @@ JAVA_THREADS = 4
 USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Baseline Inversion - Coulomb"
+TASK_TITLE = "Baseline Inversion - completion energy"
 TASK_DESCRIPTION = """
-- Coulomb rupture sets
-- Fixed duration comparisons
+- Azimuth rupture sets
+- Max duration 23hrs
+- completion energy testing
+  completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]  
+
 """
 
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_solution_builder_task,
+        initial_gateway_port=25433,	
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
@@ -99,7 +103,8 @@ if __name__ == "__main__":
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        upstream_task_id = "R2VuZXJhbFRhc2s6NjI3M2E5QWc="
+        upstream_task_id = "R2VuZXJhbFRhc2s6Mw==" #Azimuthal
+        #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #Coulomb
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
 
         #create new task in toshi_api
@@ -112,22 +117,10 @@ if __name__ == "__main__":
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
-
-    #print( rupture_sets )
-    #assert 0
-
-    # ##Parameters
-    # rupt_folder = "/home/chrisch/NSHM/opensha-new/work/save/"
-    # rupture_sets = {
-    #     "CFM09_tf0.0": rupt_folder + "RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip",
-    #     "CFM09_tf0.1": rupt_folder +"RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip",
-    #     "CFM03_tf0.0": rupt_folder +"RupSet_Az_FM(CFM_0_3_SANSTVZ)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip",
-    #     "CFM03_tf0.1": rupt_folder +"RupSet_Az_FM(CFM_0_3_SANSTVZ)_mxSbScLn(0.5)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.1).zip",
-    # }
-
-    rounds = range(2)
-    completion_energies = [0.000001,] #, 0.2] # 0.1, 0.001]
-    max_inversion_times = [30, 8*60, ]# 30, 60, 120, 4*60, 8*60, 16*60,]  #units are minutes
+    rounds = range(1)
+    completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
+    #max_inversion_times = [30, 8*60, ]# 30, 60,   0, 4*60, 8*60, 16*60,]  #units are minutes
+    max_inversion_times = [23*60,]  #units are minutes
     max_inversion_times.reverse()
 
     pool = Pool(WORKER_POOL_SIZE)

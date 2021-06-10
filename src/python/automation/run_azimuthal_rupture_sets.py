@@ -117,7 +117,7 @@ if __name__ == "__main__":
     scaling_relations = ['TMG_CRU_2017', 'SHAW_2009_MOD']
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 200
+    MAX_SECTIONS = 2000
 
     pool = Pool(WORKER_POOL_SIZE)
 
