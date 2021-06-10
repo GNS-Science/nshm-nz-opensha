@@ -25,14 +25,10 @@ WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
 
-TASK_TITLE = "Build Coulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults"
+TASK_TITLE = "Build Coulomb NZ CFM 0.9 with Stirling depths"
+TASK_DESCRIPTION = """With some distance variations, build rupture sets from NZ fault models, including Stirling 2010"""
 
-TASK_DESCRIPTION = """
-With recent UCERF4-like settings, build rupture sets from NZ fault models
-
-"""
-
-def build_tasks(general_task_id, models, jump_limits, thinning_factors,
+def build_tasks(general_task_id, models, jump_limits, adaptive_min_distances, thinning_factors,
             max_sections = 1000):
     """
     build the shell scripts 1 per task, based on all the inputs
@@ -44,8 +40,8 @@ def build_tasks(general_task_id, models, jump_limits, thinning_factors,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
 
-    for (model, max_jump_distance, thinning_factor)in itertools.product(
-            models, jump_limits, thinning_factors):
+    for (model, max_jump_distance, adaptive_min_distance, thinning_factor) in itertools.product(
+            models, jump_limits, adaptive_min_distances, thinning_factors):
 
         task_count +=1
 
@@ -53,8 +49,9 @@ def build_tasks(general_task_id, models, jump_limits, thinning_factors,
             max_sections=max_sections,
             fault_model=model, #instead of filename. filekey
             max_jump_distance=max_jump_distance,
+            adaptive_min_distance=adaptive_min_distance,
             thinning_factor=thinning_factor,
-            scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD' TODO this is currenlty not a settable parameter!
+            scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD' TODO this is currently not a settable parameter!
             short_name=f'{model}-{thinning_factor}',
             )
 
@@ -106,19 +103,20 @@ if __name__ == "__main__":
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     ##Test parameters
-    models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
-    jump_limits = [15, ] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
+    models = ["CFM_0_9_SANSTVZ_2010", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
+    jump_limits = [10,]# 15 ] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
+    adaptive_min_distances = [5,]# 7, 9]
     thinning_factors = [0.0, 0.1] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 2000
+    MAX_SECTIONS = 100
 
     pool = Pool(WORKER_POOL_SIZE)
 
     scripts = []
     for script_file in build_tasks(GENERAL_TASK_ID,
-        models, jump_limits,
-        thinning_factors, MAX_SECTIONS):
+        models, jump_limits, adaptive_min_distances,
+        thinning_factors,  MAX_SECTIONS):
         scripts.append(script_file)
 
     def call_script(script_name):
