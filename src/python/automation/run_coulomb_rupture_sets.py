@@ -26,7 +26,14 @@ WORKER_POOL_SIZE = 3
 #If using API give this task a descriptive setting...
 
 TASK_TITLE = "Build Coulomb NZ CFM 0.9 with Stirling depths"
-TASK_DESCRIPTION = """With some distance variations, build rupture sets from NZ fault models, including Stirling 2010"""
+TASK_DESCRIPTION = """With some distance variations, build rupture sets from NZ fault models, including Stirling 2010
+
+ - models = ['CFM_0_9_SANSTVZ_2010', 'CFM_0_9_SANSTVZ_D90']
+ - jump_limits = [10, 15]
+ - adaptive_min_distances = [5, 7, 9]
+ - thinning_factors = [0.0, 0.1]
+
+"""
 
 def build_tasks(general_task_id, models, jump_limits, adaptive_min_distances, thinning_factors,
             max_sections = 1000):
@@ -36,6 +43,7 @@ def build_tasks(general_task_id, models, jump_limits, adaptive_min_distances, th
     """
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.coulomb_rupture_set_builder_task,
+        initial_gateway_port=25533,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
@@ -104,12 +112,12 @@ if __name__ == "__main__":
 
     ##Test parameters
     models = ["CFM_0_9_SANSTVZ_2010", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
-    jump_limits = [10,]# 15 ] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
-    adaptive_min_distances = [5,]# 7, 9]
+    jump_limits = [10, 15] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
+    adaptive_min_distances = [5, 7, 9]
     thinning_factors = [0.0, 0.1] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 100
+    MAX_SECTIONS = 2000
 
     pool = Pool(WORKER_POOL_SIZE)
 
