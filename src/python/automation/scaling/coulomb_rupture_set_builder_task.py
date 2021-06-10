@@ -93,6 +93,7 @@ class RuptureSetBuilderTask():
         self._builder \
             .setMaxFaultSections(int(ta["max_sections"]))\
             .setMaxJumpDistance(float(ta["max_jump_distance"]))\
+            .setAdaptiveMinDist(float(ta["adaptive_min_distance"]))\
             .setAdaptiveSectFract(float(ta["thinning_factor"]))\
             .setFaultModel(ta["fault_model"])
 

@@ -25,19 +25,14 @@ WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
 
-TASK_TITLE = "Baseline NZ CFM 0.3 vs 0.9 with UCERF3 defaults"
+TASK_TITLE = "Build NZ CFM 0.9 Stirling 2010 ruptsets with UCERF3 defaults"
 
-TASK_DESCRIPTION = """
-With 'typical' UCERF3 settings, build rupture sets from NZ fault models
-
-NOW 160 tasks w + 1.333 task interval
-
-testing read/write consistency
+TASK_DESCRIPTION = """With 'typical' UCERF3 settings, build rupture sets from NZ CFM 0.9 Stirling 2010 fault models SANS TVZ
 """
 
 def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors,
-            max_sections = 1000):
+            scaling_relations, max_sections = 1000):
     """
     build the shell scripts 1 per task, based on all the inputs
 
@@ -49,9 +44,9 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
         pbs_script=CLUSTER_MODE)
 
     for (model, strategy, distance, max_cumulative_azimuth, min_sub_sects_per_parent,
-        ddw, thinning_factor)in itertools.product(
+        ddw, thinning_factor, scaling_relation)in itertools.product(
             models, strategies, jump_limits, max_cumulative_azimuths, min_sub_sects_per_parents,
-            ddw_ratios, thinning_factors):
+            ddw_ratios, thinning_factors, scaling_relations):
 
         task_count +=1
 
@@ -66,7 +61,7 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuth=max_cumulative_azimuth,
             min_sub_sects_per_parent=min_sub_sects_per_parent,
             thinning_factor=thinning_factor,
-            scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD'
+            scaling_relationship=scaling_relation,
             )
 
 
@@ -112,16 +107,17 @@ if __name__ == "__main__":
         )
 
     ##Test parameters
-    models = ["CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
+    models = ["CFM_0_9_SANSTVZ_2010",] # "CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
     jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
     min_sub_sects_per_parents = [2,] #3,4]
     max_cumulative_azimuths = [560.0,] # 570.0, 580, 590.0, 600] # 580.0, 600.0]
     thinning_factors = [0.0, 0.1] #, 0.2, 0.3] #, 0.05, 0.1, 0.2]
+    scaling_relations = ['TMG_CRU_2017', 'SHAW_2009_MOD']
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 2000
+    MAX_SECTIONS = 200
 
     pool = Pool(WORKER_POOL_SIZE)
 
@@ -129,7 +125,7 @@ if __name__ == "__main__":
     for script_file in build_tasks(GENERAL_TASK_ID,
         models, jump_limits, ddw_ratios, strategies,
         max_cumulative_azimuths, min_sub_sects_per_parents,
-        thinning_factors, MAX_SECTIONS):
+        thinning_factors, scaling_relations, MAX_SECTIONS):
         scripts.append(script_file)
 
     def call_script(script_name):
