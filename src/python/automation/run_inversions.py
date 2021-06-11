@@ -36,7 +36,7 @@ TASK_DESCRIPTION = """
 - Azimuth rupture sets (with min sects 3,4,5)
 - Max duration 23hrs
 - completion_energies = [0.2, 0.01, 0.005]
-- rounds 2
+- rounds 1
 """
 
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
-    rounds = range(2)
+    rounds = range(1)
     # completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
     completion_energies = [0.2, 0.01, 0.005]
     #max_inversion_times = [30, 8*60, ]# 30, 60,   0, 4*60, 8*60, 16*60,]  #units are minutes
