@@ -45,7 +45,7 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits,
     """
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.coulomb_rupture_set_builder_task,
-        initial_gateway_port=25533,
+        initial_gateway_port=25733,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)

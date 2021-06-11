@@ -42,7 +42,7 @@ TASK_DESCRIPTION = """
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_solution_builder_task,
-        initial_gateway_port=25633,
+        initial_gateway_port=25833,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
@@ -88,7 +88,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
                     os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
                     yield str(script_file_path)
-                    return
+                    #return
 
 if __name__ == "__main__":
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         #get input files from API
         #upstream_task_id = "R2VuZXJhbFRhc2s6Mw==" #Azimuthal
         #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #Coulomb
-        upstream_task_id = "2VuZXJhbFRhc2s6MTg3OEtweFI=" #Azimuthal Stirling (note doubled up)
+        upstream_task_id = "R2VuZXJhbFRhc2s6MTg3OEtweFI=" #Azimuthal Stirling (note doubled up)
         #upstream_task_id = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb (IN PROG)
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
 
