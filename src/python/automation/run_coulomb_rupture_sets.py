@@ -24,18 +24,20 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
+TASK_TITLE = "Build Coulomb CFM 0.9 ruptsets with increased minimum sub-sections"
 
-TASK_TITLE = "Build Coulomb NZ CFM 0.9 with Stirling depths"
-TASK_DESCRIPTION = """With some distance variations, build rupture sets from NZ fault models, including Stirling 2010
+TASK_DESCRIPTION = """Coulomb ruptures with **min_sub_sects_per_parent** at [3,4,5] instead of UCERF3 2
 
- - models = ['CFM_0_9_SANSTVZ_2010', 'CFM_0_9_SANSTVZ_D90']
- - jump_limits = [10, 15]
- - adaptive_min_distances = [5, 7, 9]
+This will increase the minimum rupture magnitudes produced.
+
+ - models = [CFM_0_9_SANSTVZ_D90,]
+ - jump_limits = [15,]
+ - adaptive_min_distances = [6,]
  - thinning_factors = [0.0, 0.1]
-
+ - min_sub_sects_per_parents = [3,4,5]
 """
 
-def build_tasks(general_task_id, models, jump_limits, adaptive_min_distances, thinning_factors,
+def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits, adaptive_min_distances, thinning_factors,
             max_sections = 1000):
     """
     build the shell scripts 1 per task, based on all the inputs
@@ -48,14 +50,15 @@ def build_tasks(general_task_id, models, jump_limits, adaptive_min_distances, th
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
 
-    for (model, max_jump_distance, adaptive_min_distance, thinning_factor) in itertools.product(
-            models, jump_limits, adaptive_min_distances, thinning_factors):
+    for (model, min_sub_sects_per_parent, max_jump_distance, adaptive_min_distance, thinning_factor) in itertools.product(
+            models, min_sub_sects_per_parents, jump_limits, adaptive_min_distances, thinning_factors):
 
         task_count +=1
 
         task_arguments = dict(
             max_sections=max_sections,
             fault_model=model, #instead of filename. filekey
+            min_sub_sects_per_parent=min_sub_sects_per_parent,
             max_jump_distance=max_jump_distance,
             adaptive_min_distance=adaptive_min_distance,
             thinning_factor=thinning_factor,
@@ -111,10 +114,11 @@ if __name__ == "__main__":
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     ##Test parameters
-    models = ["CFM_0_9_SANSTVZ_2010", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
-    jump_limits = [10, 15] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
-    adaptive_min_distances = [5, 7, 9]
+    models = ["CFM_0_9_SANSTVZ_D90",] #, "CFM_0_9_ALL_D90","CFM_0_9_SANSTVZ_2010"]
+    jump_limits = [15,] #defaul is 15
+    adaptive_min_distances = [6,] #9] default is 6
     thinning_factors = [0.0, 0.1] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
+    min_sub_sects_per_parents = [3,4,5]
 
     #limit test size, nomally 1000 for NZ CFM
     MAX_SECTIONS = 2000
@@ -123,7 +127,8 @@ if __name__ == "__main__":
 
     scripts = []
     for script_file in build_tasks(GENERAL_TASK_ID,
-        models, jump_limits, adaptive_min_distances,
+        models, min_sub_sects_per_parents,
+        jump_limits, adaptive_min_distances,
         thinning_factors,  MAX_SECTIONS):
         scripts.append(script_file)
 

@@ -31,19 +31,18 @@ JAVA_THREADS = 4
 USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Baseline Inversion - completion energy"
+TASK_TITLE = "Inversions on Azimuthal rupsets with increased minimum sub-sections"
 TASK_DESCRIPTION = """
-- Azimuth rupture sets
+- Azimuth rupture sets (with min sects 3,4,5)
 - Max duration 23hrs
-- completion energy testing
-  completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]  
-
+- completion_energies = [0.2, 0.01, 0.005]
+- rounds 2
 """
 
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_solution_builder_task,
-        initial_gateway_port=25433,	
+        initial_gateway_port=25633,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
@@ -89,7 +88,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
                     os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
                     yield str(script_file_path)
-
+                    return
 
 if __name__ == "__main__":
 
@@ -103,8 +102,10 @@ if __name__ == "__main__":
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        upstream_task_id = "R2VuZXJhbFRhc2s6Mw==" #Azimuthal
+        #upstream_task_id = "R2VuZXJhbFRhc2s6Mw==" #Azimuthal
         #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #Coulomb
+        upstream_task_id = "2VuZXJhbFRhc2s6MTg3OEtweFI=" #Azimuthal Stirling (note doubled up)
+        #upstream_task_id = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb (IN PROG)
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
 
         #create new task in toshi_api
@@ -117,8 +118,9 @@ if __name__ == "__main__":
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
-    rounds = range(1)
-    completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
+    rounds = range(2)
+    # completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
+    completion_energies = [0.2, 0.01, 0.005]
     #max_inversion_times = [30, 8*60, ]# 30, 60,   0, 4*60, 8*60, 16*60,]  #units are minutes
     max_inversion_times = [23*60,]  #units are minutes
     max_inversion_times.reverse()

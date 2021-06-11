@@ -25,10 +25,11 @@ WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
 
-TASK_TITLE = "Build NZ CFM 0.9 Stirling 2010 ruptsets with UCERF3 defaults"
+TASK_TITLE = "Build CFM 0.9 ruptsets with increased minimum sub-sections"
 
-TASK_DESCRIPTION = """With 'typical' UCERF3 settings, build rupture sets from NZ CFM 0.9 Stirling 2010 fault models SANS TVZ
-"""
+TASK_DESCRIPTION = """Azimuthal ruptures with **min_sub_sects_per_parent** at [3,4,5] instead of UCERF3 2.
+
+This will increase the minimum rupture magnitudes produced."""
 
 def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors,
@@ -39,6 +40,7 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
     """
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.azimuthal_rupture_set_builder_task,
+        initial_gateway_port=25333,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
@@ -54,8 +56,6 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_sections=max_sections,
             down_dip_width=ddw,
             connection_strategy=strategy,
-            #crustal_filename=None,
-            #filekey=None,
             fault_model=model, #instead of filename. filekey
             max_jump_distance=distance,
             max_cumulative_azimuth=max_cumulative_azimuth,
@@ -107,14 +107,14 @@ if __name__ == "__main__":
         )
 
     ##Test parameters
-    models = ["CFM_0_9_SANSTVZ_2010",] # "CFM_0_3_SANSTVZ", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90"]
+    models = ["CFM_0_9_SANSTVZ_2010", "CFM_0_9_SANSTVZ_D90"] #, "CFM_0_9_ALL_D90". "CFM_0_3_SANSTVZ"]
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
     jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
-    min_sub_sects_per_parents = [2,] #3,4]
+    min_sub_sects_per_parents = [3,4,5]
     max_cumulative_azimuths = [560.0,] # 570.0, 580, 590.0, 600] # 580.0, 600.0]
     thinning_factors = [0.0, 0.1] #, 0.2, 0.3] #, 0.05, 0.1, 0.2]
-    scaling_relations = ['TMG_CRU_2017', 'SHAW_2009_MOD']
+    scaling_relations = ['TMG_CRU_2017',] #'SHAW_2009_MOD'] WARNING this is not yet configurable, need a setter in ruptset builder
 
     #limit test size, nomally 1000 for NZ CFM
     MAX_SECTIONS = 2000

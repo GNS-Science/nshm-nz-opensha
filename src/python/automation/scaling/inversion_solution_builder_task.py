@@ -21,7 +21,7 @@ S3_URL = os.getenv('NZSHM22_TOSHI_S3_URL',"http://localhost:4569")
 
 class BuilderTask():
     """
-    The python client for a RuptureSetBuildTask
+    COnfigure the python client for a InversionTask
     """
     def __init__(self, job_args):
 
