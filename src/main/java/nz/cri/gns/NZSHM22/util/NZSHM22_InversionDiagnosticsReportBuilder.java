@@ -61,6 +61,20 @@ public class NZSHM22_InversionDiagnosticsReportBuilder {
 		builder.generatePage();        
     }
     
+    public void generateRuptureSetDiagnosticsReport() throws IOException, DocumentException {
+
+		FaultSystemRupSet inputRupSet = FaultSystemIO.loadRupSet(new File(ruptureSetName));
+		FaultSystemSolution inputSol = null;
+			
+        RupSetDiagnosticsPageGen builder = new RupSetDiagnosticsPageGen(
+        		inputRupSet, inputSol, name, new File(outputDir));
+		builder.setSkipPlausibility(true);
+		builder.setSkipBiasiWesnousky(true);
+		builder.setSkipConnectivity(true);
+		builder.setSkipSegmentation(true);
+		builder.generatePage();        
+    }
+    
     
     public void generateFilteredInversionDiagnosticsReport() throws IOException, DocumentException {
         String[] args = new String[]
