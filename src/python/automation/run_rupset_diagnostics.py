@@ -15,7 +15,7 @@ from nshm_toshi_client.toshi_file import ToshiFile
 from scaling.opensha_task_factory import OpenshaTaskFactory
 from scaling.file_utils import download_files
 
-import scaling.diagnostics_report_task
+import scaling.ruptset_diags_report_task
 
 
 # Set up your local config, from environment variables, with some sone defaults
@@ -28,7 +28,7 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 WORKER_POOL_SIZE = 2
 JVM_HEAP_MAX = 12
 JAVA_THREADS = 4
-USE_API = True
+USE_API = True #to read the ruptset form the API
 
 
 #If using API give this task a descriptive setting...
@@ -40,7 +40,7 @@ TASK_DESCRIPTION = """
 
 def run_tasks(general_task_id, rupture_sets, rupture_class):
     task_count = 0
-    task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.diagnostics_report_task,
+    task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.ruptset_diags_report_task,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
@@ -49,20 +49,12 @@ def run_tasks(general_task_id, rupture_sets, rupture_class):
 
         task_count +=1
 
-        short_name = rupture_set_info['info'].get('short_name') or \
-            f"{rupture_set_info['info']['fault_model']}-{rupture_set_info['info']['thinning_factor']}" # for old pre-short_name
+        short_name = f"Rupture set file_id: {rid}"
 
         #rupture_set_info['info'] has detaail of the Inversion task
         task_arguments = dict(
             rupture_set_file_id = str(rupture_set_info['id']),
-            generation_task_id = str(rupture_set_info['info']['generation_task_id']),
-            # report_name = str(PurePath(rupture_set_info['filepath']).name).replace('.zip', '') + "-" + rupture_set_info['info']['max_inversion_time'],
-            solution_file = str(rupture_set_info['filepath']),
-            short_name = short_name, #includes RuptureSetENUM + thinning factor
-            rupture_class = rupture_class,
-            max_inversion_time = rupture_set_info['info']['max_inversion_time'],
-            completion_energy = rupture_set_info['info']['completion_energy'],
-            round_number = rupture_set_info['info']['round'],
+            rupture_set_file_path = rupture_set_info['filepath'],
             )
 
         job_arguments = dict(
@@ -91,7 +83,6 @@ def run_tasks(general_task_id, rupture_sets, rupture_class):
 
         yield str(script_file_path)
 
-
 if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
@@ -104,28 +95,16 @@ if __name__ == "__main__":
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        #upstream_task_id = "R2VuZXJhbFRhc2s6NjI3M2E5QWc=" #PROD Coulomb Inversions May 26
-        #upstream_task_id = "R2VuZXJhbFRhc2s6NjMyUzRDZGM=" #TEST  Coulomb Inversions May 25
-        #upstream_task_id = "R2VuZXJhbFRhc2s6OThUR2YybQ==" #Azimuthal (named Couldmb!!)
-        #upstream_task_id = "R2VuZXJhbFRhc2s6MTIwVUxQOFY=" #PROD Coulomb May 27
+        upstream_task_id = "R2VuZXJhbFRhc2s6MTg3OEtweFI=" #PROD Azimuthal Stirling
+        upstream_task_id = "R2VuZXJhbFRhc2s6MjE3Qk1YREw=" #Azim, 3,4,5
+        upstream_task_id = "R2VuZXJhbFRhc2s6MjMwWUc4TE4=" #Coul, 3,4,5
 
-        #upstream_task_id = "R2VuZXJhbFRhc2s6MTM3Uk5UUjU=" #PROD Coulomb May 29
-        upstream_task_id = "R2VuZXJhbFRhc2s6MTYyb2k0TGQ==" #PROD Azimuthal May 29
 
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
 
-        # #create new task in toshi_api
-        # GENERAL_TASK_ID = general_api.create_task(
-        #     created=dt.datetime.now(tzutc()).isoformat(),
-        #     agent_name=pwd.getpwuid(os.getuid()).pw_name,
-        #     title=TASK_TITLE,
-        #     description=TASK_DESCRIPTION
-        # )
-
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
-    #print( rupture_sets )
-    #assert 0
+    print( rupture_sets )
 
     pool = Pool(WORKER_POOL_SIZE)
 
