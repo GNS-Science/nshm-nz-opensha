@@ -29,14 +29,55 @@ public abstract class NZSHM22_AbstractRuptureSetBuilder {
     NZSHM22_FaultModels faultModel = null;
 
     int minSubSectsPerParent = 2; // 2 are required for UCERf3 azimuth calcs
+    int minSubSections = 2; // New NZSHM22
 
     long maxFaultSections = 100000; // maximum fault ruptures to process
     long skipFaultSections = 0; // skip n fault ruptures, default 0"
     double maxSubSectionLength = 0.5; // maximum sub section length (in units of DDW)
     int numThreads = Runtime.getRuntime().availableProcessors(); // use all available processors
 
-    public abstract String getDescriptiveName();
+    protected static String fmt(float d) {
+        if (d == (long) d)
+            return String.format("%d", (long) d);
+        else
+            return Float.toString(d);
+    }
 
+    protected static String fmt(double d) {
+        if (d == (long) d)
+            return String.format("%d", (long) d);
+        else
+            return Double.toString(d);
+    }
+
+    protected static String fmt(boolean b) {
+        return b ? "T" : "F";
+    }
+    
+    public String getDescriptiveName() {
+        String description = "";
+        if (faultModel != null) {
+            description = description + "_FM(" + faultModel.name() + ")";
+        }
+        if (fsdFile != null) {
+            description = description + "_FF(" + fsdFile.getName() + ")";
+        }
+        if (downDipFile != null) {
+            description = description + "_SF(" + downDipFile.getName() + ")";
+        }        
+        description += "_mnSbS(" + fmt(minSubSections) + ")";
+        description += "_mnSSPP(" + fmt(minSubSectsPerParent) + ")";
+        description += "_mxSSL(" + fmt(maxSubSectionLength) + ")";
+        
+        if (maxFaultSections != 100000) {
+        	description += "_mxFS(" + fmt(maxFaultSections) + ")";
+        }
+        if (skipFaultSections != 0) {
+        	description += "_skFS(" + fmt(skipFaultSections) + ")";       	
+        }
+        return description;
+    }
+    
     public abstract NZSHM22_SlipEnabledRuptureSet buildRuptureSet() throws DocumentException, IOException ;
 
     public NZSHM22_AbstractRuptureSetBuilder setFaultModel(NZSHM22_FaultModels faultModel){
@@ -113,6 +154,15 @@ public abstract class NZSHM22_AbstractRuptureSetBuilder {
         return this;
     }
 
+    /**
+     * @param minSubSections sets the minimum subsections, 2 is default
+     * @return NZSHM22_RuptureSetBuilder the builder
+     */
+    public NZSHM22_AbstractRuptureSetBuilder setMinSubSections(int minSubSections) {
+        this.minSubSections = minSubSections;
+        return this;
+    }    
+    
     protected void loadFaults() throws IOException, DocumentException {
         if (faultModel != null) {
             faultModel.fetchFaultSections(subSections);
