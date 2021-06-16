@@ -24,20 +24,26 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Build Coulomb CFM 0.9 ruptsets with increased minimum sub-sections"
+TASK_TITLE = "Build Coulomb CFM 0.9 ruptsets with increased minimum sub-sections - take 2"
 
-TASK_DESCRIPTION = """Coulomb ruptures with **min_sub_sects_per_parent** at [3,4,5] instead of UCERF3 2
+TASK_DESCRIPTION = """Coulomb ruptures with with new **min_sub_sections filter**
 
-This will increase the minimum rupture magnitudes produced.
+This will increase the minimum rupture magnitudes produced with no effect on larger ruptures.
+
+**NB** skipping Stirling 2010 model - it's not yet reliable w coulomb
 
  - models = [CFM_0_9_SANSTVZ_D90,]
  - jump_limits = [15,]
  - adaptive_min_distances = [6,]
  - thinning_factors = [0.0, 0.1]
- - min_sub_sects_per_parents = [3,4,5]
+ - min_sub_sects_per_parents = [2,]
+ - min_sub_sections = [3,4,5]
+
 """
 
-def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits, adaptive_min_distances, thinning_factors,
+
+
+def build_tasks(general_task_id, models, min_sub_sects_per_parents, min_sub_sections_list, jump_limits, adaptive_min_distances, thinning_factors,
             max_sections = 1000):
     """
     build the shell scripts 1 per task, based on all the inputs
@@ -50,8 +56,8 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
 
-    for (model, min_sub_sects_per_parent, max_jump_distance, adaptive_min_distance, thinning_factor) in itertools.product(
-            models, min_sub_sects_per_parents, jump_limits, adaptive_min_distances, thinning_factors):
+    for (model, min_sub_sects_per_parent, min_sub_sections, max_jump_distance, adaptive_min_distance, thinning_factor) in itertools.product(
+            models, min_sub_sects_per_parents, min_sub_sections_list, jump_limits, adaptive_min_distances, thinning_factors):
 
         task_count +=1
 
@@ -59,11 +65,11 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits,
             max_sections=max_sections,
             fault_model=model, #instead of filename. filekey
             min_sub_sects_per_parent=min_sub_sects_per_parent,
+            min_sub_sections=min_sub_sections,
             max_jump_distance=max_jump_distance,
             adaptive_min_distance=adaptive_min_distance,
             thinning_factor=thinning_factor,
             scaling_relationship='TMG_CRU_2017', #'SHAW_2009_MOD' TODO this is currently not a settable parameter!
-            short_name=f'{model}-{thinning_factor}',
             )
 
 
@@ -75,6 +81,7 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits,
             root_folder=OPENSHA_ROOT,
             general_task_id=general_task_id,
             use_api = USE_API,
+            short_name=f'{model}-{thinning_factor}',
             )
 
         #write a config
@@ -91,13 +98,14 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, jump_limits,
         yield str(script_file_path)
 
         #testing
-        #return
+        return
 
 
 if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
 
+    USE_API = False
     GENERAL_TASK_ID = None
 
     if USE_API:
@@ -119,15 +127,16 @@ if __name__ == "__main__":
     adaptive_min_distances = [6,] #9] default is 6
     thinning_factors = [0.0, 0.1] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
     min_sub_sects_per_parents = [3,4,5]
+    min_sub_sections_list = [3,4,5]
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 2000
+    MAX_SECTIONS = 100
 
     pool = Pool(WORKER_POOL_SIZE)
 
     scripts = []
     for script_file in build_tasks(GENERAL_TASK_ID,
-        models, min_sub_sects_per_parents,
+        models, min_sub_sects_per_parents, min_sub_sections_list,
         jump_limits, adaptive_min_distances,
         thinning_factors,  MAX_SECTIONS):
         scripts.append(script_file)

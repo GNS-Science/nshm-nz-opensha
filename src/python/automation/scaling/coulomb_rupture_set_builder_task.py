@@ -89,13 +89,13 @@ class RuptureSetBuilderTask():
         assert self._builder
         print('Got RuptureSetBuilder: ', self._builder)
 
-
         self._builder \
             .setMaxFaultSections(int(ta["max_sections"]))\
             .setMaxJumpDistance(float(ta["max_jump_distance"]))\
             .setAdaptiveMinDist(float(ta["adaptive_min_distance"]))\
             .setAdaptiveSectFract(float(ta["thinning_factor"]))\
             .setMinSubSectsPerParent(int(ta["min_sub_sects_per_parent"]))\
+            .setMinSubSections(int(ta["min_sub_sections"]))\
             .setFaultModel(ta["fault_model"])
 
         #name the output file

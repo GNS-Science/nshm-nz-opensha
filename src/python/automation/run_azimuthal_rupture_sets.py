@@ -25,11 +25,23 @@ WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
 
-TASK_TITLE = "Build CFM 0.9 ruptsets with increased minimum sub-sections - take 2"
+TASK_TITLE = "Build Azimuthal CFM 0.9 ruptsets with increased minimum sub-sections - take 2"
 
-TASK_DESCRIPTION = """Azimuthal ruptures with new **min_sub_sections filter** at [3,4,5]
+TASK_DESCRIPTION = """Azimuthal ruptures with new **min_sub_sections filter**
 
-This will increase the minimum rupture magnitudes produced."""
+This will increase the minimum rupture magnitudes produced with no effect on larger ruptures.
+
+
+ - models = [CFM_0_9_SANSTVZ_D90, CFM_0_3_SANSTVZ, CFM_0_9_SANSTVZ_2010]
+ - strategies = ['UCERF3', ]
+ - jump_limits = [5.0,]
+ - ddw_ratios = [0.5,]
+ - max_cumulative_azimuths = [560.0,]
+ - thinning_factors = [0.0, 0.1]
+ - min_sub_sects_per_parents = [2,]
+ - min_sub_sections = [3,4,5]
+
+"""
 
 def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_cumulative_azimuths, min_sub_sects_per_parents, min_sub_sections_list, thinning_factors,
