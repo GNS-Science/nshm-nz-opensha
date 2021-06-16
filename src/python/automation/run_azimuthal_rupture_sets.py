@@ -25,14 +25,14 @@ WORKER_POOL_SIZE = 3
 
 #If using API give this task a descriptive setting...
 
-TASK_TITLE = "Build CFM 0.9 ruptsets with increased minimum sub-sections"
+TASK_TITLE = "Build CFM 0.9 ruptsets with increased minimum sub-sections - take 2"
 
-TASK_DESCRIPTION = """Azimuthal ruptures with **min_sub_sects_per_parent** at [3,4,5] instead of UCERF3 2.
+TASK_DESCRIPTION = """Azimuthal ruptures with new **min_sub_sections filter** at [3,4,5]
 
 This will increase the minimum rupture magnitudes produced."""
 
 def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
-            max_cumulative_azimuths, min_sub_sects_per_parents, thinning_factors,
+            max_cumulative_azimuths, min_sub_sects_per_parents, min_sub_sections_list, thinning_factors,
             scaling_relations, max_sections = 1000):
     """
     build the shell scripts 1 per task, based on all the inputs
@@ -45,9 +45,9 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
 
-    for (model, strategy, distance, max_cumulative_azimuth, min_sub_sects_per_parent,
-        ddw, thinning_factor, scaling_relation)in itertools.product(
-            models, strategies, jump_limits, max_cumulative_azimuths, min_sub_sects_per_parents,
+    for (model, strategy, distance, max_cumulative_azimuth, min_sub_sects_per_parent, min_sub_sections,
+        ddw, thinning_factor, scaling_relation) in itertools.product(
+            models, strategies, jump_limits, max_cumulative_azimuths, min_sub_sects_per_parents, min_sub_sections_list,
             ddw_ratios, thinning_factors, scaling_relations):
 
         task_count +=1
@@ -60,6 +60,7 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
             max_jump_distance=distance,
             max_cumulative_azimuth=max_cumulative_azimuth,
             min_sub_sects_per_parent=min_sub_sects_per_parent,
+            min_sub_sections=min_sub_sections,
             thinning_factor=thinning_factor,
             scaling_relationship=scaling_relation,
             )
@@ -87,12 +88,13 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
         os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
         yield str(script_file_path)
-        #return
+        return
 
 if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
 
+    USE_API = False
     GENERAL_TASK_ID = None
 
     if USE_API:
@@ -111,13 +113,14 @@ if __name__ == "__main__":
     strategies = ['UCERF3', ] #'POINTS'] #, 'UCERF3' == DOWNDIP]
     jump_limits = [5.0,] #4.0, 4.5, 5.0, 5.1] #4.0, 4.5, 5.0, 5.1] # , 5.1, 5.2, 5.3]
     ddw_ratios = [0.5,] # 1.0, 1.5, 2.0, 2.5]
-    min_sub_sects_per_parents = [3,4,5]
+    min_sub_sects_per_parents = [2,] #3,4,5]
+    min_sub_sections_list = [3,4,5]
     max_cumulative_azimuths = [560.0,] # 570.0, 580, 590.0, 600] # 580.0, 600.0]
     thinning_factors = [0.0, 0.1] #, 0.2, 0.3] #, 0.05, 0.1, 0.2]
     scaling_relations = ['TMG_CRU_2017',] #'SHAW_2009_MOD'] WARNING this is not yet configurable, need a setter in ruptset builder
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 2000
+    MAX_SECTIONS = 200
 
     pool = Pool(WORKER_POOL_SIZE)
 
@@ -125,6 +128,7 @@ if __name__ == "__main__":
     for script_file in build_tasks(GENERAL_TASK_ID,
         models, jump_limits, ddw_ratios, strategies,
         max_cumulative_azimuths, min_sub_sects_per_parents,
+        min_sub_sections_list,
         thinning_factors, scaling_relations, MAX_SECTIONS):
         scripts.append(script_file)
 

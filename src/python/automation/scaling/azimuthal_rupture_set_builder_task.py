@@ -106,6 +106,7 @@ class RuptureSetBuilderTask():
             .setPermutationStrategy(ta["connection_strategy"])\
             .setMaxSubSectionLength(float(ta["down_dip_width"]))\
             .setMinSubSectsPerParent(int(ta["min_sub_sects_per_parent"]))\
+            .setMinSubSections(int(ta["min_sub_sections"]))\
             .setMaxCumulativeAzimuthChange(float(ta["max_cumulative_azimuth"]))\
             .setThinningFactor(float(ta["thinning_factor"]))\
             .setFaultModel(ta["fault_model"])
