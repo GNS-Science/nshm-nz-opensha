@@ -15,8 +15,8 @@ from nshm_toshi_client.toshi_file import ToshiFile
 from scaling.opensha_task_factory import OpenshaTaskFactory
 from scaling.file_utils import download_files
 
-import scaling.ruptset_diags_report_task
-
+import scaling.inversion_diags_report_task
+# from scaling.toshi_api import ToshiApi
 
 # Set up your local config, from environment variables, with some sone defaults
 from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
@@ -38,23 +38,38 @@ TASK_DESCRIPTION = """
 - Fixed duration comparisons
 """
 
-def run_tasks(general_task_id, rupture_sets, rupture_class):
+
+# def get_fault_model(rgt):
+#     for file_node in rgt['files']['edges']:
+#         fn = file_node['node']
+#         #extract mmode from the rupture set
+#         if fn['role'] == 'READ' and 'zip' in fn['file']['file_name']:
+#             for kv_pair in fn['file']['meta']:
+#                 if kv_pair['k'] == 'fault_model':
+#                     return kv_pair['v']
+
+
+def run_tasks(general_task_id, solutions, rupture_class):
     task_count = 0
-    task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.ruptset_diags_report_task,
+    task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_diags_report_task,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_script=CLUSTER_MODE)
 
-    for (rid, rupture_set_info) in rupture_sets.items():
+    for (sid, rupture_set_info) in solutions.items():
 
         task_count +=1
 
-        short_name = f"Rupture set file_id: {rid}"
+        #get FM name
+        fault_model = rupture_set_info['info']['fault_model']
 
-        #rupture_set_info['info'] has detaail of the Inversion task
+        # idx0 = rupture_set_info['filepath'].index("-CFM")
+        # idx1 = rupture_set_info['filepath'].index("-", idx0 +1)
+        #rupture_set_info['info'] has detail of the Inversion task
         task_arguments = dict(
-            rupture_set_file_id = str(rupture_set_info['id']),
-            rupture_set_file_path = rupture_set_info['filepath'],
+            file_id = str(rupture_set_info['id']),
+            file_path = rupture_set_info['filepath'],
+            fault_model = fault_model,
             )
 
         job_arguments = dict(
@@ -95,23 +110,22 @@ if __name__ == "__main__":
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        upstream_task_id = "R2VuZXJhbFRhc2s6MTg3OEtweFI=" #PROD Azimuthal Stirling
-        upstream_task_id = "R2VuZXJhbFRhc2s6MjE3Qk1YREw=" #Azim, 3,4,5
-        upstream_task_id = "R2VuZXJhbFRhc2s6MjMwWUc4TE4=" #Coul, 3,4,5
-        upstream_task_id = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
+        upstream_task_id = "R2VuZXJhbFRhc2s6MjM3bjNhNjM=" #Stirlngs all failee
+        #upstream_task_id = "R2VuZXJhbFRhc2s6Mjg3VUdUblY="
+        upstream_task_id = "R2VuZXJhbFRhc2s6MjUwYVhrVzY=" #Azimuthal 3,4,5
 
-        rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
+        solutions = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
-    print( rupture_sets )
+    print('SOLUTIONS', solutions)
 
     pool = Pool(WORKER_POOL_SIZE)
 
     RUPTURE_CLASS = "Azimuth" #### TODO FIX THIS it comes fomr the data!!
 
     scripts = []
-    for script_file in run_tasks(GENERAL_TASK_ID, rupture_sets, RUPTURE_CLASS):
+    for script_file in run_tasks(GENERAL_TASK_ID, solutions, RUPTURE_CLASS):
         print('scheduling: ', script_file)
         scripts.append(script_file)
 

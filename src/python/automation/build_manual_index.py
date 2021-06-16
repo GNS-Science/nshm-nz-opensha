@@ -19,71 +19,7 @@ import base64
 import json
 import collections
 
-
-from nshm_toshi_client.toshi_client_base import ToshiClientBase
-
-class ToshiGenTask(ToshiClientBase):
-
-    def __init__(self, url, s3_url, auth_token, with_schema_validation=True, headers=None ):
-        super(ToshiGenTask, self).__init__(url, auth_token, with_schema_validation, headers)
-        self._s3_url = s3_url
-
-
-    def get_general_task_subtask_files(self, id):
-        qry = '''
-            query one_general ($id:ID!)  {
-              node(id: $id) {
-                __typename
-                ... on GeneralTask {
-                  title
-                  description
-                  created
-                  children {
-                    total_count
-                    edges {
-                      node {
-                        child {
-                          __typename
-                          ... on Node {
-                            id
-                          }
-                          ... on RuptureGenerationTask {
-                            created
-                            state
-
-                            result
-                            arguments {k v}
-                            files {
-                              total_count
-                              edges {
-                                node {
-                                  role
-                                  file {
-                                    ... on File {
-                                      id
-                                      file_name
-                                      file_size
-                                      meta {k v}
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }'''
-
-        # print(qry)
-        input_variables = dict(id=id)
-        executed = self.run_query(qry, input_variables)
-
-        return executed
-
+from scaling.toshi_api import ToshiApi
 
 class GeneralTaskBuilder():
     """
@@ -161,22 +97,57 @@ def rgt_template(rgt):
         </li>
         '''
 
+def inv_template(rgt):
 
+    rid = rgt['id']
+    result = rgt['result']
+    fname = None
+    fault_model = ""
+    # return f'<li><a href="{TUI}RuptureGenerationTask/{rid}">Rupture set {rid}</a>result: {result}</li>'
+    for file_node in rgt['files']['edges']:
+        fn = file_node['node']
+        #get solution details
+        if fn['role'] == 'WRITE' and 'zip' in fn['file']['file_name']:
+            fname = fn['file']['file_name']
+            fid = fn['file']['id']
+
+        #extract mmode from the rupture set
+        if fn['role'] == 'READ' and 'zip' in fn['file']['file_name']:
+            for kv_pair in fn['file']['meta']:
+                if kv_pair['k'] == 'fault_model':
+                    fault_model = kv_pair['v']
+                    break
+
+
+    if fname:
+        return f'''<li>
+            <a href="{TUI}RuptureGenerationTask/{rid}">{rid}</a> result: {result} &nbsp;
+            <a href="{TUI}FileDetail/{fid}">File detail</a> &nbsp;
+            <a href="{UPLOAD_FOLDER}/{fid}/mag_rates/MAG_rates_log_fixed_yscale.png">Mag Rate overall</a>
+            <a href="{UPLOAD_FOLDER}/{fid}/named_fault_mfds/mfd_index.html">Named fault MFDs</a>
+        </li>
+        '''
+    else:
+       return f'''<li>
+            <a href="{TUI}RuptureGenerationTask/{rid}">{rid}</a> result: {result}
+        </li>
+        '''
 
 if __name__ == "__main__":
 
     #rupture_class = "Azimuth" #"Coulomb"
 
-    api = ToshiGenTask
     headers={"x-api-key":API_KEY}
-    general_api = ToshiGenTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+    general_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
     GID = "R2VuZXJhbFRhc2s6MTg3OEtweFI=" #Azimuthal Stirling 2010
     #GID = "R2VuZXJhbFRhc2s6MjE3Qk1YREw=" #Azimuthal 3,4,5
     #GID = "R2VuZXJhbFRhc2s6MjMwWUc4TE4=" #Coulomb 3,4,5
+    #GID = "R2VuZXJhbFRhc2s6MjUwYVhrVzY=" #Azimuthal 3,4,5
+    GID = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
-    UPLOAD_FOLDER = "DATA3"
+    UPLOAD_FOLDER = "DATA4"
 
     gentask = general_api.get_general_task_subtask_files(GID)
     node = gentask['node']
@@ -187,7 +158,9 @@ if __name__ == "__main__":
 
     for child_node in node['children']['edges']:
         rgt = child_node['node']['child']
+
         print(rgt_template(rgt))
+        #print(inv_template(rgt))
 
     print("</ul>")
 

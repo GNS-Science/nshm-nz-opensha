@@ -13,29 +13,31 @@ def get_output_file_ids(general_task_api, upstream_task_id, file_extension='zip'
     api_result = general_task_api.get_subtask_files(upstream_task_id)
     for subtask in api_result['children']['edges']:
 
+        #get rupture set fault model
+        fault_model = ""
+        for filenode in subtask['node']['child']['files']['edges']:
+            if filenode['node']['role'] == 'READ' and filenode['node']['file']['file_name'][-3:] == file_extension:
+                for kv in filenode['node']['file'].get('meta', []):
+                    if kv.get('k') == 'fault_model':
+                        fault_model = kv.get('v')
+                        break
+
         for filenode in subtask['node']['child']['files']['edges']:
             #skip task inputs
             if filenode['node']['role'] == 'READ':
                 continue
-
             if filenode['node']['file']['file_name'][-3:] == file_extension:
                 # inversion_meta = dict() ## this relies on order of
                 # for kv in filenode['node']['file']['meta']:
                 #     inversion_meta[kv['k']] = kv['v']
-
-                # short_name = ""
-                # max_inversion_time = ""
-
-               # for kv in filenode['node']['file'].get('meta', []):
-               #      if kv.get('k') == 'short_name':
-               #          short_name = kv.get('v')
-               #          break
-
-                yield dict(id = filenode['node']['file']['id'],
+                res = dict(id = filenode['node']['file']['id'],
                         file_name = filenode['node']['file']['file_name'],
                         file_size = filenode['node']['file']['file_size']
                         )
-                        # short_name = short_name)
+
+                if fault_model:
+                   res['fault_model'] = fault_model
+                yield res
 
 
 def get_download_info(file_api, file_infos):
