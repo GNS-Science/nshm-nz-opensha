@@ -32,7 +32,7 @@ TASK_DESCRIPTION = """Azimuthal ruptures with new **min_sub_sections filter**
 This will increase the minimum rupture magnitudes produced with no effect on larger ruptures.
 
 
- - models = [CFM_0_9_SANSTVZ_D90, CFM_0_3_SANSTVZ, CFM_0_9_SANSTVZ_2010]
+ - models = [CFM_0_9_SANSTVZ_D90, CFM_0_9_SANSTVZ_2010]
  - strategies = ['UCERF3', ]
  - jump_limits = [5.0,]
  - ddw_ratios = [0.5,]
@@ -100,13 +100,11 @@ def build_tasks(general_task_id, models, jump_limits, ddw_ratios, strategies,
         os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
         yield str(script_file_path)
-        return
 
 if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
 
-    USE_API = False
     GENERAL_TASK_ID = None
 
     if USE_API:
@@ -132,7 +130,7 @@ if __name__ == "__main__":
     scaling_relations = ['TMG_CRU_2017',] #'SHAW_2009_MOD'] WARNING this is not yet configurable, need a setter in ruptset builder
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 200
+    MAX_SECTIONS = 2000
 
     pool = Pool(WORKER_POOL_SIZE)
 

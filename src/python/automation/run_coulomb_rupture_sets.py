@@ -98,14 +98,14 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, min_sub_sect
         yield str(script_file_path)
 
         #testing
-        return
+        #return
 
 
 if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
 
-    USE_API = False
+    #USE_API = False
     GENERAL_TASK_ID = None
 
     if USE_API:
@@ -123,14 +123,14 @@ if __name__ == "__main__":
 
     ##Test parameters
     models = ["CFM_0_9_SANSTVZ_D90",] #, "CFM_0_9_ALL_D90","CFM_0_9_SANSTVZ_2010"]
-    jump_limits = [15,] #defaul is 15
+    jump_limits = [15,] #default is 15
     adaptive_min_distances = [6,] #9] default is 6
     thinning_factors = [0.0, 0.1] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
-    min_sub_sects_per_parents = [3,4,5]
+    min_sub_sects_per_parents = [2,] #3,4,5]
     min_sub_sections_list = [3,4,5]
 
     #limit test size, nomally 1000 for NZ CFM
-    MAX_SECTIONS = 100
+    MAX_SECTIONS = 2000
 
     pool = Pool(WORKER_POOL_SIZE)
 
