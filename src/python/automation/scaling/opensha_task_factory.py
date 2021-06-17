@@ -91,7 +91,7 @@ kill -9 $!
         return f"""
 #PBS -l nodes={self._pbs_nodes}:ppn={self._pbs_ppn}
 #PBS -l walltime={self._pbs_wall_hours}:00:00
-#PBS -W depend=afterok:36698
+#PBS -l mem={self._jvm_heap_max_gb +2}gb
 
 source {self._root_path}/nshm-nz-opensha/src/python/automation/bin/activate
 

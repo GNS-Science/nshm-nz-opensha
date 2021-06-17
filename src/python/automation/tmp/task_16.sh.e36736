@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "/home/chrisch/NSHM/opensha-new/nshm-nz-opensha/src/python/automation/scaling/inversion_solution_builder_task.py", line 176, in <module>
+    task.run(**config)
+  File "/home/chrisch/NSHM/opensha-new/nshm-nz-opensha/src/python/automation/scaling/inversion_solution_builder_task.py", line 85, in run
+    .setRuptureSetFile(str(PurePath(job_arguments['working_path'], ta['rupture_set'])))
+  File "/home/chrisch/NSHM/opensha-new/nshm-nz-opensha/src/python/automation/lib/python3.6/site-packages/py4j/java_gateway.py", line 1305, in __call__
+    answer, self.gateway_client, self.target_id, self.name)
+  File "/home/chrisch/NSHM/opensha-new/nshm-nz-opensha/src/python/automation/lib/python3.6/site-packages/py4j/protocol.py", line 328, in get_return_value
+    format(target_id, ".", name), value)
+py4j.protocol.Py4JJavaError: An error occurred while calling o4.setRuptureSetFile.
+: java.nio.file.NoSuchFileException: /home/chrisch/NSHM/opensha-new/work/RupSet_Az_FM(CFM_0_9_SANSTVZ_D90)_mnSbS(4)_mnSSPP(2)_mxSSL(0.5)_mxFS(2000)_mxAzCh(60.0)_mxCmAzCh(560.0)_mxJpDs(5.0)_mxTtAzCh(60.0)_thFc(0.0).zip
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:116)
+	at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:145)
+	at java.base/sun.nio.fs.LinuxFileSystemProvider.readAttributes(LinuxFileSystemProvider.java:99)
+	at java.base/java.nio.file.Files.readAttributes(Files.java:1763)
+	at java.base/java.util.zip.ZipFile$Source.get(ZipFile.java:1222)
+	at java.base/java.util.zip.ZipFile$CleanableResource.<init>(ZipFile.java:726)
+	at java.base/java.util.zip.ZipFile$CleanableResource.get(ZipFile.java:843)
+	at java.base/java.util.zip.ZipFile.<init>(ZipFile.java:246)
+	at java.base/java.util.zip.ZipFile.<init>(ZipFile.java:176)
+	at java.base/java.util.zip.ZipFile.<init>(ZipFile.java:190)
+	at scratch.UCERF3.utils.FaultSystemIO.loadRupSetAsApplicable(FaultSystemIO.java:208)
+	at scratch.UCERF3.utils.FaultSystemIO.loadRupSet(FaultSystemIO.java:81)
+	at nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner.setRuptureSetFile(NZSHM22_InversionRunner.java:180)
+	at nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner.setRuptureSetFile(NZSHM22_InversionRunner.java:167)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+
