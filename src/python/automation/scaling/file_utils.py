@@ -60,7 +60,7 @@ def download_files(general_api, file_api, upstream_task_id, dest_folder, id_suff
 
     for info in get_download_info(file_api, get_output_file_ids(general_api, upstream_task_id)):
 
-        folder = Path(dest_folder, "rupset_diags_report", info['id'])
+        folder = Path(dest_folder, 'downloads', info['id'])
         folder.mkdir(parents=True, exist_ok=True)
 
         #we can skip if file exists and has correct file_size

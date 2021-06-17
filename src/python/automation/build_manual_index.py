@@ -65,7 +65,7 @@ def gt_template(node):
     created = dt.strptime(node.get('created'), "%Y-%m-%dT%H:%M:%S.%f%z").astimezone(NZ_timezone)
 
     return f"""
-    <h2>{title}</h2
+    <h2>{title}</h2>
     <p>{created.strftime("%Y-%m-%d %H:%M:%S %z")}</p>
 
     <p>{description}</p>
@@ -145,9 +145,11 @@ if __name__ == "__main__":
     #GID = "R2VuZXJhbFRhc2s6MjMwWUc4TE4=" #Coulomb 3,4,5
     #GID = "R2VuZXJhbFRhc2s6MjUwYVhrVzY=" #Azimuthal 3,4,5
     GID = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
+    GID = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs="
+    GID = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #Coulomb minSS 3,4,5
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
-    UPLOAD_FOLDER = "DATA4"
+    UPLOAD_FOLDER = "DATA6"
 
     gentask = general_api.get_general_task_subtask_files(GID)
     node = gentask['node']
@@ -163,4 +165,5 @@ if __name__ == "__main__":
         #print(inv_template(rgt))
 
     print("</ul>")
+    print("<hr />")
 

@@ -38,7 +38,7 @@ TASK_DESCRIPTION = """
 - Fixed duration comparisons
 """
 
-def run_tasks(general_task_id, rupture_sets, rupture_class):
+def run_tasks(general_task_id, rupture_sets):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.ruptset_diags_report_task,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
@@ -99,8 +99,10 @@ if __name__ == "__main__":
         upstream_task_id = "R2VuZXJhbFRhc2s6MjE3Qk1YREw=" #Azim, 3,4,5
         upstream_task_id = "R2VuZXJhbFRhc2s6MjMwWUc4TE4=" #Coul, 3,4,5
         upstream_task_id = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
+        upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthan minSS 3,4,5
+        upstream_task_id = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #Coulomb minSS 3,4,5
 
-        rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
+        rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=False, overwrite=False)
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
@@ -108,10 +110,8 @@ if __name__ == "__main__":
 
     pool = Pool(WORKER_POOL_SIZE)
 
-    RUPTURE_CLASS = "Azimuth" #### TODO FIX THIS it comes fomr the data!!
-
     scripts = []
-    for script_file in run_tasks(GENERAL_TASK_ID, rupture_sets, RUPTURE_CLASS):
+    for script_file in run_tasks(GENERAL_TASK_ID, rupture_sets):
         print('scheduling: ', script_file)
         scripts.append(script_file)
 

@@ -21,7 +21,7 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
     API_KEY, API_URL, S3_URL, CLUSTER_MODE)
 
 # If you wish to override something in the main config, do so here ..
-WORKER_POOL_SIZE = 3
+WORKER_POOL_SIZE = 2
 
 #If using API give this task a descriptive setting...
 
