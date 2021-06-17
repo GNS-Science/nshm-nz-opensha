@@ -31,11 +31,11 @@ JAVA_THREADS = 4
 USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Inversions on Azimuthal rupsets with increased minimum sub-sections"
+TASK_TITLE = "Inversions on Azimuthal rupsets with increased minimum sub-sections - take 2"
 TASK_DESCRIPTION = """
-- Azimuth rupture sets (with min sects 3,4,5)
+- Azimuth rupture sets (with new min_sub_section 3,4,5)
 - Max duration 23hrs
-- completion_energies = [0.2, 0.01, 0.005]
+- completion_energies = [0.2, 0.01]
 - rounds 1
 """
 
@@ -45,6 +45,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
         initial_gateway_port=25833,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
+        pbs_ppn=JAVA_THREADS,
         pbs_script=CLUSTER_MODE)
 
     for round in rounds:
@@ -102,10 +103,7 @@ if __name__ == "__main__":
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        #upstream_task_id = "R2VuZXJhbFRhc2s6Mw==" #Azimuthal
-        #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #Coulomb
-        upstream_task_id = "R2VuZXJhbFRhc2s6MTg3OEtweFI=" #Azimuthal Stirling (note doubled up)
-        #upstream_task_id = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb (IN PROG)
+        upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
 
         #create new task in toshi_api
@@ -120,7 +118,7 @@ if __name__ == "__main__":
 
     rounds = range(1)
     # completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
-    completion_energies = [0.2, 0.01, 0.005]
+    completion_energies = [0.2, 0.01,] # 0.005]
     #max_inversion_times = [30, 8*60, ]# 30, 60,   0, 4*60, 8*60, 16*60,]  #units are minutes
     max_inversion_times = [23*60,]  #units are minutes
     max_inversion_times.reverse()
