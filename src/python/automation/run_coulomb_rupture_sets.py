@@ -22,25 +22,26 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 
 # If you wish to override something in the main config, do so here ..
 WORKER_POOL_SIZE = 3
+JAVA_THREADS = 16
+JVM_HEAP_MAX = 60
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Build Coulomb CFM 0.9 ruptsets with increased minimum sub-sections - take 2"
+TASK_TITLE = "Build Coulomb Stirling CFM 0.9 ruptsets win increasd min subsections"
 
-TASK_DESCRIPTION = """Coulomb ruptures with with new **min_sub_sections filter**
+TASK_DESCRIPTION = """Coulomb ruptures with Stirling - perhaps 60GB is enough?
 
-This will increase the minimum rupture magnitudes produced with no effect on larger ruptures.
+With fewer cores and < 64GB we should get two jobs running per cluster node.
 
-**NB** skipping Stirling 2010 model - it's not yet reliable w coulomb
+Here we vary the thinning and the min_sub_sections to see effects on rupture count:
 
- - models = [CFM_0_9_SANSTVZ_D90,]
+ - models = [CFM_0_9_SANSTVZ_2010,]
  - jump_limits = [15,]
  - adaptive_min_distances = [6,]
- - thinning_factors = [0.0, 0.1]
+ - thinning_factors = [0.0,0.1,0.2]
  - min_sub_sects_per_parents = [2,]
- - min_sub_sections = [3,4,5]
+ - min_sub_sections = [2,3,4,5]
 
 """
-
 
 
 def build_tasks(general_task_id, models, min_sub_sects_per_parents, min_sub_sections_list, jump_limits, adaptive_min_distances, thinning_factors,
@@ -54,6 +55,7 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, min_sub_sect
         initial_gateway_port=25733,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
+        pbs_ppn=JAVA_THREADS,
         pbs_script=CLUSTER_MODE)
 
     for (model, min_sub_sects_per_parent, min_sub_sections, max_jump_distance, adaptive_min_distance, thinning_factor) in itertools.product(
@@ -76,6 +78,8 @@ def build_tasks(general_task_id, models, min_sub_sects_per_parents, min_sub_sect
         job_arguments = dict(
             task_id = task_count,
             java_threads=JAVA_THREADS,
+            PROC_COUNT=JAVA_THREADS,
+            JVM_HEAP_MAX=JVM_HEAP_MAX,
             java_gateway_port=task_factory.get_next_port(),
             working_path=str(WORK_PATH),
             root_folder=OPENSHA_ROOT,
@@ -122,12 +126,12 @@ if __name__ == "__main__":
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     ##Test parameters
-    models = ["CFM_0_9_SANSTVZ_D90",] #, "CFM_0_9_ALL_D90","CFM_0_9_SANSTVZ_2010"]
+    models = ["CFM_0_9_SANSTVZ_2010",] #, "CFM_0_9_ALL_D90","CFM_0_9_SANSTVZ_2010"]
     jump_limits = [15,] #default is 15
     adaptive_min_distances = [6,] #9] default is 6
-    thinning_factors = [0.0, 0.1] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
+    thinning_factors = [0.0,0.1,0.2] #5, 0.1, 0.2, 0.3] #, 0.05, 0.1, 0.2]
     min_sub_sects_per_parents = [2,] #3,4,5]
-    min_sub_sections_list = [3,4,5]
+    min_sub_sections_list = [2,3,4,5]
 
     #limit test size, nomally 1000 for NZ CFM
     MAX_SECTIONS = 2000

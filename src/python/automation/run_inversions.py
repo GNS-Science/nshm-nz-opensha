@@ -31,7 +31,7 @@ JAVA_THREADS = 4
 USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Inversions on Azimuthal rupsets with increased minimum sub-sections - take 2"
+TASK_TITLE = "Inversions on Coulomb rupsets with increased minimum sub-sections - take 2"
 TASK_DESCRIPTION = """
 - Azimuth rupture sets (with new min_sub_section 3,4,5)
 - Max duration 23hrs
@@ -42,7 +42,7 @@ TASK_DESCRIPTION = """
 def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_solution_builder_task,
-        initial_gateway_port=25833,
+        initial_gateway_port=25933,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_ppn=JAVA_THREADS,
@@ -58,7 +58,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
                     task_arguments = dict(
                         round = round,
                         rupture_set_file_id=rupture_set_info['id'],
-                        rupture_set=PurePath(rupture_set_info['filepath']).name,
+                        rupture_set=rupture_set_info['filepath'],
                         completion_energy=completion_energy,
                         max_inversion_time=max_inversion_time,
                         )
@@ -67,6 +67,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
                         task_id = task_count,
                         round = round,
                         java_threads=JAVA_THREADS,
+                        jvm_heap_max = JVM_HEAP_MAX, 
                         java_gateway_port=task_factory.get_next_port(),
                         working_path=str(WORK_PATH),
                         root_folder=OPENSHA_ROOT,
@@ -104,6 +105,7 @@ if __name__ == "__main__":
 
         #get input files from API
         upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
+        upstream_task_id = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #COulomb
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
 
         #create new task in toshi_api
