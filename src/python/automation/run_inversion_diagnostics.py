@@ -113,6 +113,8 @@ if __name__ == "__main__":
         upstream_task_id = "R2VuZXJhbFRhc2s6MjM3bjNhNjM=" #Stirlngs all failee
         #upstream_task_id = "R2VuZXJhbFRhc2s6Mjg3VUdUblY="
         upstream_task_id = "R2VuZXJhbFRhc2s6MjUwYVhrVzY=" #Azimuthal 3,4,5
+        upstream_task_id = "R2VuZXJhbFRhc2s6Mzg0RUxmaG0=" #Coulomb
+        upstream_task_id = "R2VuZXJhbFRhc2s6MzU5ekZMYkg=" #Azim
 
         solutions = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
 

@@ -67,7 +67,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
                         task_id = task_count,
                         round = round,
                         java_threads=JAVA_THREADS,
-                        jvm_heap_max = JVM_HEAP_MAX, 
+                        jvm_heap_max = JVM_HEAP_MAX,
                         java_gateway_port=task_factory.get_next_port(),
                         working_path=str(WORK_PATH),
                         root_folder=OPENSHA_ROOT,
@@ -90,7 +90,7 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
                     os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
                     yield str(script_file_path)
-                    #return
+                    return
 
 if __name__ == "__main__":
 
@@ -98,16 +98,16 @@ if __name__ == "__main__":
 
     GENERAL_TASK_ID = None
 
+    headers={"x-api-key":API_KEY}
+    general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+    file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+
+    #get input files from API
+    upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
+    upstream_task_id = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #COulomb
+    rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
+
     if USE_API:
-        headers={"x-api-key":API_KEY}
-        general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-        file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-
-        #get input files from API
-        upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
-        upstream_task_id = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #COulomb
-        rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
-
         #create new task in toshi_api
         GENERAL_TASK_ID = general_api.create_task(
             created=dt.datetime.now(tzutc()).isoformat(),
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     # completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
     completion_energies = [0.2, 0.01,] # 0.005]
     #max_inversion_times = [30, 8*60, ]# 30, 60,   0, 4*60, 8*60, 16*60,]  #units are minutes
-    max_inversion_times = [23*60,]  #units are minutes
+    max_inversion_times = [2,] #3*60,]  #units are minutes
     max_inversion_times.reverse()
 
     pool = Pool(WORKER_POOL_SIZE)

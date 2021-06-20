@@ -147,9 +147,12 @@ if __name__ == "__main__":
     GID = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
     GID = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs="
     GID = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #Coulomb minSS 3,4,5
+    #GID = "R2VuZXJhbFRhc2s6Mzg0RUxmaG0=" #Coulomb INv
+    GID = "R2VuZXJhbFRhc2s6MzU5ekZMYkg=" #Azim Inv
+    GID = "R2VuZXJhbFRhc2s6NDAzOTNpVmI=" #Coulomb Stirling Rupsets (at last)
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
-    UPLOAD_FOLDER = "DATA6"
+    UPLOAD_FOLDER = "DATA7"
 
     gentask = general_api.get_general_task_subtask_files(GID)
     node = gentask['node']
@@ -161,8 +164,8 @@ if __name__ == "__main__":
     for child_node in node['children']['edges']:
         rgt = child_node['node']['child']
 
-        print(rgt_template(rgt))
-        #print(inv_template(rgt))
+        print(rgt_template(rgt))  #rupt sets
+        #print(inv_template(rgt)) #inversions
 
     print("</ul>")
     print("<hr />")

@@ -27,7 +27,7 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 # WORKER_POOL_SIZE = 3
 WORKER_POOL_SIZE = 2
 JVM_HEAP_MAX = 12
-JAVA_THREADS = 4
+JAVA_THREADS = 6
 USE_API = True #to read the ruptset form the API
 
 
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         upstream_task_id = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
         upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthan minSS 3,4,5
         upstream_task_id = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #Coulomb minSS 3,4,5
-
+        upstream_task_id = "R2VuZXJhbFRhc2s6NDAzOTNpVmI=" ##Coulomb Stirling minSS 3,4,5
         rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=False, overwrite=False)
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
