@@ -65,7 +65,10 @@ class RuptureSetBuilderTask():
         environment = {
             "host": platform.node(),
             "gitref_opensha":self._repoheads['opensha'],
-            "gitref_nshm-nz-opensha":self._repoheads['nshm-nz-opensha'] }
+            "gitref_nshm-nz-opensha":self._repoheads['nshm-nz-opensha'],
+            "java_threads": job_arguments["java_threads"],
+            "proc_count": job_arguments["PROC_COUNT"], 
+            "jvm_heap_max": job_arguments["JVM_HEAP_MAX"] }
 
         if self.use_api:
             #create new task in toshi_api
