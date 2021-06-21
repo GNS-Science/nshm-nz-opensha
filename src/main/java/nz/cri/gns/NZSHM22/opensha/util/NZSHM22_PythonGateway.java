@@ -9,6 +9,7 @@ import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NZSHM22_FaultModels;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_AbstractRuptureSetBuilder;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_CoulombRuptureSetBuilder;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_SlipEnabledRuptureSet;
+import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_SubductionRuptureSetBuilder;
 import nz.cri.gns.NZSHM22.util.NZSHM22_InversionDiagnosticsReportBuilder;
 
 import org.dom4j.DocumentException;
@@ -48,6 +49,14 @@ public class NZSHM22_PythonGateway {
         return coulBuilder;
     }
 
+    public static NZSHM22_SubductionRuptureSetBuilder getSubductionRuptureSetBuilder(){
+    	NZSHM22_SubductionRuptureSetBuilder subBuilder = new NZSHM22_CachedSubductionRuptureSetBuilder();
+        builder = subBuilder;
+        return subBuilder;
+    }
+    
+    
+    
     /**
      * Get a new cached inversion runner. For now we want a new one to ensure the
      * setup is clean, but this can maybe be optimised. The produced solution is
@@ -199,6 +208,34 @@ public class NZSHM22_PythonGateway {
         }
     }
 
+    /**
+     * Provide a little help for python clients using NZSHM22_SubductionRuptureSetBuilder
+     */
+    static class NZSHM22_CachedSubductionRuptureSetBuilder extends NZSHM22_SubductionRuptureSetBuilder {
+        NZSHM22_SlipEnabledRuptureSet ruptureSet;
+
+        /**
+         * Caches the results of the build
+         */
+        @Override
+        public NZSHM22_SlipEnabledRuptureSet buildRuptureSet() throws DocumentException, IOException {
+            ruptureSet = super.buildRuptureSet();
+            return ruptureSet;
+        }
+
+        /**
+         * Write the cached rupture set to disk.
+         *
+         * @param rupSetFileName
+         * @throws IOException
+         */
+        public void writeRuptureSet(String rupSetFileName) throws IOException {
+            File rupSetFile = new File(rupSetFileName);
+            FaultSystemIO.writeRupSet(ruptureSet, rupSetFile);
+        }
+    }    
+    
+    
     /**
      * Python helper that wraps NZSHM22_InversionRunner
      */

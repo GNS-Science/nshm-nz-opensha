@@ -66,11 +66,45 @@ public class NZSHM22_SubductionRuptureSetBuilder extends NZSHM22_AbstractRupture
 		return description;
 	}	
 
-
+    /**
+     * Chooses a known fault model.
+     * @param faultModel the name of a known fault model
+     * @return this object
+     */
+    public NZSHM22_SubductionRuptureSetBuilder setFaultModel(String faultModel){
+        setFaultModel(NZSHM22_FaultModels.valueOf(faultModel));
+        return this;
+    }
+    
+    /**
+     * Chooses a known fault model.
+     * @param faultModel the name of a known fault model
+     * @return this object
+     */
 	public NZSHM22_SubductionRuptureSetBuilder setFaultModel(NZSHM22_FaultModels faultModel) {
 		return (NZSHM22_SubductionRuptureSetBuilder) super.setFaultModel(faultModel);
 	}
 
+    /**
+     * Chooses a known SlipAlongRuptureModel model.
+     * @param faultModel the name of a known model
+     * @return this object
+     */
+	public NZSHM22_SubductionRuptureSetBuilder setSlipAlongRuptureModel(String slipAlongRuptureModel) {
+		setSlipAlongRuptureModel(SlipAlongRuptureModels.valueOf(slipAlongRuptureModel));
+		return this;
+	}
+	
+    /**
+     * Chooses a known ScalingRelationship model.
+     * @param faultModel the name of a known model
+     * @return this object
+     */
+	public NZSHM22_SubductionRuptureSetBuilder setScalingRelationship(String scalingRelationship) {
+		setScalingRelationship(ScalingRelationships.valueOf(scalingRelationship));
+		return this;
+	}
+	
 	public NZSHM22_SubductionRuptureSetBuilder setFaultModelFile(File fsdFile) {
 		return (NZSHM22_SubductionRuptureSetBuilder) super.setFaultModelFile(fsdFile);
 	}
