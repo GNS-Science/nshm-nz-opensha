@@ -117,17 +117,17 @@ public class NZSHM22_PythonGateway {
             return this;
         }
 
-        /**
-         * Sets the subduction fault. At the moment, only one fault can be set.
-         *
-         * @param faultName The name fo the fault.
-         * @param fileName  the CSV file containing all sections.
-         * @return this builder
-         */
-        public NZSHM22_CachedAzimuthalRuptureSetBuilder setSubductionFault(String faultName, String fileName) {
-            setSubductionFault(faultName, new File(fileName));
-            return this;
-        }
+//        /**
+//         * Sets the subduction fault. At the moment, only one fault can be set.
+//         *
+//         * @param faultName The name fo the fault.
+//         * @param fileName  the CSV file containing all sections.
+//         * @return this builder
+//         */
+//        public NZSHM22_CachedAzimuthalRuptureSetBuilder setSubductionFault(String faultName, String fileName) {
+//            setSubductionFault(faultName, new File(fileName));
+//            return this;
+//        }
 
         /**
          * Caches the results of the build

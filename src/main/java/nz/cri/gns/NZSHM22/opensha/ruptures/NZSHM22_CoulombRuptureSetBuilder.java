@@ -105,9 +105,9 @@ public class NZSHM22_CoulombRuptureSetBuilder extends NZSHM22_AbstractRuptureSet
         return (NZSHM22_CoulombRuptureSetBuilder) super.setFaultModelFile(fsdFile);
     }
 
-    public NZSHM22_CoulombRuptureSetBuilder setSubductionFault(String faultName, File downDipFile) {
-        return (NZSHM22_CoulombRuptureSetBuilder) super.setSubductionFault(faultName, downDipFile);
-    }
+//    public NZSHM22_CoulombRuptureSetBuilder setSubductionFault(String faultName, File downDipFile) {
+//        return (NZSHM22_CoulombRuptureSetBuilder) super.setSubductionFault(faultName, downDipFile);
+//    }
 
     public NZSHM22_CoulombRuptureSetBuilder setMaxFaultSections(int maxFaultSections) {
         return (NZSHM22_CoulombRuptureSetBuilder) super.setMaxFaultSections(maxFaultSections);
@@ -608,11 +608,8 @@ public class NZSHM22_CoulombRuptureSetBuilder extends NZSHM22_AbstractRuptureSet
         // Slip{DOWNDIP}RuptureModel (or similar) see [KKS,CBC]
         NZSHM22_SlipEnabledRuptureSet rupSet = null;
         try {
-//			rupSet = new NZSHM22_SlipEnabledRuptureSet(ruptures, subSections,
-//					ScalingRelationships.SHAW_2009_MOD, SlipAlongRuptureModels.UNIFORM);
-            rupSet = new NZSHM22_SlipEnabledRuptureSet(origRupSet.getClusterRuptures(), subSections,
-                    ScalingRelationships.TMG_CRU_2017, SlipAlongRuptureModels.UNIFORM);
-
+			rupSet = new NZSHM22_SlipEnabledRuptureSet(ruptures, subSections,
+					this.getScalingRelationship(), this.getSlipAlongRuptureModel());
             rupSet.setPlausibilityConfiguration(config);
         } catch (Exception e) {
             // TODO Auto-generated catch block
