@@ -262,12 +262,22 @@ public class NZSHM22_SubductionRuptureSetBuilder extends NZSHM22_AbstractRupture
     public static void main(String[] args) throws DocumentException, IOException {
     	NZSHM22_SubductionRuptureSetBuilder builder = new NZSHM22_SubductionRuptureSetBuilder();
 
-    	builder.setFaultModel(NZSHM22_FaultModels.SBD_0_1_HKR_KRM_10)
-    		.setDownDipAspectRatio(2, 5, 7)
-    		.setDownDipMinFill(0.75)
-    		.setDownDipPositionCoarseness(0.02)
-    		.setDownDipSizeCoarseness(0.01);
+// builds  26430 ruptures....
+//    	Built 39813 total ruptures
+//    	builder.setFaultModel(NZSHM22_FaultModels.SBD_0_1_HKR_KRM_30)
+//    		.setDownDipAspectRatio(2, 5, 2)
+//    		.setDownDipPositionCoarseness(0.005)
+//    		.setDownDipSizeCoarseness(0.005)
+//    		.setDownDipMinFill(0.3);
+//		.setThinningFactor(0.2);
 
+    	//Built 322982 total ruptures
+    	builder.setFaultModel(NZSHM22_FaultModels.SBD_0_1_HKR_KRM_10)
+		.setDownDipAspectRatio(2, 5, 7)
+		.setDownDipPositionCoarseness(0.02)
+		.setDownDipSizeCoarseness(0.02)
+		.setDownDipMinFill(0.3);    	
+    	
     	builder
     		.setScalingRelationship(ScalingRelationships.TMG_SUB_2017)
     		.setSlipAlongRuptureModel(SlipAlongRuptureModels.UNIFORM);

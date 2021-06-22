@@ -133,7 +133,7 @@ if __name__ == "__main__":
     min_aspect_ratios = [2.0,]
     max_aspect_ratios = [5.0,]
     aspect_depth_thresholds = [7,]
-    min_fill_ratios = [1.0, ] #0.75, 0.5]
+    min_fill_ratios = [1.0, 0.75, 0.5, 0.25]
     growth_position_epsilons = [0.03, ] #0.02, 0.01]
     growth_size_epsilons = [0.03, ] #0.02, 0.01]
     scaling_relationships = ["TMG_SUB_2017"]
