@@ -9,6 +9,7 @@ import org.opensha.sha.faultSurface.FaultSection;
 
 import com.google.common.base.Preconditions;
 
+import nz.cri.gns.NZSHM22.opensha.griddedSeismicity.NZSHM22_GridSourceGenerator;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SlipEnabledSolution;
@@ -35,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -233,30 +235,30 @@ public class NZSHM22_InversionRunner {
 
 	}
 
-	/**
-	 * Sets GutenbergRichterMFD arguments
-	 * 
-	 * @param totalRateM5      the number of M>=5's per year. TODO: ref David
-	 *                         Rhodes/Chris Roland? [KKS, CBC]
-	 * @param bValue
-	 * @param mfdTransitionMag magnitude to switch from MFD equality to MFD
-	 *                         inequality TODO: how to validate this number for NZ?
-	 *                         (ref Morgan Page in USGS/UCERF3) [KKS, CBC]
-	 * @param mfdNum
-	 * @param mfdMin
-	 * @param mfdMax
-	 * @return
-	 */
-	public NZSHM22_InversionRunner setGutenbergRichterMFD(double totalRateM5, double bValue, double mfdTransitionMag,
-			int mfdNum, double mfdMin, double mfdMax) {
-		this.totalRateM5 = totalRateM5;
-		this.bValue = bValue;
-		this.mfdTransitionMag = mfdTransitionMag;
-		this.mfdNum = mfdNum;
-		this.mfdMin = mfdMin;
-		this.mfdMax = mfdMax;
-		return this;
-	}
+//	/**
+//	 * Sets GutenbergRichterMFD arguments
+//	 * 
+//	 * @param totalRateM5      the number of M>=5's per year. TODO: ref David
+//	 *                         Rhodes/Chris Roland? [KKS, CBC]
+//	 * @param bValue
+//	 * @param mfdTransitionMag magnitude to switch from MFD equality to MFD
+//	 *                         inequality TODO: how to validate this number for NZ?
+//	 *                         (ref Morgan Page in USGS/UCERF3) [KKS, CBC]
+//	 * @param mfdNum
+//	 * @param mfdMin
+//	 * @param mfdMax
+//	 * @return
+//	 */
+//	public NZSHM22_InversionRunner setGutenbergRichterMFD(double totalRateM5, double bValue, double mfdTransitionMag,
+//			int mfdNum, double mfdMin, double mfdMax) {
+//		this.totalRateM5 = totalRateM5;
+//		this.bValue = bValue;
+//		this.mfdTransitionMag = mfdTransitionMag;
+//		this.mfdNum = mfdNum;
+//		this.mfdMin = mfdMin;
+//		this.mfdMax = mfdMax;
+//		return this;
+//	}
 
 	/**
 	 * @param mfdEqualityConstraintWt
@@ -419,13 +421,20 @@ public class NZSHM22_InversionRunner {
 		double[] solution_adjusted = inputGen.adjustSolutionForWaterLevel(solution_raw);
 
 		Map<ConstraintRange, Double> energies = tsa.getEnergies();
+		Map<String, Double> new_energies = new HashMap<String, Double>();
+
 		if (energies != null) {
+			for (ConstraintRange range : energies.keySet())
+				new_energies.put(range.toString(), energies.get(range));
+
 			System.out.println("Final energies:");
 			for (ConstraintRange range : energies.keySet())
 				System.out.println("\t" + range.name + ": " + energies.get(range).floatValue());
 		}
 
-		solution = new InversionFaultSystemSolution(rupSet, solution_adjusted);
+		//TODO, we really do want to store the config and energies now 	
+		solution = new NZSHM22_InversionFaultSystemSolution(rupSet, solution_adjusted, new_energies); //, null, energies);
+		solution.setGridSourceProvider(new NZSHM22_GridSourceGenerator((NZSHM22_InversionFaultSystemSolution) solution));
 		return solution;
 	}
 

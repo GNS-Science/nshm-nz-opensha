@@ -1,6 +1,8 @@
 package nz.cri.gns.NZSHM22.opensha.inversion;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.opensha.commons.data.function.HistogramFunction;
@@ -24,7 +26,7 @@ import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NZSHM22_SpatialSeisPDF;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_SlipEnabledRuptureSet;
 import scratch.UCERF3.SlipEnabledRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
-
+import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.InversionModels;
 import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
@@ -66,12 +68,6 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 	NZSHM22_SpatialSeisPDF spatialSeisPDFforOnFaultRates;
 
 	boolean MFD_STATS = true; //print some curves for analytics
-	
-//	// discretization parameters for MFDs
-//	public final static double MIN_MAG = 0.05;
-//	public final static double MAX_MAG = 8.95;
-//	public final static int NUM_MAG = 90;
-//	public final static double DELTA_MAG = 0.1;
 
 	/*
 	 * MFD constraint default settings
@@ -87,11 +83,11 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 	protected double mfdInequalityConstraintWt = 1000;
 
 	protected List<MFD_InversionConstraint> mfdConstraints = new ArrayList<>();
-	
+//	protected GutenbergRichterMagFreqDist totalTargetGR;
+
 	//New fields
 
-	// NZSHM22 bValue and MinMag5 rates by region,  Matt G  8:48 AM, Jun 23 2021
-	//1.05 curstal, 1.25 tvz     N>5: 3.6 crustal, 0.4 tvz
+	// NZSHM22 bValue and MinMag5 rates by region,
 	private double totalRateM5_SansTVZ = 3.6;
 	private double totalRateM5_TVZ = 0.4;
 	private double bValue_SansTVZ = 1.05;
@@ -99,8 +95,9 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 	
 	private double onFaultRegionRateMgt5_SansTVZ;
 	private double onFaultRegionRateMgt5_TVZ;
-	private double offFaultRegionRateMgt5_SansTVZ;
-	private double offFaultRegionRateMgt5_TVZ;
+//	private double offFaultRegionRateMgt5_SansTVZ;
+//	private double offFaultRegionRateMgt5_TVZ;
+	
 	private GutenbergRichterMagFreqDist totalTargetGR_SansTVZ;
 	private GutenbergRichterMagFreqDist totalTargetGR_TVZ;
 	private double aveMinSeismoMag_SansTVZ;
@@ -112,9 +109,10 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 	private SummedMagFreqDist totalSubSeismoOnFaultMFD_SansTVZ;
 	private SummedMagFreqDist totalSubSeismoOnFaultMFD_TVZ;
 	private SummedMagFreqDist targetOnFaultSupraSeisMFD_SansTVZ;
-	private SummedMagFreqDist targetOnFaultSupraSeisMFD_TVZ;
-
+	private SummedMagFreqDist targetOnFaultSupraSeisMFD_TVZ;	
 	
+	public final static double NZ_MIN_MAG = 5.05; //used instead of UCERF3 value 0.05
+	public final static int NZ_NUM_BINS = 40;  //used instead of UCERF3 value 90
 
     public List<MFD_InversionConstraint> getMFDConstraints() {
     	return mfdConstraints;
@@ -153,7 +151,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
     	return this;
     }       
     
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
 	public NZSHM22_InversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
 		this.invRupSet = invRupSet;
 
@@ -182,19 +180,46 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 		//TVZ Refactor
 		GriddedRegion regionSansTVZGridded = new NewZealandRegions.NZ_RECTANGLE_SANS_TVZ_GRIDDED();
 		GriddedRegion regionTVZGridded = new NewZealandRegions.NZ_TVZ_GRIDDED();
-		
+
 		gridSeisUtils = new GriddedSeisUtils(faultSectionData, 
 				spatialSeisPDF.getPDF(), FAULT_BUFFER, regionNzGridded);	
-		fractionSeisOnFault = gridSeisUtils.pdfInPolys(); //TODO: check this uses grid weights. are we losing any spatial variability inside the polygons??
-		/// double fractSeisInSansTVZ = this.spatialSeisPDF.getFractionInRegion(regionSansTVZGridded);
+		//TODO: split this for TVZ
+		fractionSeisOnFault = gridSeisUtils.pdfInPolys();
 		
-		//TVZ Refactor
-//		onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault; //WE want this as MFD
-//		offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;
-		onFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ*fractionSeisOnFault;
-		onFaultRegionRateMgt5_TVZ = totalRateM5_TVZ*fractionSeisOnFault;
-		offFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ - onFaultRegionRateMgt5_SansTVZ;
-		offFaultRegionRateMgt5_TVZ = totalRateM5_TVZ - onFaultRegionRateMgt5_TVZ;
+		if ( 1==1 ) {
+			/*
+			 * OPTION A seems Wrong
+			 */
+			//TODO: check this uses grid weights. are we losing any spatial variability inside the polygons??
+			double fractSeisInSansTVZ = this.spatialSeisPDF.getFractionInRegion(regionSansTVZGridded);
+			double fractSeisInTVZ = this.spatialSeisPDF.getFractionInRegion(regionTVZGridded);
+			
+			//TVZ Refactor
+	//		onFaultRegionRateMgt5 = totalRegionRateMgt5*fractionSeisOnFault; //WE want this as MFD
+	//		offFaultRegionRateMgt5 = totalRegionRateMgt5-onFaultRegionRateMgt5;	
+
+			onFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ * fractionSeisOnFault; // * fractSeisInSansTVZ; 
+			onFaultRegionRateMgt5_TVZ = totalRateM5_TVZ * fractionSeisOnFault;// * fractSeisInTVZ;
+//		} else {
+//			/*
+//			 * OPTION B doesn;t work because faultSectionData is outside region bounds....
+//			 */
+////			GriddedSeisUtils gridSeisUtils_SansTVZ = new GriddedSeisUtils(faultSectionData, 
+////					spatialSeisPDF.getPDF(), FAULT_BUFFER, regionSansTVZGridded);
+////			GriddedSeisUtils gridSeisUtils_TVZ = new GriddedSeisUtils(faultSectionData, 
+////					spatialSeisPDF.getPDF(), FAULT_BUFFER, regionTVZGridded);
+////			double fractionSeisOnFault_SansTVZ = gridSeisUtils_SansTVZ.pdfInPolys(); 
+////			double fractionSeisOnFault_TVZ = gridSeisUtils_TVZ.pdfInPolys(); 
+////			onFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ * fractionSeisOnFault_SansTVZ; 
+////			onFaultRegionRateMgt5_TVZ = totalRateM5_TVZ * fractionSeisOnFault_TVZ;
+//			double fractSeisInSansTVZ = this.spatialSeisPDF.getFractionInRegion(regionSansTVZGridded);
+//			double fractSeisInTVZ = this.spatialSeisPDF.getFractionInRegion(regionTVZGridded);
+////			fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDFforOnFaultRates);
+//			fractionSeisOnFault = gridSeisUtils.pdfInPolys();
+		}
+		
+//		offFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ - onFaultRegionRateMgt5_SansTVZ;
+//		offFaultRegionRateMgt5_TVZ = totalRateM5_TVZ - onFaultRegionRateMgt5_TVZ;
 			
 		//TODO Are these actually used for anything we need in NZSHM22
 		origOnFltDefModMoRate = DeformationModelsCalc.calculateTotalMomentRate(faultSectionData,true);
@@ -203,17 +228,20 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 		// make the total target GR MFD
 		// TODO: why MIN_MAG = 0 ??
 		//** SPLIT TVZ....
-		totalTargetGR_SansTVZ = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
-		totalTargetGR_TVZ = new GutenbergRichterMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		totalTargetGR_SansTVZ = new GutenbergRichterMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+		totalTargetGR_TVZ = new GutenbergRichterMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+		totalTargetGR = new GutenbergRichterMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+
+//		tempOffFaultGR.setAllButMagUpper(0.005, offFltDefModMoRate, offFaultRegionRateMgt5*1e5, 1.0, true);
+//		maxOffMagWithFullMoment = tempOffFaultGR.getMagUpper();
+//		totalTargetGR = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
 		
-//		if (MFD_STATS) {
-//			System.out.println("totalTargetGR");
-//			System.out.println(totalTargetGR.toString());
-//			System.out.println("");	
-//		}
-		roundedMmaxOnFault = totalTargetGR_SansTVZ.getX(totalTargetGR_SansTVZ.getClosestXIndex(invRupSet.getMaxMag())); //we can use one as they're identical 
-		totalTargetGR_SansTVZ.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRateM5_SansTVZ*1e5, 1.0); //TODO: revisit
-		totalTargetGR_TVZ.setAllButTotMoRate(MIN_MAG, roundedMmaxOnFault, totalRateM5_TVZ*1e5, 1.0); //TODO: revisit
+
+		//TODO we can use one as they're identical (REALLY??
+		// consider if we must do this for each regionally 
+		roundedMmaxOnFault = totalTargetGR_SansTVZ.getX(totalTargetGR_SansTVZ.getClosestXIndex(invRupSet.getMaxMag())); 
+		totalTargetGR_SansTVZ.setAllButTotMoRate(NZ_MIN_MAG, roundedMmaxOnFault, totalRateM5_SansTVZ, bValue_SansTVZ); //TODO: no more scaling
+		totalTargetGR_TVZ.setAllButTotMoRate(NZ_MIN_MAG, roundedMmaxOnFault, totalRateM5_TVZ, bValue_TVZ); //TODO: as above (1e5 to get to MMin = 0.05)
 		
 		if (MFD_STATS) {
 			System.out.println("totalTargetGR_SansTVZ after setAllButTotMoRate");
@@ -238,7 +266,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 		// seems to calculate our corner magnitude for tapered GR
 		trulyOffFaultMFD_SansTVZ  = NZSHM22_FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR_SansTVZ , onFaultRegionRateMgt5_SansTVZ , aveMinSeismoMag_SansTVZ , mMaxOffFault);
 		trulyOffFaultMFD_TVZ  = NZSHM22_FaultSystemRupSetCalc.getTriLinearCharOffFaultTargetMFD(totalTargetGR_TVZ , onFaultRegionRateMgt5_TVZ , aveMinSeismoMag_TVZ , mMaxOffFault);
-
+		
 		subSeismoOnFaultMFD_List_SansTVZ = NZSHM22_FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(invRupSet, gridSeisUtils, totalTargetGR_SansTVZ);
 		subSeismoOnFaultMFD_List_TVZ = NZSHM22_FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(invRupSet, gridSeisUtils, totalTargetGR_TVZ);
 
@@ -249,7 +277,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 			System.out.println("");		
 			System.out.println("trulyOffFaultMFD_TVZ (TriLinearCharOffFaultTargetMFD)");
 			System.out.println(trulyOffFaultMFD_TVZ.toString());
-			System.out.println("");	
+			System.out.println("");			
 		}
 		
 		//MATT debug
@@ -270,7 +298,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 			
 		// TODO: use computeMinSeismoMagForSections to find NZ values and explain 7.4
 		// histogram to look for min values > 7.X
-		totalSubSeismoOnFaultMFD_SansTVZ= new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		totalSubSeismoOnFaultMFD_SansTVZ= new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
 		for (int m = 0; m < subSeismoOnFaultMFD_List_SansTVZ.size(); m++) {
 			GutenbergRichterMagFreqDist mfd = subSeismoOnFaultMFD_List_SansTVZ.get(m);
 			if (mfd.getMagUpper() <= 5.05 & D) {
@@ -280,7 +308,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 			totalSubSeismoOnFaultMFD_SansTVZ.addIncrementalMagFreqDist(mfd);
 		}
 		
-		totalSubSeismoOnFaultMFD_TVZ= new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);
+		totalSubSeismoOnFaultMFD_TVZ= new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
 		for (int m = 0; m < subSeismoOnFaultMFD_List_TVZ.size(); m++) {
 			GutenbergRichterMagFreqDist mfd = subSeismoOnFaultMFD_List_TVZ.get(m);
 			if (mfd.getMagUpper() <= 5.05 & D) {
@@ -300,12 +328,12 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 		}
 
 		
-		targetOnFaultSupraSeisMFD_SansTVZ = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);		
+		targetOnFaultSupraSeisMFD_SansTVZ = new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);		
 		targetOnFaultSupraSeisMFD_SansTVZ.addIncrementalMagFreqDist(totalTargetGR_SansTVZ);
 		targetOnFaultSupraSeisMFD_SansTVZ.subtractIncrementalMagFreqDist(trulyOffFaultMFD_SansTVZ);
 		targetOnFaultSupraSeisMFD_SansTVZ.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD_SansTVZ);
 
-		targetOnFaultSupraSeisMFD_TVZ = new SummedMagFreqDist(MIN_MAG, NUM_MAG, DELTA_MAG);		
+		targetOnFaultSupraSeisMFD_TVZ = new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);		
 		targetOnFaultSupraSeisMFD_TVZ.addIncrementalMagFreqDist(totalTargetGR_TVZ);
 		targetOnFaultSupraSeisMFD_TVZ.subtractIncrementalMagFreqDist(trulyOffFaultMFD_TVZ);
 		targetOnFaultSupraSeisMFD_TVZ.subtractIncrementalMagFreqDist(totalSubSeismoOnFaultMFD_TVZ);		
@@ -318,7 +346,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 			System.out.println(targetOnFaultSupraSeisMFD_TVZ.toString());
 			System.out.println("");					
 		}		
-		
+		//TODO are these purely analysis?? for now they're off
 //		// compute coupling coefficients
 //		impliedOnFaultCouplingCoeff = (targetOnFaultSupraSeisMFD.getTotalMomentRate()
 //				+ totalSubSeismoOnFaultMFD.getTotalMomentRate()) / origOnFltDefModMoRate;
@@ -343,9 +371,67 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 
 		mfdConstraints.add(new MFD_InversionConstraint(targetOnFaultSupraSeisMFD_SansTVZ, regionSansTVZGridded));
 		mfdConstraints.add(new MFD_InversionConstraint(targetOnFaultSupraSeisMFD_TVZ, regionTVZGridded));
+		
+		/*
+		 * TODO CBC the following block sets up base class var required later to save the solution, 
+		 * namely:
+		 *  - totalTargetGR
+		 *  - trulyOffFaultMFD
+		 *  - totalSubSeismoOnFaultMFD
+		 */
+		SummedMagFreqDist tempTargetGR =  new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+		tempTargetGR.addIncrementalMagFreqDist(totalTargetGR_SansTVZ);
+		tempTargetGR.addIncrementalMagFreqDist(totalTargetGR_TVZ);
+		
+		Iterator<Point2D> it2 = tempTargetGR.getPointsIterator();
+		while (it2.hasNext()) {
+			Point2D point = (Point2D)it2.next();
+			totalTargetGR.set(point);
+		}		
+		SummedMagFreqDist tempTrulyOffFaultMFD =  new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+		trulyOffFaultMFD = new IncrementalMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+		tempTrulyOffFaultMFD.addIncrementalMagFreqDist(trulyOffFaultMFD_SansTVZ);
+		tempTrulyOffFaultMFD.addIncrementalMagFreqDist(trulyOffFaultMFD_TVZ);
+		
+		Iterator<Point2D> it3 = tempTrulyOffFaultMFD.getPointsIterator();
+		while (it3.hasNext()) {
+			Point2D point = (Point2D)it3.next();
+			trulyOffFaultMFD.set(point);
+		}		
+		
+		//TODO: review this (if really needed) should add the SansTVZ and TVZ
+		subSeismoOnFaultMFD_List = NZSHM22_FaultSystemRupSetCalc.getCharSubSeismoOnFaultMFD_forEachSection(invRupSet, gridSeisUtils, totalTargetGR);
+		totalSubSeismoOnFaultMFD = new SummedMagFreqDist(NZ_MIN_MAG, NZ_NUM_BINS, DELTA_MAG);
+		for(int m=0; m<subSeismoOnFaultMFD_List.size(); m++) {
+			GutenbergRichterMagFreqDist mfd = subSeismoOnFaultMFD_List.get(m);
+			if(mfd.getMagUpper() <= 5.05 & D) {
+				debugString += "\tWARNING: "+faultSectionData.get(m).getName()+" has a max subSeism mag of "+mfd.getMagUpper()+" so no contribution above M5!\n";
+			}
+			totalSubSeismoOnFaultMFD.addIncrementalMagFreqDist(mfd);
+		}
+		
+		if (MFD_STATS) {
+
+			System.out.println("totalTargetGR");
+			System.out.println(totalTargetGR.toString());
+			System.out.println("");	
+
+			System.out.println("trulyOffFaultMFD (TriLinearCharOffFaultTargetMFD)");
+			System.out.println(trulyOffFaultMFD.toString());
+			System.out.println("");	
+			
+			System.out.println("totalSubSeismoOnFaultMFD");
+			System.out.println(totalSubSeismoOnFaultMFD.toString());
+			System.out.println("");	
+			
+		}		
+		/*
+		 * END CODE BLOCK
+		 */
+		
 	}
 
-
+	
 	@Override
 	public GutenbergRichterMagFreqDist getTotalTargetGR_NoCal() {
 		throw new UnsupportedOperationException();
