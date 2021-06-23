@@ -26,20 +26,30 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
 # If you wish to override something in the main config, do so here ..
 # WORKER_POOL_SIZE = 3
 WORKER_POOL_SIZE = 1
-JVM_HEAP_MAX = 32
+JVM_HEAP_MAX = 30
 JAVA_THREADS = 4
-USE_API = True
+#USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Inversions on Coulomb rupsets with increased minimum sub-sections - take 2"
+TASK_TITLE = "Inversions on TVZ/SansTVZ MFD - Coulomb"
 TASK_DESCRIPTION = """
-- Azimuth rupture sets (with new min_sub_section 3,4,5)
-- Max duration 23hrs
-- completion_energies = [0.2, 0.01]
-- rounds 1
+
+Total of 64 jobs
+ - 4 Coulomb rupture sets from R2VuZXJhbFRhc2s6OTMyNDRibg==
+ - rounds = 1
+ - max_inversion_times = [8*60,] #3*60,]  #units are minutes
+ - mfd_equality_weights = [1, 10, 100, 1000]
+ - mfd_inequality_weights = [0, 10, 100, 1000]
+ - slip_rate_weighting_types = ['UNCERTAINTY_ADJUSTED',]
+ - slip_rate_weights = [1000,]
+ - slip_uncertainty_scaling_factors = [2,]
+ - completion_energies = [0.0] (disabled)
+
 """
 
-def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_times):
+def run_tasks(general_task_id, rupture_sets, rounds, completion_energies, max_inversion_times,
+        mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
+        slip_rate_weights, slip_uncertainty_scaling_factors):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_solution_builder_task,
         initial_gateway_port=25933,
@@ -48,49 +58,58 @@ def run_tasks(general_task_id, rupture_sets, completion_energies, max_inversion_
         pbs_ppn=JAVA_THREADS,
         pbs_script=CLUSTER_MODE)
 
-    for round in rounds:
-        for (rid, rupture_set_info) in rupture_sets.items():
-            for completion_energy in completion_energies:
-                for max_inversion_time in max_inversion_times:
+    for (rid, rupture_set_info) in rupture_sets.items():
+        for (round, completion_energy, max_inversion_time,
+                mfd_equality_weight, mfd_inequality_weight, slip_rate_weighting_type,
+                slip_rate_weight, slip_uncertainty_scaling_factor)\
+            in itertools.product(
+                rounds, completion_energies, max_inversion_times,
+                mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
+                slip_rate_weights, slip_uncertainty_scaling_factors):
 
-                    task_count +=1
+            task_count +=1
 
-                    task_arguments = dict(
-                        round = round,
-                        rupture_set_file_id=rupture_set_info['id'],
-                        rupture_set=rupture_set_info['filepath'],
-                        completion_energy=completion_energy,
-                        max_inversion_time=max_inversion_time,
-                        )
+            task_arguments = dict(
+                round = round,
+                rupture_set_file_id=rupture_set_info['id'],
+                rupture_set=rupture_set_info['filepath'],
+                completion_energy=completion_energy,
+                max_inversion_time=max_inversion_time,
+                mfd_equality_weight=mfd_equality_weight,
+                mfd_inequality_weight=mfd_inequality_weight,
+                slip_rate_weighting_type=slip_rate_weighting_type,
+                slip_rate_weight=slip_rate_weight,
+                slip_uncertainty_scaling_factor=slip_uncertainty_scaling_factor
+                )
 
-                    job_arguments = dict(
-                        task_id = task_count,
-                        round = round,
-                        java_threads=JAVA_THREADS,
-                        jvm_heap_max = JVM_HEAP_MAX,
-                        java_gateway_port=task_factory.get_next_port(),
-                        working_path=str(WORK_PATH),
-                        root_folder=OPENSHA_ROOT,
-                        general_task_id=general_task_id,
-                        use_api = USE_API,
-                        output_file = f"{str(WORK_PATH)}/InversionSolution-{str(rid)}-rnd{round}-t{max_inversion_time}.zip",
-                        )
+            job_arguments = dict(
+                task_id = task_count,
+                round = round,
+                java_threads=JAVA_THREADS,
+                jvm_heap_max = JVM_HEAP_MAX,
+                java_gateway_port=task_factory.get_next_port(),
+                working_path=str(WORK_PATH),
+                root_folder=OPENSHA_ROOT,
+                general_task_id=general_task_id,
+                use_api = USE_API,
+                output_file = f"{str(WORK_PATH)}/InversionSolution-{str(rid)}-rnd{round}-t{max_inversion_time}.zip",
+                )
 
-                    #write a config
-                    task_factory.write_task_config(task_arguments, job_arguments)
+            #write a config
+            task_factory.write_task_config(task_arguments, job_arguments)
 
-                    script = task_factory.get_task_script()
+            script = task_factory.get_task_script()
 
-                    script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
-                    with open(script_file_path, 'w') as f:
-                        f.write(script)
+            script_file_path = PurePath(WORK_PATH, f"task_{task_count}.sh")
+            with open(script_file_path, 'w') as f:
+                f.write(script)
 
-                    #make file executable
-                    st = os.stat(script_file_path)
-                    os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
+            #make file executable
+            st = os.stat(script_file_path)
+            os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
-                    yield str(script_file_path)
-                    return
+            yield str(script_file_path)
+            return
 
 if __name__ == "__main__":
 
@@ -104,8 +123,8 @@ if __name__ == "__main__":
 
     #get input files from API
     upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
-    upstream_task_id = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #COulomb
-    rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=True)
+    upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
+    rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=False)
 
     if USE_API:
         #create new task in toshi_api
@@ -119,16 +138,23 @@ if __name__ == "__main__":
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     rounds = range(1)
-    # completion_energies = [0.2, 0.1, 0.05, 0.01, 0.005, 0.001]
-    completion_energies = [0.2, 0.01,] # 0.005]
-    #max_inversion_times = [30, 8*60, ]# 30, 60,   0, 4*60, 8*60, 16*60,]  #units are minutes
-    max_inversion_times = [2,] #3*60,]  #units are minutes
+    completion_energies = [0.0,] # 0.005]
+    max_inversion_times = [8*60,] #3*60,]  #units are minutes
     max_inversion_times.reverse()
+
+    mfd_equality_weights = [0, 10, 100, 1000]
+    mfd_inequality_weights = [0, 10, 100, 1000]
+    slip_rate_weighting_types = ['UNCERTAINTY_ADJUSTED',]
+    slip_rate_weights = [1000,]
+    slip_uncertainty_scaling_factors = [2,]
 
     pool = Pool(WORKER_POOL_SIZE)
 
     scripts = []
-    for script_file in run_tasks(GENERAL_TASK_ID, rupture_sets, completion_energies, max_inversion_times):
+    for script_file in run_tasks(GENERAL_TASK_ID, rupture_sets, rounds, completion_energies, max_inversion_times,
+        mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
+        slip_rate_weights, slip_uncertainty_scaling_factors
+        ):
         print('scheduling: ', script_file)
         scripts.append(script_file)
 

@@ -84,18 +84,18 @@ class BuilderTask():
             .setSyncInterval(30)\
             .setRuptureSetFile(str(PurePath(job_arguments['working_path'], ta['rupture_set'])))
 
-        mfd = SimpleNamespace(**dict(
-            total_rate_m5 = 8.8,
-            b_value = 1.0,
-            mfd_transition_mag = 7.85,
-            mfd_num = 40,
-            mfd_min = 5.05,
-            mfd_max = 8.95))
+        # mfd = SimpleNamespace(**dict(
+        #     total_rate_m5 = 8.8,
+        #     b_value = 1.0,
+        #     mfd_transition_mag = 7.85,
+        #     mfd_num = 40,
+        #     mfd_min = 5.05,
+        #     mfd_max = 8.95))
 
-        mfd_equality_constraint_weight = 10
-        mfd_inequality_constraint_weight = 1000
+        # mfd_equality_constraint_weight = 10
+        # mfd_inequality_constraint_weight = 1000
 
-        sliprate_weighting = self._gateway.jvm.UCERF3InversionConfiguration.SlipRateConstraintWeightingType
+        # sliprate_weighting = self._gateway.jvm.UCERF3InversionConfiguration.SlipRateConstraintWeightingType
 
         # .setGutenbergRichterMFD(mfd.total_rate_m5, mfd.b_value, mfd.mfd_transition_mag, mfd.mfd_num, mfd.mfd_min, mfd.mfd_max)
         # .setSlipRateConstraint(sliprate_weighting.NORMALIZED_BY_SLIP_RATE, float(100), float(10))\
@@ -103,8 +103,11 @@ class BuilderTask():
 
         self._inversion_runner\
             .setGutenbergRichterMFDWeights(
-                 float(mfd_equality_constraint_weight),
-                 float(mfd_inequality_constraint_weight))\
+                 float(ta['mfd_equality_weight']),
+                 float(ta['mfd_inequality_weight']))\
+            .setSlipRateUncertaintyConstraint(ta['slip_rate_weighting_type'],
+                ta['slip_rate_weight'],
+                ta['slip_uncertainty_scaling_factor'])\
             .configure()\
             .runInversion()
 
@@ -169,7 +172,7 @@ if __name__ == "__main__":
     # maybe the JVM App is a little slow to get listening
     time.sleep(5)
     # Wait for some more time, scaled by taskid to avoid S3 consistency issue
-    time.sleep(config['job_arguments']['task_id'] * 0.333 * 2 * 4)
+    time.sleep(config['job_arguments']['task_id'] * 0.666 * 2 * 4)
 
     # print(config)
     task = BuilderTask(config['job_arguments'])

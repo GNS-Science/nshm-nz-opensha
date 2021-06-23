@@ -19,6 +19,7 @@ import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_AzimuthalRuptureSetBuilder;
 import py4j.GatewayServer;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.inversion.UCERF3InversionConfiguration.SlipRateConstraintWeightingType;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
@@ -253,7 +254,7 @@ public class NZSHM22_PythonGateway {
             solution = super.runInversion();
             return solution;
         }
-
+        
         /**
          * Writes the cached solution (see the run method) to file.
          *

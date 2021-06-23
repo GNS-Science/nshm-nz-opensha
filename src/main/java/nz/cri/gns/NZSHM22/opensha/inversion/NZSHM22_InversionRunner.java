@@ -9,6 +9,7 @@ import org.opensha.sha.faultSurface.FaultSection;
 
 import com.google.common.base.Preconditions;
 
+import nz.cri.gns.NZSHM22.opensha.enumTreeBranches.NZSHM22_FaultModels;
 import nz.cri.gns.NZSHM22.opensha.griddedSeismicity.NZSHM22_GridSourceGenerator;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -121,13 +122,15 @@ public class NZSHM22_InversionRunner {
 	}
 	
 	/**
-	 * @param energyDelta
+	 * @param energyDelta may be set to 0 to noop this method
 	 * @param energyPercentDelta
 	 * @param lookBackMins
 	 * @return
 	 */
 	public NZSHM22_InversionRunner setEnergyChangeCompletionCriteria(double energyDelta, double energyPercentDelta,
 			double lookBackMins) {
+		if (energyDelta == 0.0d )
+			return this;
 		this.energyChangeCompletionCriteria = new EnergyChangeCompletionCriteria(energyDelta, energyPercentDelta,
 				lookBackMins);
 		return this;
@@ -314,6 +317,20 @@ public class NZSHM22_InversionRunner {
 		return this;
 	}	
 	
+	/**
+	 * New NZSHM22 Slip rate uncertainty constraint
+	 * 
+	 * @param uncertaintyWeight
+	 * @param scalingFactor
+	 * @throws IllegalArgumentException if the weighting types is not supported by this constraint
+	 * @return
+	 */
+    public NZSHM22_InversionRunner setSlipRateUncertaintyConstraint(String weightingType, 
+			int uncertaintyWeight, int scalingFactor) {		
+    	setSlipRateUncertaintyConstraint(SlipRateConstraintWeightingType.valueOf(weightingType),
+    			uncertaintyWeight, scalingFactor);
+        return this;
+    }
 
 	public NZSHM22_InversionRunner setInversionConfiguration(NZSHM22_InversionConfiguration config) {
 		System.out.println("Building Inversion Configuration");
