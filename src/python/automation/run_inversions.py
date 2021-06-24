@@ -33,11 +33,13 @@ JAVA_THREADS = 4
 #If using API give this task a descriptive setting...
 TASK_TITLE = "Inversions on TVZ/SansTVZ MFD - Coulomb"
 TASK_DESCRIPTION = """
+Shortened to get feedback.
+Repeat to get metrics, and make solution filenames unique.
 
 Total of 64 jobs
  - 4 Coulomb rupture sets from R2VuZXJhbFRhc2s6OTMyNDRibg==
  - rounds = 1
- - max_inversion_times = [8*60,] #3*60,]  #units are minutes
+ - max_inversion_times = [2*60,] #3*60,]  #units are minutes
  - mfd_equality_weights = [1, 10, 100, 1000]
  - mfd_inequality_weights = [0, 10, 100, 1000]
  - slip_rate_weighting_types = ['UNCERTAINTY_ADJUSTED',]
@@ -108,7 +110,7 @@ def run_tasks(general_task_id, rupture_sets, rounds, completion_energies, max_in
             os.chmod(script_file_path, st.st_mode | stat.S_IEXEC)
 
             yield str(script_file_path)
-            return
+            #return
 
 if __name__ == "__main__":
 
@@ -121,9 +123,9 @@ if __name__ == "__main__":
     file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
     #get input files from API
-    upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
+    #upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
     upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
-    upstream_task_id = "R2VuZXJhbFRhc2s6MjUzQjdjOU4=" #TEST API
+    #upstream_task_id = "R2VuZXJhbFRhc2s6MjUzQjdjOU4=" #TEST API
     rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=False)
 
     if USE_API:
@@ -139,7 +141,7 @@ if __name__ == "__main__":
 
     rounds = range(1)
     completion_energies = [0.0,] # 0.005]
-    max_inversion_times = [1, ] #8*60,] #3*60,]  #units are minutes
+    max_inversion_times = [2*60,] #3*60,]  #units are minutes
     max_inversion_times.reverse()
 
     mfd_equality_weights = [0, 10, 100, 1000]
