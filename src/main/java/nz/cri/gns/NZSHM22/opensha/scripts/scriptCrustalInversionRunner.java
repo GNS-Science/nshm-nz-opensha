@@ -202,6 +202,7 @@ public class scriptCrustalInversionRunner {
         		.setSlipRateUncertaintyConstraint(weightingType , 1000, 2)
         		.configure(); //do this last thing before runInversion!
         FaultSystemSolution solution = runner.runInversion();
+        System.out.println(runner.getSolutionMetrics());
         FaultSystemIO.writeSol(solution, solFile);
     }
 

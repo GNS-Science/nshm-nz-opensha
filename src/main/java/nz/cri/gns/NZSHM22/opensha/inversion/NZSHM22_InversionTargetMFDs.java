@@ -188,7 +188,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 		
 		if ( 1==1 ) {
 			/*
-			 * OPTION A seems Wrong
+			 * OPTION A seems wrong but need some polygon analysis to check approach (w Matt)
 			 */
 			//TODO: check this uses grid weights. are we losing any spatial variability inside the polygons??
 			double fractSeisInSansTVZ = this.spatialSeisPDF.getFractionInRegion(regionSansTVZGridded);
@@ -201,21 +201,22 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
 			onFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ * fractionSeisOnFault; // * fractSeisInSansTVZ; 
 			onFaultRegionRateMgt5_TVZ = totalRateM5_TVZ * fractionSeisOnFault;// * fractSeisInTVZ;
 //		} else {
-//			/*
-//			 * OPTION B doesn;t work because faultSectionData is outside region bounds....
-//			 */
-////			GriddedSeisUtils gridSeisUtils_SansTVZ = new GriddedSeisUtils(faultSectionData, 
-////					spatialSeisPDF.getPDF(), FAULT_BUFFER, regionSansTVZGridded);
-////			GriddedSeisUtils gridSeisUtils_TVZ = new GriddedSeisUtils(faultSectionData, 
-////					spatialSeisPDF.getPDF(), FAULT_BUFFER, regionTVZGridded);
-////			double fractionSeisOnFault_SansTVZ = gridSeisUtils_SansTVZ.pdfInPolys(); 
-////			double fractionSeisOnFault_TVZ = gridSeisUtils_TVZ.pdfInPolys(); 
-////			onFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ * fractionSeisOnFault_SansTVZ; 
-////			onFaultRegionRateMgt5_TVZ = totalRateM5_TVZ * fractionSeisOnFault_TVZ;
+			/*
+			 * OPTION B doesn;t work because faultSectionData is outside region bounds....
+			 */
+//			GriddedSeisUtils gridSeisUtils_SansTVZ = new GriddedSeisUtils(faultSectionData, 
+//					spatialSeisPDF.getPDF(), FAULT_BUFFER, regionSansTVZGridded);
+			// SPLAT //
+//			GriddedSeisUtils gridSeisUtils_TVZ = new GriddedSeisUtils(faultSectionData, 
+//					spatialSeisPDF.getPDF(), FAULT_BUFFER, regionTVZGridded);
+//			double fractionSeisOnFault_SansTVZ = gridSeisUtils_SansTVZ.pdfInPolys(); 
+//			double fractionSeisOnFault_TVZ = gridSeisUtils_TVZ.pdfInPolys(); 
+//			onFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ * fractionSeisOnFault_SansTVZ; 
+//			onFaultRegionRateMgt5_TVZ = totalRateM5_TVZ * fractionSeisOnFault_TVZ;
 //			double fractSeisInSansTVZ = this.spatialSeisPDF.getFractionInRegion(regionSansTVZGridded);
 //			double fractSeisInTVZ = this.spatialSeisPDF.getFractionInRegion(regionTVZGridded);
-////			fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDFforOnFaultRates);
-//			fractionSeisOnFault = gridSeisUtils.pdfInPolys();
+//			fractionSeisOnFault = DeformationModelsCalc.getFractSpatialPDF_InsideSectionPolygons(faultSectionData, spatialSeisPDFforOnFaultRates);
+			fractionSeisOnFault = gridSeisUtils.pdfInPolys();
 		}
 		
 //		offFaultRegionRateMgt5_SansTVZ = totalRateM5_SansTVZ - onFaultRegionRateMgt5_SansTVZ;

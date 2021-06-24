@@ -92,11 +92,13 @@ public class NZSHM22_InversionRunner {
 	private NZSHM22_InversionConfiguration inversionConfiguration;
 	private int slipRateUncertaintyWeight;
 	private int slipRateUncertaintyScalingFactor;
+	private Map<String, Double> finalEnergies;
 
 	/**
 	 * Creates a new NZSHM22_InversionRunner with defaults.
 	 */
 	public NZSHM22_InversionRunner() {
+		finalEnergies = new HashMap<String, Double>();
 	}
 
 	/**
@@ -438,23 +440,56 @@ public class NZSHM22_InversionRunner {
 		double[] solution_adjusted = inputGen.adjustSolutionForWaterLevel(solution_raw);
 
 		Map<ConstraintRange, Double> energies = tsa.getEnergies();
-		Map<String, Double> new_energies = new HashMap<String, Double>();
-
 		if (energies != null) {
-			for (ConstraintRange range : energies.keySet())
-				new_energies.put(range.toString(), energies.get(range));
-
 			System.out.println("Final energies:");
-			for (ConstraintRange range : energies.keySet())
+			for (ConstraintRange range : energies.keySet()) {
+				finalEnergies.put(range.name, (double) energies.get(range).floatValue());
 				System.out.println("\t" + range.name + ": " + energies.get(range).floatValue());
+			}
 		}
 
 		//TODO, we really do want to store the config and energies now 	
-		solution = new NZSHM22_InversionFaultSystemSolution(rupSet, solution_adjusted, new_energies); //, null, energies);
+		solution = new NZSHM22_InversionFaultSystemSolution(rupSet, solution_adjusted, finalEnergies); //, null, energies);
 		solution.setGridSourceProvider(new NZSHM22_GridSourceGenerator((NZSHM22_InversionFaultSystemSolution) solution));
 		return solution;
 	}
 
+	
+	@SuppressWarnings("deprecation")
+	public Map<String, String> getSolutionMetrics() {
+		Map<String, String> metrics = new HashMap<String, String>();
+
+		//Completion
+		ProgressTrackingCompletionCriteria pComp = (ProgressTrackingCompletionCriteria) completionCriteria;
+		long numPerturbs = pComp.getPerturbs().get(pComp.getPerturbs().size() - 1);
+		int numRups = initialState.length;
+
+		metrics.put("total_perturbations", Long.toString(numPerturbs));
+		metrics.put("total_ruptures", Integer.toString(numRups));
+		
+		int rupsPerturbed = 0;
+		double[] solution_no_min_rates = tsa.getBestSolution();
+		int numAboveWaterlevel = 0;
+		for (int i = 0; i < numRups; i++) {
+			if ((float) solution_no_min_rates[i] != (float) initialState[i])
+				rupsPerturbed++;
+			if (solution_no_min_rates[i] > 0)
+				numAboveWaterlevel++;
+		}		
+
+		metrics.put("perturbed_ruptures", Integer.toString(rupsPerturbed));
+		metrics.put("avg_perturbs_per_pertubed_rupture", new Double((double) numPerturbs / (double) rupsPerturbed).toString());
+		metrics.put("ruptures_above_water_level_ratio", new Double((double) numAboveWaterlevel / (double) numRups).toString());
+
+		for (String range : finalEnergies.keySet()) {
+			String metric_name = "final_energy_" + range.replaceAll("\\s+", "_").toLowerCase();
+			System.out.println(metric_name + " : " + finalEnergies.get(range).toString());
+			metrics.put(metric_name, finalEnergies.get(range).toString());
+		}
+		
+		return metrics;
+	}
+	
 	public String completionCriteriaMetrics() {
 		String info = "";
 		ProgressTrackingCompletionCriteria pComp = (ProgressTrackingCompletionCriteria) completionCriteria;
