@@ -1,5 +1,6 @@
 
 from nshm_toshi_client.toshi_client_base import ToshiClientBase
+import copy
 
 class ToshiApi(ToshiClientBase):
 
@@ -60,3 +61,83 @@ class ToshiApi(ToshiClientBase):
         input_variables = dict(id=id)
         executed = self.run_query(qry, input_variables)
         return executed
+
+    def get_subtask_files(self, id):
+        gt = self.get_general_task_subtasks(id)
+        for subtask in gt['children']['edges']:
+            sbt = self.get_rgt_files(subtask['node']['child']['id'])
+            subtask['node']['child']['files'] = copy.deepcopy(sbt['files'])
+        return gt
+
+    def get_general_task_subtasks(self, id):
+        qry = '''
+            query one_general ($id:ID!)  {
+              node(id: $id) {
+                __typename
+                ... on GeneralTask {
+                  title
+                  created
+                  children {
+                    #total_count
+                    edges {
+                      node {
+                        child {
+                          __typename
+                          ... on Node {
+                            id
+                          }
+                          ... on RuptureGenerationTask {
+                            created
+                            state
+                            result
+                            arguments {k v}
+
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }'''
+
+        print(qry)
+        input_variables = dict(id=id)
+        executed = self.run_query(qry, input_variables)
+        return executed['node']
+
+    def get_rgt_files(self, id):
+
+        qry = '''
+            query ($id:ID!) {
+              node(id: $id) {
+                __typename
+                ... on RuptureGenerationTask {
+                  id
+                  files {
+                    total_count
+                    edges {
+                      node {
+                        ... on FileRelation {
+                          role
+                          file {
+                            ... on File {
+                              id
+                              file_name
+                              file_size
+                              meta {k v}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+        '''
+
+        print(qry)
+        input_variables = dict(id=id)
+        executed = self.run_query(qry, input_variables)
+        return executed['node']

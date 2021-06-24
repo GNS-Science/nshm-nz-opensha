@@ -14,6 +14,7 @@ from nshm_toshi_client.toshi_file import ToshiFile
 
 from scaling.opensha_task_factory import OpenshaTaskFactory
 from scaling.file_utils import download_files
+from scaling.toshi_api import ToshiApi
 
 import scaling.inversion_diags_report_task
 # from scaling.toshi_api import ToshiApi
@@ -106,17 +107,13 @@ if __name__ == "__main__":
 
     if USE_API:
         headers={"x-api-key":API_KEY}
-        general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+        general_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        upstream_task_id = "R2VuZXJhbFRhc2s6MjM3bjNhNjM=" #Stirlngs all failee
-        #upstream_task_id = "R2VuZXJhbFRhc2s6Mjg3VUdUblY="
-        upstream_task_id = "R2VuZXJhbFRhc2s6MjUwYVhrVzY=" #Azimuthal 3,4,5
-        upstream_task_id = "R2VuZXJhbFRhc2s6Mzg0RUxmaG0=" #Coulomb
-        upstream_task_id = "R2VuZXJhbFRhc2s6MzU5ekZMYkg=" #Azim
+        upstream_task_id = "R2VuZXJhbFRhc2s6NDIwbVljTUI=" #Azim
 
-        solutions = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
+        solutions = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), id_suffix=True, overwrite=True)
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 

@@ -2,6 +2,7 @@ import argparse
 import json
 import git
 import os
+import uuid
 from pathlib import PurePath
 import platform
 
@@ -70,7 +71,7 @@ class BuilderTask():
                 self._ruptgen_api.link_task_file(task_id, input_file_id, 'READ')
 
         else:
-            task_id = None
+            task_id = str(uuid.uuid4())
 
         # Run the task....
         ta = task_arguments
@@ -111,8 +112,12 @@ class BuilderTask():
             .configure()\
             .runInversion()
 
-        #output_file = str(PurePath(job_arguments['working_path'], f"SOLUTION_FILE_{job_arguments['java_gateway_port']}.zip"))
-        output_file = str(PurePath(job_arguments['output_file']))
+        output_file = str(PurePath(job_arguments['working_path'], f"NZSHM22_InversionSolution-{task_id}.zip"))
+        #name the output file
+        # outputfile = self._output_folder.joinpath(self._inversion_runner.getDescriptiveName()+ ".zip")
+        # print("building %s started at %s" % (outputfile, dt.datetime.utcnow().isoformat()), end=' ')
+
+        # output_file = str(PurePath(job_arguments['output_file']))
         self._inversion_runner.writeSolution(output_file)
 
         t1 = dt.datetime.utcnow()
@@ -122,7 +127,11 @@ class BuilderTask():
         duration = (dt.datetime.utcnow() - t0).total_seconds()
 
         metrics = {}
-        # metrics['completion_criteria'] = self._inversion_runner.completionCriteriaMetrics()
+        #fecth metrics and convert Java Map to python dict
+        jmetrics = self._inversion_runner.getSolutionMetrics()
+        for k in jmetrics:
+            metrics[k] = jmetrics[k]
+
         # metrics['moment_rate'] = self._inversion_runner.momentAndRateMetrics()
         # metrics['by_fault_name'] = self._inversion_runner.byFaultNameMetrics()
         # metrics['parent_fault_moment_rates'] = self._inversion_runner.parentFaultMomentRates()

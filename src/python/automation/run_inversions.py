@@ -92,7 +92,6 @@ def run_tasks(general_task_id, rupture_sets, rounds, completion_energies, max_in
                 root_folder=OPENSHA_ROOT,
                 general_task_id=general_task_id,
                 use_api = USE_API,
-                output_file = f"{str(WORK_PATH)}/InversionSolution-{str(rid)}-rnd{round}-t{max_inversion_time}.zip",
                 )
 
             #write a config
@@ -124,6 +123,7 @@ if __name__ == "__main__":
     #get input files from API
     upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
     upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
+    upstream_task_id = "R2VuZXJhbFRhc2s6MjUzQjdjOU4=" #TEST API
     rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=False)
 
     if USE_API:
@@ -135,11 +135,11 @@ if __name__ == "__main__":
             description=TASK_DESCRIPTION
         )
 
-        print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
+    print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     rounds = range(1)
     completion_energies = [0.0,] # 0.005]
-    max_inversion_times = [8*60,] #3*60,]  #units are minutes
+    max_inversion_times = [1, ] #8*60,] #3*60,]  #units are minutes
     max_inversion_times.reverse()
 
     mfd_equality_weights = [0, 10, 100, 1000]
