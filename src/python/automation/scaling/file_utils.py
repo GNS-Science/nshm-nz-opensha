@@ -16,6 +16,7 @@ def get_output_file_ids(general_task_api, upstream_task_id, file_extension='zip'
         #get rupture set fault model
         fault_model = ""
         for filenode in subtask['node']['child']['files']['edges']:
+            print("FN:", filenode)
             if filenode['node']['role'] == 'READ' and filenode['node']['file']['file_name'][-3:] == file_extension:
                 for kv in filenode['node']['file'].get('meta', []):
                     if kv.get('k') == 'fault_model':
@@ -36,8 +37,10 @@ def get_output_file_ids(general_task_api, upstream_task_id, file_extension='zip'
                         )
 
                 if fault_model:
-                   res['fault_model'] = fault_model
+                    res['fault_model'] = fault_model
                 yield res
+                #TESTING
+                #return
 
 
 def get_download_info(file_api, file_infos):
@@ -78,7 +81,7 @@ def download_files(general_api, file_api, upstream_task_id, dest_folder, id_suff
                 continue
 
         # here we pull the file
-        print(info['file_url'])
+        # print(info['file_url'])
         # r0 = requests.head(info['file_url'])
         r1 = requests.get(info['file_url'])
         with open(str(file_path), 'wb') as f:
@@ -107,7 +110,7 @@ def OLD_download_files(general_api, file_api, upstream_task_id, dest_folder, ove
 
         # here we pull the file
         # validate the file size
-        print(info['file_url'])
+        # print(info['file_url'])
         # r0 = requests.head(info['file_url'])
 
         r1 = requests.get(info['file_url'])

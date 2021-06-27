@@ -193,7 +193,7 @@ class ReportMetaBuilder():
 def main():
     #ReportMetaBuilder
     meta_builder = ReportMetaBuilder(
-        path = '/home/chrisbc/DEV/GNS/opensha-new/DATA7')
+        path = '/home/chrisbc/DEV/GNS/opensha-new/AWS_S3_DATA/DATA9')
 
     def sort_fn(info):
         key = info['meta']['short_name']

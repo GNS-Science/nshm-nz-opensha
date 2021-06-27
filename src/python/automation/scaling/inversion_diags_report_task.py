@@ -54,16 +54,18 @@ class BuilderTask():
             .setOutputDir(str(mag_rates_folder))\
             .generateRateDiagnosticsPlot()
 
-        # build the Named Fault MFDS
-        named_mfds_folder = Path(self._output_folder, ta['file_id'], 'named_fault_mfds')
-        named_mfds_folder.mkdir(parents=True, exist_ok=True)
+        # build the Named Fault MFDS, only if we have a FM with named faults
+        if ta["fault_model"][:7] == "CFM_0_9":
+            print("Named fault plots for: ", ta['file_id'])
+            named_mfds_folder = Path(self._output_folder, ta['file_id'], 'named_fault_mfds')
+            named_mfds_folder.mkdir(parents=True, exist_ok=True)
 
-        plot_builder = self._gateway.entry_point.getMFDPlotBuilder()
-        plot_builder \
-            .setOutputDir(str(named_mfds_folder))\
-            .setSolution(ta['file_path'])\
-            .setFaultModel(ta['fault_model'])\
-            .plot()
+            plot_builder = self._gateway.entry_point.getMFDPlotBuilder()
+            plot_builder \
+                .setOutputDir(str(named_mfds_folder))\
+                .setSolution(ta['file_path'])\
+                .setFaultModel(ta['fault_model'])\
+                .plot()
 
         t1 = dt.datetime.utcnow()
         print("Report took %s secs" % (t1-t0).total_seconds())

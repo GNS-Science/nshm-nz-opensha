@@ -67,7 +67,7 @@ def gt_template(node):
     return f"""
     <h2>{title}</h2>
     <p>{created.strftime("%Y-%m-%d %H:%M:%S %z")}</p>
-
+    <a href="{TUI}GeneralTask/{GID}">{GID}</a>
     <p>{description}</p>
     """
 
@@ -97,19 +97,34 @@ def rgt_template(rgt):
         </li>
         '''
 
-def inv_template(rgt):
+def inv_template(rgt, display_keys = []):
 
     rid = rgt['id']
     result = rgt['result']
     fname = None
     fault_model = ""
+    display_info = ""
     # return f'<li><a href="{TUI}RuptureGenerationTask/{rid}">Rupture set {rid}</a>result: {result}</li>'
+    if not rgt.get('files'):
+        return ''
+
     for file_node in rgt['files']['edges']:
         fn = file_node['node']
         #get solution details
         if fn['role'] == 'WRITE' and 'zip' in fn['file']['file_name']:
             fname = fn['file']['file_name']
             fid = fn['file']['id']
+
+            for kv_pair in fn['file']['meta']:
+                if kv_pair['k'] in display_keys:
+                    if kv_pair['k'] == 'rupture_set_file_id':
+                        info = f"<a href ='{TUI}FileDetail/{kv_pair['v']}'>{kv_pair['v']}</a>"
+                    else:
+                        info = kv_pair['v']
+                    display_info += f"{kv_pair['k']}:{info}, "
+
+
+            display_info = display_info[:-2]
 
         #extract mmode from the rupture set
         if fn['role'] == 'READ' and 'zip' in fn['file']['file_name']:
@@ -118,13 +133,20 @@ def inv_template(rgt):
                     fault_model = kv_pair['v']
                     break
 
-
     if fname:
+        named_faults_link = ''
+        #only link named_faults if they're there
+        if Path(f'{WORK_FOLDER}/{UPLOAD_FOLDER}/{fid}/named_fault_mfds/mfd_index.html').exists():
+            named_faults_link = f'<a href="{UPLOAD_FOLDER}/{fid}/named_fault_mfds/mfd_index.html">Named fault MFDs</a>'
         return f'''<li>
             <a href="{TUI}RuptureGenerationTask/{rid}">{rid}</a> result: {result} &nbsp;
             <a href="{TUI}FileDetail/{fid}">File detail</a> &nbsp;
             <a href="{UPLOAD_FOLDER}/{fid}/mag_rates/MAG_rates_log_fixed_yscale.png">Mag Rate overall</a>
-            <a href="{UPLOAD_FOLDER}/{fid}/named_fault_mfds/mfd_index.html">Named fault MFDs</a>
+            {named_faults_link}
+            <br />
+            <div class="display_info">{display_info}</div>
+            <br />
+
         </li>
         '''
     else:
@@ -150,12 +172,18 @@ if __name__ == "__main__":
     #GID = "R2VuZXJhbFRhc2s6Mzg0RUxmaG0=" #Coulomb INv
     GID = "R2VuZXJhbFRhc2s6MzU5ekZMYkg=" #Azim Inv
     GID = "R2VuZXJhbFRhc2s6NDAzOTNpVmI=" #Coulomb Stirling Rupsets (at last)
+    GID = "R2VuZXJhbFRhc2s6NDg1UndBazQ="
+    GID = "R2VuZXJhbFRhc2s6NTUwR3pWNFE="
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
-    UPLOAD_FOLDER = "DATA7"
+    UPLOAD_FOLDER = "DATA9"
+    WORK_FOLDER = "/home/chrisbc/DEV/GNS/opensha-new/AWS_S3_DATA"
 
     gentask = general_api.get_general_task_subtask_files(GID)
-    node = gentask['node']
+    # print(gentask)
+    node = gentask
+
+    info_keys = ['mfd_equality_weight', 'mfd_inequality_weight','rupture_set_file_id' ] # 'round', 'max_inversion_time'
 
     #Write Section info
     print(gt_template(node))
@@ -164,8 +192,8 @@ if __name__ == "__main__":
     for child_node in node['children']['edges']:
         rgt = child_node['node']['child']
 
-        print(rgt_template(rgt))  #rupt sets
-        #print(inv_template(rgt)) #inversions
+        #print(rgt_template(rgt))  #rupt sets
+        print(inv_template(rgt, info_keys)) #inversions
 
     print("</ul>")
     print("<hr />")

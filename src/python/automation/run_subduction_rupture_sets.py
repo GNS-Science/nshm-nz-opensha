@@ -28,17 +28,17 @@ WORKER_POOL_SIZE = 2
 
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Build Hikurangi/Kermadec ruptsets"
+TASK_TITLE = "Build Hikurangi/Kermadec ruptsets 30km"
 
 TASK_DESCRIPTION = """
 
- - models = [SBD_0_1_HKR_KRM_10, SBD_0_1_HKR_KRM_30]
+ - models = [SBD_0_1_HKR_KRM_30]
  - min_aspect_ratio = 2.0
  - max_aspect_ratio = 5.0
- - aspect_depth_threshold = 7
- - min_fill_ratios = 0.75
- - growth_position_epsilons = [0.03, 0.02, 0.01]
- - growth_size_epsilons = [0.03, 0.02, 0.01]
+ - aspect_depth_threshold = 5
+ - min_fill_ratios = [0.2, 0.1,]
+ - growth_position_epsilons = [0.0]
+ - growth_size_epsilons = [0.01, 0.005, 0.0]
  - scaling_relationships = ['TMG_SUB_2017']
 
 """
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     #USE_API = False
     GENERAL_TASK_ID = None
-    USE_API = False
+    #USE_API = False
 
     if USE_API:
         headers={"x-api-key":API_KEY}
@@ -129,13 +129,13 @@ if __name__ == "__main__":
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     ##Test parameters
-    models = ["SBD_0_1_HKR_KRM_10", ] #"SBD_0_1_HKR_KRM_10"]
+    models = ["SBD_0_1_HKR_KRM_30", ] #"SBD_0_1_HKR_KRM_10"]
     min_aspect_ratios = [2.0,]
     max_aspect_ratios = [5.0,]
-    aspect_depth_thresholds = [7,]
-    min_fill_ratios = [1.0, 0.75, 0.5, 0.25]
-    growth_position_epsilons = [0.03, ] #0.02, 0.01]
-    growth_size_epsilons = [0.03, ] #0.02, 0.01]
+    aspect_depth_thresholds = [5,]
+    min_fill_ratios = [0.2, 0.1]
+    growth_position_epsilons = [0.0 ,] #0.02, 0.01]
+    growth_size_epsilons = [0.01, 0.005, 0.0 ] #0.02, 0.01]
     scaling_relationships = ["TMG_SUB_2017"]
 
     pool = Pool(WORKER_POOL_SIZE)
