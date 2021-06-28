@@ -87,7 +87,6 @@ def build_tasks(general_task_id, mmodels, min_aspect_ratios, max_aspect_ratios, 
             root_folder=OPENSHA_ROOT,
             general_task_id=general_task_id,
             use_api = USE_API,
-            # short_name=f'{model}-{thinning_factor}',
             )
 
         #write a config
@@ -111,7 +110,6 @@ if __name__ == "__main__":
 
     t0 = dt.datetime.utcnow()
 
-    #USE_API = False
     GENERAL_TASK_ID = None
     #USE_API = False
 

@@ -106,9 +106,11 @@ class BuilderTask():
             .setGutenbergRichterMFDWeights(
                  float(ta['mfd_equality_weight']),
                  float(ta['mfd_inequality_weight']))\
-            .setSlipRateUncertaintyConstraint(ta['slip_rate_weighting_type'],
-                ta['slip_rate_weight'],
-                ta['slip_uncertainty_scaling_factor'])\
+            .setSlipRateUncertaintyConstraint(
+                ta['slip_rate_weighting_type'],
+                int(ta['slip_rate_weight']),
+                int(ta['slip_uncertainty_scaling_factor']),
+                )\
             .configure()\
             .runInversion()
 

@@ -9,7 +9,7 @@ from multiprocessing.dummy import Pool
 import datetime as dt
 from dateutil.tz import tzutc
 
-from nshm_toshi_client.general_task import GeneralTask
+# from nshm_toshi_client.general_task import GeneralTask
 from nshm_toshi_client.toshi_file import ToshiFile
 
 from scaling.opensha_task_factory import OpenshaTaskFactory
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        inversion_task_id = "R2VuZXJhbFRhc2s6NTUwR3pWNFE="
+        inversion_task_id = "R2VuZXJhbFRhc2s6NzAxNEh2RE4="
         solutions = download_files(general_api, file_api, inversion_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)

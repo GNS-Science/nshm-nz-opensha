@@ -71,17 +71,34 @@ def gt_template(node):
     <p>{description}</p>
     """
 
-def rgt_template(rgt):
+def get_file_meta(file_node, display_keys = []):
+    display_info = ""
+    for kv_pair in file_node['meta']:
+        if kv_pair['k'] in display_keys:
+            if kv_pair['k'] == 'rupture_set_file_id':
+                info = f"<a href ='{TUI}FileDetail/{kv_pair['v']}'>{kv_pair['v']}</a>"
+            else:
+                info = kv_pair['v']
+            display_info += f"{kv_pair['k']}:{info}, "
+
+    display_info = display_info[:-2]
+    return display_info
+
+
+def rgt_template(rgt, display_keys=None):
     """'id': 'UnVwdHVyZUdlbmVyYXRpb25UYXNrOjE4ODNXcnFN', 'created': '2021-06-10T10:23:23.457361+00:00', 'state': 'DONE', 'result': 'SUCCESS',"""
     rid = rgt['id']
     result = rgt['result']
     fname = None
+    display_keys = display_keys or []
+    display_info = ""
     # return f'<li><a href="{TUI}RuptureGenerationTask/{rid}">Rupture set {rid}</a>result: {result}</li>'
     for file_node in rgt['files']['edges']:
         fn = file_node['node']
         if fn['role'] == 'WRITE' and 'zip' in fn['file']['file_name']:
             fname = fn['file']['file_name']
             fid = fn['file']['id']
+            display_info = get_file_meta(fn['file'], display_keys)
             break
 
     if fname:
@@ -89,6 +106,9 @@ def rgt_template(rgt):
             <a href="{TUI}RuptureGenerationTask/{rid}">{rid}</a> result: {result} &nbsp;
             <a href="{TUI}FileDetail/{fid}">File detail</a> &nbsp;
             <a href="{UPLOAD_FOLDER}/{fid}/DiagnosticsReport/index.html">Diagnostics report</a>
+            <br />
+            <div class="display_info">{display_info}</div>
+            <br />
         </li>
         '''
     else:
@@ -97,13 +117,15 @@ def rgt_template(rgt):
         </li>
         '''
 
-def inv_template(rgt, display_keys = []):
+
+def inv_template(rgt, display_keys=None):
 
     rid = rgt['id']
     result = rgt['result']
     fname = None
     fault_model = ""
     display_info = ""
+    display_keys = display_keys or []
     # return f'<li><a href="{TUI}RuptureGenerationTask/{rid}">Rupture set {rid}</a>result: {result}</li>'
     if not rgt.get('files'):
         return ''
@@ -114,17 +136,7 @@ def inv_template(rgt, display_keys = []):
         if fn['role'] == 'WRITE' and 'zip' in fn['file']['file_name']:
             fname = fn['file']['file_name']
             fid = fn['file']['id']
-
-            for kv_pair in fn['file']['meta']:
-                if kv_pair['k'] in display_keys:
-                    if kv_pair['k'] == 'rupture_set_file_id':
-                        info = f"<a href ='{TUI}FileDetail/{kv_pair['v']}'>{kv_pair['v']}</a>"
-                    else:
-                        info = kv_pair['v']
-                    display_info += f"{kv_pair['k']}:{info}, "
-
-
-            display_info = display_info[:-2]
+            display_info = get_file_meta(fn['file'], display_keys)
 
         #extract mmode from the rupture set
         if fn['role'] == 'READ' and 'zip' in fn['file']['file_name']:
@@ -174,9 +186,11 @@ if __name__ == "__main__":
     GID = "R2VuZXJhbFRhc2s6NDAzOTNpVmI=" #Coulomb Stirling Rupsets (at last)
     GID = "R2VuZXJhbFRhc2s6NDg1UndBazQ="
     GID = "R2VuZXJhbFRhc2s6NTUwR3pWNFE="
+    GID = "R2VuZXJhbFRhc2s6NjE1aHdiNFM=" ##subduction
+
+    UPLOAD_FOLDER = "DATA10"
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
-    UPLOAD_FOLDER = "DATA9"
     WORK_FOLDER = "/home/chrisbc/DEV/GNS/opensha-new/AWS_S3_DATA"
 
     gentask = general_api.get_general_task_subtask_files(GID)
@@ -184,6 +198,7 @@ if __name__ == "__main__":
     node = gentask
 
     info_keys = ['mfd_equality_weight', 'mfd_inequality_weight','rupture_set_file_id' ] # 'round', 'max_inversion_time'
+    info_keys = ['min_fill_ratio', 'growth_size_epsilon'] # for ruptget on subduction
 
     #Write Section info
     print(gt_template(node))
@@ -192,8 +207,8 @@ if __name__ == "__main__":
     for child_node in node['children']['edges']:
         rgt = child_node['node']['child']
 
-        #print(rgt_template(rgt))  #rupt sets
-        print(inv_template(rgt, info_keys)) #inversions
+        print(rgt_template(rgt, info_keys))  #rupt sets
+        #print(inv_template(rgt, info_keys)) #inversions
 
     print("</ul>")
     print("<hr />")

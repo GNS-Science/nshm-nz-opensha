@@ -6,7 +6,6 @@ helpers for upstream file retrieval
 import os
 import requests
 from pathlib import Path, PurePath
-from scaling.toshi_api import ToshiApi
 
 def get_output_file_ids(general_task_api, upstream_task_id, file_extension='zip'):
 
@@ -42,6 +41,27 @@ def get_output_file_ids(general_task_api, upstream_task_id, file_extension='zip'
                 #TESTING
                 #return
 
+def get_output_file_id(file_api, single_file_id):
+
+    api_result = file_api.get_file_detail(single_file_id)
+    fault_model = ""
+
+    print("FN:", api_result)
+    if api_result['file_name'][-3:] == "zip":
+        res = dict(id = api_result['id'],
+                file_name = api_result['file_name'],
+                file_size = api_result['file_size']
+                )
+        for kv in api_result['meta']:
+            if kv.get('k') == 'fault_model':
+                fault_model = kv.get('v')
+
+        if fault_model:
+            res['fault_model'] = fault_model
+        yield res #yep yield one
+
+    return
+
 
 def get_download_info(file_api, file_infos):
     """
@@ -52,16 +72,22 @@ def get_download_info(file_api, file_infos):
     """
     file_info = {}
     for itm in file_infos:
-        api_result = file_api.get_download_url(itm['id'])
+        api_result = file_api.get_file_download_url(itm['id'])
         # print(api_result)
         yield dict(dict(file_url=api_result['file_url']), **itm) #merge the discts
 
 
-def download_files(general_api, file_api, upstream_task_id, dest_folder, id_suffix=False, overwrite=False):
+def download_files(file_api, file_generator, dest_folder, id_suffix=False, overwrite=False):
+    """
+    file_generator = get_output_file_ids(general_api, upstream_task_id) # for files by upstream task ID)
 
+    or
+
+    file_generator = get_output_file_id(file_api, file_id) #for file by file ID
+    """
     downloads = dict()
 
-    for info in get_download_info(file_api, get_output_file_ids(general_api, upstream_task_id)):
+    for info in get_download_info(file_api, file_generator):
 
         folder = Path(dest_folder, 'downloads', info['id'])
         folder.mkdir(parents=True, exist_ok=True)
@@ -83,36 +109,6 @@ def download_files(general_api, file_api, upstream_task_id, dest_folder, id_suff
         # here we pull the file
         # print(info['file_url'])
         # r0 = requests.head(info['file_url'])
-        r1 = requests.get(info['file_url'])
-        with open(str(file_path), 'wb') as f:
-            f.write(r1.content)
-            print("downloaded input file:", file_path, f)
-            os.path.getsize(file_path) == info['file_size']
-
-    return downloads
-
-def OLD_download_files(general_api, file_api, upstream_task_id, dest_folder, overwrite=False):
-
-    downloads = dict()
-
-    for info in get_download_info(file_api, get_output_file_ids(general_api, upstream_task_id)):
-
-        #we can skip if file exists and has correct file_size
-        file_path = PurePath(dest_folder, info['file_name'])
-        shortname = info.get('short_name') or info['id']
-        downloads[shortname] = dict(id=info['id'], filepath = str(file_path))
-
-        if os.path.isfile(file_path):
-            if os.path.getsize(file_path) == info['file_size']:
-                #file exists and has correct size
-                if not overwrite:
-                    continue
-
-        # here we pull the file
-        # validate the file size
-        # print(info['file_url'])
-        # r0 = requests.head(info['file_url'])
-
         r1 = requests.get(info['file_url'])
         with open(str(file_path), 'wb') as f:
             f.write(r1.content)

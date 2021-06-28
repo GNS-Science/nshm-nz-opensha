@@ -11,9 +11,10 @@ from dateutil.tz import tzutc
 
 from nshm_toshi_client.general_task import GeneralTask
 from nshm_toshi_client.toshi_file import ToshiFile
+from scaling.toshi_api import ToshiApi
 
 from scaling.opensha_task_factory import OpenshaTaskFactory
-from scaling.file_utils import download_files
+from scaling.file_utils import download_files, get_output_file_id, get_output_file_ids
 
 import scaling.inversion_solution_builder_task
 
@@ -31,21 +32,19 @@ JAVA_THREADS = 4
 #USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Inversions on TVZ/SansTVZ MFD - Coulomb"
+TASK_TITLE = "Inversions on TVZ/SansTVZ MFD - Coulomb D90 MFD vs slip"
 TASK_DESCRIPTION = """
-Shortened to get feedback.
-Repeat to get metrics, and make solution filenames unique.
+MFD vs slip rate experiment using uncertainty adjusted SR
 
-Total of 64 jobs
- - 4 Coulomb rupture sets from R2VuZXJhbFRhc2s6OTMyNDRibg==
- - rounds = 1
- - max_inversion_times = [2*60,] #3*60,]  #units are minutes
- - mfd_equality_weights = [1, 10, 100, 1000]
- - mfd_inequality_weights = [0, 10, 100, 1000]
+Total of 24 jobs
+ - 1 Coulomb rupture sets
+ - completion_energies = [0.0,] (disabled)
+ - max_inversion_times = [8*60,]   #units are minutes
+ - mfd_equality_weights = [1e2, 1e3]
+ - mfd_inequality_weights = [1e2, 1e3, 1e4]
  - slip_rate_weighting_types = ['UNCERTAINTY_ADJUSTED',]
- - slip_rate_weights = [1000,]
+ - slip_rate_weights = [1e5, 1e4, 1e3, 1e2]
  - slip_uncertainty_scaling_factors = [2,]
- - completion_energies = [0.0] (disabled)
 
 """
 
@@ -117,16 +116,29 @@ if __name__ == "__main__":
     t0 = dt.datetime.utcnow()
 
     GENERAL_TASK_ID = None
+    USE_API = False
 
     headers={"x-api-key":API_KEY}
     general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-    file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+    # file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+    file_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
     #get input files from API
     #upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
-    upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
+    #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
     #upstream_task_id = "R2VuZXJhbFRhc2s6MjUzQjdjOU4=" #TEST API
-    rupture_sets = download_files(general_api, file_api, upstream_task_id, str(WORK_PATH), overwrite=False)
+
+
+    file_id = "RmlsZTozMDMuMEJCOVVY"
+
+    # CHOOSE ONE OF
+    # for files by upstream task ID)
+    #file_generator = get_output_file_ids(general_api, upstream_task_id) #
+
+    #for a single rupture set, pass a valid FileID
+    file_generator = get_output_file_id(file_api, file_id) #for file by file ID
+
+    rupture_sets = download_files(file_api, file_generator, str(WORK_PATH), overwrite=True)
 
     if USE_API:
         #create new task in toshi_api
@@ -141,13 +153,13 @@ if __name__ == "__main__":
 
     rounds = range(1)
     completion_energies = [0.0,] # 0.005]
-    max_inversion_times = [2*60,] #3*60,]  #units are minutes
-    max_inversion_times.reverse()
+    max_inversion_times = [8*60,] #3*60,]  #units are minutes
+    #max_inversion_times.reverse()
 
-    mfd_equality_weights = [0, 10, 100, 1000]
-    mfd_inequality_weights = [0, 10, 100, 1000]
+    mfd_equality_weights = [1e2, 1e3]
+    mfd_inequality_weights = [1e2, 1e3, 1e4]
     slip_rate_weighting_types = ['UNCERTAINTY_ADJUSTED',]
-    slip_rate_weights = [1000,]
+    slip_rate_weights = [1e5, 1e4, 1e3, 1e2]
     slip_uncertainty_scaling_factors = [2,]
 
     pool = Pool(WORKER_POOL_SIZE)
@@ -157,15 +169,15 @@ if __name__ == "__main__":
         mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
         slip_rate_weights, slip_uncertainty_scaling_factors
         ):
-        print('scheduling: ', script_file)
+        # print('scheduling: ', script_file)
         scripts.append(script_file)
 
     def call_script(script_name):
         print("call_script with:", script_name)
-        if CLUSTER_MODE:
-            check_call(['qsub', script_name])
-        else:
-            check_call(['bash', script_name])
+        # if CLUSTER_MODE:
+        #     check_call(['qsub', script_name])
+        # else:
+        #     check_call(['bash', script_name])
 
     print('task count: ', len(scripts))
     print('worker count: ', WORKER_POOL_SIZE)
