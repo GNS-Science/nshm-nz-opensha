@@ -32,9 +32,9 @@ JAVA_THREADS = 4
 #USE_API = True
 
 #If using API give this task a descriptive setting...
-TASK_TITLE = "Inversions on TVZ/SansTVZ MFD - Coulomb D90 MFD vs slip"
+TASK_TITLE = "Inversions on TVZ/SansTVZ MFDs, Coulomb D90, MFD vs slip"
 TASK_DESCRIPTION = """
-MFD vs slip rate experiment using uncertainty adjusted SR
+MFD vs slip rate experiment using uncertainty adjusted SR weights.
 
 Total of 24 jobs
  - 1 Coulomb rupture sets
@@ -174,10 +174,10 @@ if __name__ == "__main__":
 
     def call_script(script_name):
         print("call_script with:", script_name)
-        # if CLUSTER_MODE:
-        #     check_call(['qsub', script_name])
-        # else:
-        #     check_call(['bash', script_name])
+        if CLUSTER_MODE:
+            check_call(['qsub', script_name])
+        else:
+            check_call(['bash', script_name])
 
     print('task count: ', len(scripts))
     print('worker count: ', WORKER_POOL_SIZE)
