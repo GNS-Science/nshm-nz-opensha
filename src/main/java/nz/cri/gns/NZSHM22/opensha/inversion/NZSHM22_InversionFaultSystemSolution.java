@@ -6,6 +6,9 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
+
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.InversionTargetMFDs;
@@ -106,4 +109,15 @@ public class NZSHM22_InversionFaultSystemSolution extends InversionFaultSystemSo
 
         return mfd;
     }
+    
+	/**
+	 * Returns GridSourceProvider - unlike UCERf3 this does not create a provider if it's not set, 
+	 * as Subduction has no GridSource Provider
+	 * 
+	 * @return
+	 */
+	public GridSourceProvider getGridSourceProvider() {
+		return gridSourceProvider;
+	}    
+    
 }

@@ -28,7 +28,7 @@ import scratch.UCERF3.utils.MFD_InversionConstraint;
  * @author chrisbc
  *
  */
-public class NZSHM22_SubductionInversionConfiguration extends NZSHM22_InversionConfiguration {
+public class NZSHM22_SubductionInversionConfiguration extends NZSHM22_CrustalInversionConfiguration {
 
 	public static final String XML_METADATA_NAME = "InversionConfiguration";
 

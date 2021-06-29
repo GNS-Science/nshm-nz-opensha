@@ -2,7 +2,7 @@ package nz.cri.gns.NZSHM22.opensha.griddedSeismicity;
 
 import nz.cri.gns.NZSHM22.opensha.data.region.NewZealandRegions;
 import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionFaultSystemSolution;
-import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionTargetMFDs;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_CrustalInversionTargetMFDs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public class NZSHM22_GridSourceGenerator  extends AbstractGridSourceProvider {
      */
     public NZSHM22_GridSourceGenerator(NZSHM22_InversionFaultSystemSolution ifss){
         branch = ifss.getLogicTreeBranch();
-        srcSpatialPDF = ((NZSHM22_InversionTargetMFDs)ifss.getRupSet().getInversionTargetMFDs()).getPDF();
+        srcSpatialPDF = ((NZSHM22_CrustalInversionTargetMFDs)ifss.getRupSet().getInversionTargetMFDs()).getPDF();
 //		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
         realOffFaultMFD = ifss.getFinalTrulyOffFaultMFD();
 

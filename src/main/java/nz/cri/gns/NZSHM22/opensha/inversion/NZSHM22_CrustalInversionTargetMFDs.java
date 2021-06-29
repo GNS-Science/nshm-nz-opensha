@@ -62,7 +62,7 @@ import scratch.UCERF3.utils.RELM_RegionUtils;
  * @author chrisbc
  *
  */
-public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
+public class NZSHM22_CrustalInversionTargetMFDs extends InversionTargetMFDs {
 
 	NZSHM22_SpatialSeisPDF spatialSeisPDF;
 	NZSHM22_SpatialSeisPDF spatialSeisPDFforOnFaultRates;
@@ -144,7 +144,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
      * @param mfdInequalityConstraintWt
      * @return
      */
-    public NZSHM22_InversionTargetMFDs setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt, 
+    public NZSHM22_CrustalInversionTargetMFDs setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt, 
     		double mfdInequalityConstraintWt) {
     	this.mfdEqualityConstraintWt = mfdEqualityConstraintWt;
     	this.mfdInequalityConstraintWt = mfdInequalityConstraintWt;
@@ -152,7 +152,7 @@ public class NZSHM22_InversionTargetMFDs extends InversionTargetMFDs {
     }       
     
     @SuppressWarnings("unused")
-	public NZSHM22_InversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
+	public NZSHM22_CrustalInversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
 		this.invRupSet = invRupSet;
 
 		// TODO: we're getting a UCERF3 LTB now, this needs to be replaced with NSHM

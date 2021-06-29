@@ -16,7 +16,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
 
-import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionRunner;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_CrustalInversionRunner;
 import nz.cri.gns.NZSHM22.opensha.ruptures.FaultIdFilter;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_AzimuthalRuptureSetBuilder;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_AzimuthalRuptureSetBuilder.RupturePermutationStrategy;
@@ -194,7 +194,7 @@ public class scriptCrustalInversionRunner {
             syncInterval = Long.parseLong(cmd.getOptionValue("syncInterval"));
         }
 
-        NZSHM22_InversionRunner runner = new NZSHM22_InversionRunner()
+        NZSHM22_CrustalInversionRunner runner = new NZSHM22_CrustalInversionRunner()
                 .setInversionMinutes(inversionMins)
                 .setSyncInterval(syncInterval)
         		.setRuptureSetFile(rupSetFile)
