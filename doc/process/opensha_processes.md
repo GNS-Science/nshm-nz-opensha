@@ -7,12 +7,30 @@ Rupture sets are built using the `run_{TYPE}_rupture_sets.py scripts`. There are
 
 ### 1.1 Producing rupture sets
 
- - update the rupture specifications and the the job descriptions in `automation\run_{TYPE}_rupture_sets.py`
- - run the script (note that coulomb must be run on cluster due to memory demands)
- - make sure the Toshi env vars are set
+ - [x] activate the venv (automation)
+ - [x] update the rupture specifications and the the job descriptions in `automation\run_{TYPE}_rupture_sets.py`
+ - [x] make sure the Toshi env vars are set
+ - [x] run the script (note that coulomb must be run on cluster due to memory demands)
+       `(automation) $ python run_subduction_rupture_sets.py`
+       note the GENERAL_TASK_ID: R2VuZXJhbFRhc2s6NjE1aHdiNFM=
+ - [x] update the log
 
-#### example, building subduction ruptures
 
+### 1.1 Producing rupture set diagnostic reports
+
+ - [x] activate the venv (automation)
+ - [x] update the upstream_task_id in `automation\run_ruptset_diagnostics.py`
+ - [x] run the reports (locally usually)
+ - [x] copy the data folders (FileData:ID) to publication DATAXX folder
+ - [x] update the GID & folder and info_keys in  `automation\build_manual_index.py` and run it
+ - [x] copy/paste into index.html & check
+
+### 1.2 Copy up to S3
+
+```
+./s5cmd -numworkers 64 cp --acl public-read DATA{NN}/ s3://nzshm22-rupset-diags-poc/DATA{NN}/
+./s5cmd --stat -numworkers 128 cp --acl public-read index.html s3://nzshm22-rupset-diags-poc/
+```
 
 
 ## s5cmd to transfer S3 data efficiently

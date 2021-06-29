@@ -187,8 +187,9 @@ if __name__ == "__main__":
     GID = "R2VuZXJhbFRhc2s6NDg1UndBazQ="
     GID = "R2VuZXJhbFRhc2s6NTUwR3pWNFE="
     GID = "R2VuZXJhbFRhc2s6NjE1aHdiNFM=" ##subduction
+    GID = "R2VuZXJhbFRhc2s6NjIyWGZKc3c="
 
-    UPLOAD_FOLDER = "DATA10"
+    UPLOAD_FOLDER = "DATA11"
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
     WORK_FOLDER = "/home/chrisbc/DEV/GNS/opensha-new/AWS_S3_DATA"
@@ -197,8 +198,8 @@ if __name__ == "__main__":
     # print(gentask)
     node = gentask
 
-    info_keys = ['mfd_equality_weight', 'mfd_inequality_weight','rupture_set_file_id' ] # 'round', 'max_inversion_time'
-    info_keys = ['min_fill_ratio', 'growth_size_epsilon'] # for ruptget on subduction
+    info_keys = ['mfd_equality_weight', 'mfd_inequality_weight','slip_rate_weight' ] # 'round', 'max_inversion_time'
+    #info_keys = ['min_fill_ratio', 'growth_size_epsilon'] # for ruptget on subduction
 
     #Write Section info
     print(gt_template(node))
@@ -207,8 +208,8 @@ if __name__ == "__main__":
     for child_node in node['children']['edges']:
         rgt = child_node['node']['child']
 
-        print(rgt_template(rgt, info_keys))  #rupt sets
-        #print(inv_template(rgt, info_keys)) #inversions
+        #print(rgt_template(rgt, info_keys))  #rupt sets
+        print(inv_template(rgt, info_keys)) #inversions
 
     print("</ul>")
     print("<hr />")

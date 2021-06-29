@@ -75,7 +75,7 @@ public class NZSHM22_RupSetDiagnosticsReport {
 
 		ArrayList<FileMeta> metadataList = new ArrayList<FileMeta>();
 		
-		inputDir = new File("/tmp/NZSHM");
+		inputDir = new File("src/python/automation/tmp");
 		File outputRoot = new File("/tmp/NZSHM");
 				
 		//Set up metadata
@@ -118,8 +118,10 @@ public class NZSHM22_RupSetDiagnosticsReport {
 //				"RupSet_Sub_FM(SBD_0_1_HKR_KRM_10)_mnSbS(2)_mnSSPP(2)_mxSSL(0.5)_ddAsRa(2.0,5.0,7)_ddMnFl(1.0)_ddPsCo(0.03)_ddSzCo(0.03)_thFc(0.0).zip",
 //				"RupSet_Sub_FM(SBD_0_1_HKR_KRM_10)_mnSbS(2)_mnSSPP(2)_mxSSL(0.5)_ddAsRa(2.0,5.0,7)_ddMnFl(0.1)_ddPsCo(0.02)_ddSzCo(0.02)_thFc(0.0).zip",
 //				"RupSet_Sub_FM(SBD_0_1_HKR_KRM_30)_mnSbS(2)_mnSSPP(2)_mxSSL(0.5)_ddAsRa(2.0,5.0,7)_ddMnFl(1.0)_ddPsCo(0.0)_ddSzCo(0.0)_thFc(0.0).zip",
-				"RupSet_Sub_FM(SBD_0_1_HKR_KRM_30)_mnSbS(2)_mnSSPP(2)_mxSSL(0.5)_ddAsRa(2.0,5.0,5)_ddMnFl(0.3)_ddPsCo(0.005)_ddSzCo(0.005)_thFc(0.0).zip",
-				"HK", "SUBDUCT", "3"));
+//				"RupSet_Sub_FM(SBD_0_1_HKR_KRM_30)_mnSbS(2)_mnSSPP(2)_mxSSL(0.5)_ddAsRa(2.0,5.0,5)_ddMnFl(0.3)_ddPsCo(0.005)_ddSzCo(0.005)_thFc(0.0).zip",
+//				"RupSet_Sub_FM(SBD_0_1_HKR_KRM_30)_mnSbS(2)_mnSSPP(2)_mxSSL(0.5)_ddAsRa(2.0,5.0,5)_ddMnFl(0.1)_ddPsCo(0.005)_ddSzCo(0.005)_thFc(0.0).zip",
+				"downloads/RmlsZToxMTA3LjBYNzNpMw==/NZSHM22_InversionSolution-UnVwdHVyZUdlbmVyYXRpb25UYXNrOjQ4Nk16REF5_RmlsZToxMTA3LjBYNzNpMw==.zip",
+				"CRU", "TVZ", "0"));
 		
 		ArrayList<FaultMeta> faultList = new ArrayList<FaultMeta>();		
 //		faultList.add(new FaultMeta("Wellington Hutt Valley", "WHV"));

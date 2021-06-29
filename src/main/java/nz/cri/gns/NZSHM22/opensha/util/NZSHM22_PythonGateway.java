@@ -16,6 +16,7 @@ import org.dom4j.DocumentException;
 
 import nz.cri.gns.NZSHM22.opensha.hazard.NZSHM22_HazardCalculatorBuilder;
 import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_CrustalInversionRunner;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionFaultSystemSolution;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_AzimuthalRuptureSetBuilder;
 import py4j.GatewayServer;
 import scratch.UCERF3.FaultSystemSolution;
@@ -241,7 +242,7 @@ public class NZSHM22_PythonGateway {
      * Python helper that wraps NZSHM22_InversionRunner
      */
     static class CachedNSHMInversionRunner extends NZSHM22_CrustalInversionRunner {
-        FaultSystemSolution solution = null;
+        NZSHM22_InversionFaultSystemSolution solution = null;
 
         /**
          * like run(File ruptureSetFile), but caches the result
@@ -250,7 +251,7 @@ public class NZSHM22_PythonGateway {
          * @throws IOException
          * @throws DocumentException
          */
-        public FaultSystemSolution runInversion() throws IOException, DocumentException {
+        public NZSHM22_InversionFaultSystemSolution runInversion() throws IOException, DocumentException {
             solution = super.runInversion();
             return solution;
         }

@@ -102,16 +102,23 @@ class BuilderTask():
         # .setSlipRateConstraint(sliprate_weighting.NORMALIZED_BY_SLIP_RATE, float(100), float(10))\
         # .setSlipRateUncertaintyConstraint(sliprate_weighting.UNCERTAINTY_ADJUSTED, 1000, 2)\
 
-        self._inversion_runner\
-            .setGutenbergRichterMFDWeights(
-                 float(ta['mfd_equality_weight']),
-                 float(ta['mfd_inequality_weight']))\
-            .setSlipRateUncertaintyConstraint(
-                ta['slip_rate_weighting_type'],
-                int(ta['slip_rate_weight']),
-                int(ta['slip_uncertainty_scaling_factor']),
-                )\
-            .configure()\
+        if ta['config_type'] == 'crustal':
+            self._inversion_runner.setGutenbergRichterMFDWeights(
+                     float(ta['mfd_equality_weight']),
+                     float(ta['mfd_inequality_weight']))
+
+            if ta['slip_rate_weighting_type'] == 'UNCERTAINTY_ADJUSTED':
+                self._inversion_runner.setSlipRateUncertaintyConstraint(
+                    ta['slip_rate_weighting_type'],
+                    int(ta['slip_rate_weight']),
+                    int(ta['slip_uncertainty_scaling_factor']))
+            else:
+                #covers UCERF3 style SR constraints
+                self._inversion_runner.setSlipRateConstraint(ta['slip_rate_weighting_type'],
+                    float(ta['slip_rate_normalized_weight']),
+                    float(ta['slip_rate_unnormalized_weight']))
+
+        self._inversion_runner.configure()\
             .runInversion()
 
         output_file = str(PurePath(job_arguments['working_path'], f"NZSHM22_InversionSolution-{task_id}.zip"))

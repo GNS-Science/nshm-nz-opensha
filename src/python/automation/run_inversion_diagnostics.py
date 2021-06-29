@@ -9,11 +9,12 @@ from multiprocessing.dummy import Pool
 import datetime as dt
 from dateutil.tz import tzutc
 
-# from nshm_toshi_client.general_task import GeneralTask
-from nshm_toshi_client.toshi_file import ToshiFile
 
 from scaling.opensha_task_factory import OpenshaTaskFactory
-from scaling.file_utils import download_files
+from scaling.file_utils import download_files, get_output_file_ids
+
+from nshm_toshi_client.general_task import GeneralTask
+from nshm_toshi_client.toshi_file import ToshiFile
 from scaling.toshi_api import ToshiApi
 
 import scaling.inversion_diags_report_task
@@ -98,12 +99,14 @@ if __name__ == "__main__":
 
     if USE_API:
         headers={"x-api-key":API_KEY}
-        general_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-        file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+        file_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+        general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        inversion_task_id = "R2VuZXJhbFRhc2s6NzAxNEh2RE4="
-        solutions = download_files(general_api, file_api, inversion_task_id, str(WORK_PATH), id_suffix=True, overwrite=False)
+        inversion_task_id = "R2VuZXJhbFRhc2s6NjIyWGZKc3c="
+
+        file_generator = get_output_file_ids(general_api, inversion_task_id) #
+        solutions = download_files(file_api, file_generator, str(WORK_PATH), overwrite=True)
 
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 

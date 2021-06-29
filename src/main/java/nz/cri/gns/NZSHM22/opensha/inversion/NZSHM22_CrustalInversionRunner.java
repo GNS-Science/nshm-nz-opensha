@@ -193,6 +193,20 @@ public class NZSHM22_CrustalInversionRunner extends NZSHM22_AbstractInversionRun
 		this.slipRateConstraintWt_unnormalized = unnormalizedWt;
 		return this;
 	}
+
+	/**
+	 * UCERF3 Slip rate uncertainty constraint
+	 * 
+	 * @param weightingType  a string value from  fromUCERF3InversionConfiguration.SlipRateConstraintWeightingType
+	 * @param normalizedWt
+	 * @param unnormalizedWt
+	 * @throws IllegalArgumentException if the weighting types is not supported by this constraint
+	 * @return
+	 */
+    public NZSHM22_CrustalInversionRunner setSlipRateConstraint(String weightingType, double normalizedWt, double unnormalizedWt) {
+    	setSlipRateConstraint(SlipRateConstraintWeightingType.valueOf(weightingType), normalizedWt, unnormalizedWt);
+        return this;
+    }
 	
 	
 	/**
@@ -296,8 +310,11 @@ public class NZSHM22_CrustalInversionRunner extends NZSHM22_AbstractInversionRun
 		File outputDir = new File(outputRoot, "inversions");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 
-		NZSHM22_SubductionInversionRunner runner = new NZSHM22_SubductionInversionRunner();
-		runner.setInversionMinutes(1).setRuptureSetFile(ruptureSet).configure();
+		NZSHM22_CrustalInversionRunner runner = new NZSHM22_CrustalInversionRunner();
+		runner.setInversionMinutes(1).setRuptureSetFile(ruptureSet)
+			.setSlipRateConstraint("BOTH", 1.0, 100.0)
+			.setGutenbergRichterMFDWeights(100.0, 1000.0)
+			.configure();
 
 		NZSHM22_InversionFaultSystemSolution solution = runner.runInversion();
 
