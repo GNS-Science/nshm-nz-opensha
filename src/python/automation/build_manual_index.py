@@ -174,22 +174,9 @@ if __name__ == "__main__":
     headers={"x-api-key":API_KEY}
     general_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
-    GID = "R2VuZXJhbFRhc2s6MTg3OEtweFI=" #Azimuthal Stirling 2010
-    #GID = "R2VuZXJhbFRhc2s6MjE3Qk1YREw=" #Azimuthal 3,4,5
-    #GID = "R2VuZXJhbFRhc2s6MjMwWUc4TE4=" #Coulomb 3,4,5
-    #GID = "R2VuZXJhbFRhc2s6MjUwYVhrVzY=" #Azimuthal 3,4,5
-    GID = "R2VuZXJhbFRhc2s6MTkyS3d1ZTY=" #Coulomb Stirling
-    GID = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs="
-    GID = "R2VuZXJhbFRhc2s6Mjk1WWlSaUo=" #Coulomb minSS 3,4,5
-    #GID = "R2VuZXJhbFRhc2s6Mzg0RUxmaG0=" #Coulomb INv
-    GID = "R2VuZXJhbFRhc2s6MzU5ekZMYkg=" #Azim Inv
-    GID = "R2VuZXJhbFRhc2s6NDAzOTNpVmI=" #Coulomb Stirling Rupsets (at last)
-    GID = "R2VuZXJhbFRhc2s6NDg1UndBazQ="
-    GID = "R2VuZXJhbFRhc2s6NTUwR3pWNFE="
-    GID = "R2VuZXJhbFRhc2s6NjE1aHdiNFM=" ##subduction
-    GID = "R2VuZXJhbFRhc2s6NjIyWGZKc3c="
+    GID = "R2VuZXJhbFRhc2s6NjgzVkR4emY="
 
-    UPLOAD_FOLDER = "DATA11"
+    UPLOAD_FOLDER = "DATA12"
 
     TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
     WORK_FOLDER = "/home/chrisbc/DEV/GNS/opensha-new/AWS_S3_DATA"
@@ -198,7 +185,7 @@ if __name__ == "__main__":
     # print(gentask)
     node = gentask
 
-    info_keys = ['mfd_equality_weight', 'mfd_inequality_weight','slip_rate_weight' ] # 'round', 'max_inversion_time'
+    info_keys = ['mfd_equality_weight', 'mfd_inequality_weight','slip_rate_unnormalized_weight' ] # 'round', 'max_inversion_time'
     #info_keys = ['min_fill_ratio', 'growth_size_epsilon'] # for ruptget on subduction
 
     #Write Section info
@@ -213,4 +200,3 @@ if __name__ == "__main__":
 
     print("</ul>")
     print("<hr />")
-

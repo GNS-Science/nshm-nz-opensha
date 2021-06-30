@@ -17,11 +17,12 @@ import base64
 import json
 import collections
 from copy import copy
-
+# Set up your local config, from environment variables, with some sone defaults
+from scaling.local_config import WORK_PATH
 
 TUI = "http://simple-toshi-ui.s3-website-ap-southeast-2.amazonaws.com/"
 
-class ReportMetaBuilder():
+class NamedFaultIndexBuilder():
     """
     find the metadata.json and make this available for the HTML
     """
@@ -191,17 +192,10 @@ class ReportMetaBuilder():
         return links
 
 def main():
-    #ReportMetaBuilder
-    meta_builder = ReportMetaBuilder(
-        path = '/home/chrisbc/DEV/GNS/opensha-new/AWS_S3_DATA/DATA11')
+    #NamedFaultIndexBuilder
+    meta_builder = NamedFaultIndexBuilder(path = WORK_PATH)
 
-    def sort_fn(info):
-        key = info['meta']['short_name']
-        key += info['meta']['rupture_class']
-        key += info['meta']['completion_energy']
-        return key
-
-    solution_infos = meta_builder.build() #, key=sort_fn)
+    solution_infos = meta_builder.build()
     for info in solution_infos:
         if len(meta_builder.build_mfd_indexes(info)) > 0:
             #list of folders for main index

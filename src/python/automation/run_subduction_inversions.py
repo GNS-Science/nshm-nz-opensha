@@ -24,12 +24,14 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
     API_KEY, API_URL, S3_URL, CLUSTER_MODE)
 
 
-def build_crustal_tasks(general_task_id, rupture_sets, rounds, completion_energies, max_inversion_times,
-        mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
-        slip_rate_weights, slip_uncertainty_scaling_factors, slip_rate_normalized_weights, slip_rate_unnormalized_weights):
+def build_subduction_tasks(general_task_id,
+        rupture_sets, rounds, completion_energies, max_inversion_times,
+        mfd_equality_weights, mfd_inequality_weights,
+        slip_rate_weighting_types, slip_rate_normalized_weights, slip_rate_unnormalized_weights,
+        mfd_mag_gt_5s, mfd_b_values, mfd_transition_mags):
     task_count = 0
     task_factory = OpenshaTaskFactory(OPENSHA_ROOT, WORK_PATH, scaling.inversion_solution_builder_task,
-        initial_gateway_port=25933,
+        initial_gateway_port=27933,
         jre_path=OPENSHA_JRE, app_jar_path=FATJAR,
         task_config_path=WORK_PATH, jvm_heap_max=JVM_HEAP_MAX, jvm_heap_start=JVM_HEAP_START,
         pbs_ppn=JAVA_THREADS,
@@ -37,20 +39,20 @@ def build_crustal_tasks(general_task_id, rupture_sets, rounds, completion_energi
 
     for (rid, rupture_set_info) in rupture_sets.items():
         for (round, completion_energy, max_inversion_time,
-                mfd_equality_weight, mfd_inequality_weight, slip_rate_weighting_type,
-                slip_rate_weight, slip_uncertainty_scaling_factor,
-                slip_rate_normalized_weight, slip_rate_unnormalized_weight)\
+                mfd_equality_weight, mfd_inequality_weight,
+                slip_rate_weighting_type, slip_rate_normalized_weight, slip_rate_unnormalized_weight,
+                mfd_mag_gt_5, mfd_b_value, mfd_transition_mag)\
             in itertools.product(
                 rounds, completion_energies, max_inversion_times,
-                mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
-                slip_rate_weights, slip_uncertainty_scaling_factors,
-                slip_rate_normalized_weights, slip_rate_unnormalized_weights):
+                mfd_equality_weights, mfd_inequality_weights,
+                slip_rate_weighting_types, slip_rate_normalized_weights, slip_rate_unnormalized_weights,
+                mfd_mag_gt_5s, mfd_b_values, mfd_transition_mags):
 
             task_count +=1
 
             task_arguments = dict(
                 round = round,
-                config_type = 'crustal',
+                config_type = 'subduction',
                 rupture_set_file_id=rupture_set_info['id'],
                 rupture_set=rupture_set_info['filepath'],
                 completion_energy=completion_energy,
@@ -58,10 +60,11 @@ def build_crustal_tasks(general_task_id, rupture_sets, rounds, completion_energi
                 mfd_equality_weight=mfd_equality_weight,
                 mfd_inequality_weight=mfd_inequality_weight,
                 slip_rate_weighting_type=slip_rate_weighting_type,
-                slip_rate_weight=slip_rate_weight,
-                slip_uncertainty_scaling_factor=slip_uncertainty_scaling_factor,
                 slip_rate_normalized_weight=slip_rate_normalized_weight,
                 slip_rate_unnormalized_weight=slip_rate_unnormalized_weight,
+                mfd_mag_gt_5=mfd_mag_gt_5,
+                mfd_b_value=mfd_b_value,
+                mfd_transition_mag=mfd_transition_mag
                 )
 
             job_arguments = dict(
@@ -98,24 +101,26 @@ if __name__ == "__main__":
 
     # If you wish to override something in the main config, do so here ..
     # WORKER_POOL_SIZE = 3
-    WORKER_POOL_SIZE = 1
-    JVM_HEAP_MAX = 30
+    WORKER_POOL_SIZE = 2
+    JVM_HEAP_MAX = 10
     JAVA_THREADS = 4
     USE_API = False
 
     #If using API give this task a descriptive setting...
-    TASK_TITLE = "Inversions on TVZ/SansTVZ MFDs, Coulomb D90, MFD vs U3 NORMALIZED "
+    TASK_TITLE = "Inversions on 30km Subduction,zone "
     TASK_DESCRIPTION = """
-    MFD vs slip rate experiment using UCERF3 SR NORMALIZED constraints. 24 permutations, 1 round.
-
-     - completion_energies = [0.0,] (disabled)
-     - max_inversion_times = [8*60,]   #units are minutes
-     - mfd_equality_weights = [1e2, 1e3]
+    basic MFD vs slip rate experiment using NORMALIZED constraints.
+     - rounds = range(1)
+     - completion_energies = [0.0,]
+     - max_inversion_times = [4*60, ] #8*60,] #3*60,]  #units are minutes
+     - mfd_mag_gt_5s = [0.7, ] #total rate mag>5
+     - mfd_b_values = [1.1, ]
+     - mfd_transition_mags = [7.85, ]
+     - mfd_equality_weights = [1e2, 1e3, 1e4]
      - mfd_inequality_weights = [1e2, 1e3, 1e4]
-
-     - slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',]
-     - slip_rate_normalized_weights = [1, 10, 1e2, 1e4] #1, 10]
-     - slip_rate_unnormalized_weights = [0,] # 1e2, 1e3, 1e4]
+     - slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',] #UNCERTAINTY_ADJUSTED',]
+     - slip_rate_normalized_weights = [1, ] #10, 1e2, 1e4] #1, 10]
+     - slip_rate_unnormalized_weights = [1e3,] # 1e2, 1e3, 1e4]
     """
     GENERAL_TASK_ID = None
 
@@ -124,14 +129,8 @@ if __name__ == "__main__":
     # file_api = ToshiFile(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
     file_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
-    #get input files from API
-    #upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
-    #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
-    #upstream_task_id = "R2VuZXJhbFRhc2s6MjUzQjdjOU4=" #TEST API
-
-
-    file_id = "RmlsZTozMDMuMEJCOVVY"
-    file_id = "RmlsZToxMzY1LjBzZzRDeA==" #TEST (Subduction)
+    #file_id = "RmlsZToxNDkzLjBmbkh4eA=="
+    file_id = "RmlsZToxNTMwLjBxVU5iaQ==" #TEST
 
     """
     CHOOSE ONE OF:
@@ -142,7 +141,7 @@ if __name__ == "__main__":
     #for a single rupture set, pass a valid FileID
     file_generator = get_output_file_id(file_api, file_id) #for file by file ID
 
-    rupture_sets = download_files(file_api, file_generator, str(WORK_PATH), overwrite=True)
+    rupture_sets = download_files(file_api, file_generator, str(WORK_PATH), overwrite=False)
 
     if USE_API:
         #create new task in toshi_api
@@ -156,31 +155,32 @@ if __name__ == "__main__":
     print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     rounds = range(1)
-    completion_energies = [0.0,] # 0.005]
-    max_inversion_times = [1, ] #8*60,] #3*60,]  #units are minutes
+    completion_energies = [0.0] # 0.005]
+    max_inversion_times = [4*60, ] #8*60,] #3*60,]  #units are minutes
     #max_inversion_times.reverse()
 
-    mfd_equality_weights = [1e2, 1e3]
+    mfd_mag_gt_5s = [0.7, ] #total rate mag>5
+    mfd_b_values = [1.1, ]
+    mfd_transition_mags = [7.85, ]
+
+    mfd_equality_weights = [1e2, 1e3, 1e4]
     mfd_inequality_weights = [1e2, 1e3, 1e4]
 
     slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',] #UNCERTAINTY_ADJUSTED',]
 
-    #thse are used for UNCERTAINTY_ADJUSTED
-    slip_rate_weights = [None, ] # 1e5, 1e4, 1e3, 1e2]
-    slip_uncertainty_scaling_factors = [None, ] #2,]
-
     #these are used for BOTH, NORMALIZED and UNNORMALIZED
-    slip_rate_normalized_weights = [1, 10, 1e2, 1e4] #1, 10]
-    slip_rate_unnormalized_weights = [0,] # 1e2, 1e3, 1e4]
+    slip_rate_normalized_weights = [1, ] #10, 1e2, 1e4] #1, 10]
+    slip_rate_unnormalized_weights = [1e3,] # 1e2, 1e3, 1e4]
 
     pool = Pool(WORKER_POOL_SIZE)
 
     scripts = []
-    for script_file in build_crustal_tasks(GENERAL_TASK_ID,
+    for script_file in build_subduction_tasks(GENERAL_TASK_ID,
         rupture_sets, rounds, completion_energies, max_inversion_times,
-        mfd_equality_weights, mfd_inequality_weights, slip_rate_weighting_types,
-        slip_rate_weights, slip_uncertainty_scaling_factors,
-        slip_rate_normalized_weights, slip_rate_unnormalized_weights
+        mfd_equality_weights, mfd_inequality_weights,
+        slip_rate_weighting_types,
+        slip_rate_normalized_weights, slip_rate_unnormalized_weights,
+        mfd_mag_gt_5s, mfd_b_values, mfd_transition_mags,
         ):
         # print('scheduling: ', script_file)
         scripts.append(script_file)

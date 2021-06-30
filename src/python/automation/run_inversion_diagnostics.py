@@ -25,20 +25,6 @@ from scaling.local_config import (OPENSHA_ROOT, WORK_PATH, OPENSHA_JRE, FATJAR,
     JVM_HEAP_MAX, JVM_HEAP_START, USE_API, JAVA_THREADS,
     API_KEY, API_URL, S3_URL, CLUSTER_MODE)
 
-# If you wish to override something in the main config, do so here ..
-# WORKER_POOL_SIZE = 3
-WORKER_POOL_SIZE = 2
-JVM_HEAP_MAX = 10
-JAVA_THREADS = 6
-USE_API = True #to read the ruptset form the API
-
-
-#If using API give this task a descriptive setting...
-TASK_TITLE = "Baseline Inversion - Coulomb"
-TASK_DESCRIPTION = """
-- Coulomb rupture sets
-- Fixed duration comparisons
-"""
 
 def run_tasks(general_task_id, solutions):
     task_count = 0
@@ -96,6 +82,17 @@ if __name__ == "__main__":
     t0 = dt.datetime.utcnow()
 
     GENERAL_TASK_ID = None
+    # If you wish to override something in the main config, do so here ..
+    WORKER_POOL_SIZE = 2
+    JVM_HEAP_MAX = 10
+    JAVA_THREADS = 6
+    USE_API = True #to read the ruptset form the API
+
+
+    #If using API give this task a descriptive setting...
+    TASK_TITLE = "Inversion diags"
+    TASK_DESCRIPTION = """
+    """
 
     if USE_API:
         headers={"x-api-key":API_KEY}
@@ -103,7 +100,7 @@ if __name__ == "__main__":
         general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
         #get input files from API
-        inversion_task_id = "R2VuZXJhbFRhc2s6NjIyWGZKc3c="
+        inversion_task_id = "R2VuZXJhbFRhc2s6NjgzVkR4emY="
 
         file_generator = get_output_file_ids(general_api, inversion_task_id) #
         solutions = download_files(file_api, file_generator, str(WORK_PATH), overwrite=True)
@@ -113,8 +110,6 @@ if __name__ == "__main__":
     print('SOLUTIONS', solutions)
 
     pool = Pool(WORKER_POOL_SIZE)
-
-    # RUPTURE_CLASS = "Azimuth" #### TODO FIX THIS it comes fomr the data!!
 
     scripts = []
     for script_file in run_tasks(GENERAL_TASK_ID, solutions):

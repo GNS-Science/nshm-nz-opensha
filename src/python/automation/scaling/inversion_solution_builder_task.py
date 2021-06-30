@@ -30,8 +30,6 @@ class BuilderTask():
 
         #setup the java gateway binding
         self._gateway = JavaGateway(gateway_parameters=GatewayParameters(port=job_args['java_gateway_port']))
-        self._inversion_runner = self._gateway.entry_point.getRunner()
-
         repos = ["opensha", "nshm-nz-opensha"]
         self._repoheads = get_repo_heads(PurePath(job_args['root_folder']), repos)
         self._output_folder = PurePath(job_args.get('working_path'))
@@ -76,58 +74,56 @@ class BuilderTask():
         # Run the task....
         ta = task_arguments
 
-        print("Starting inversion of up to %s minutes" % ta['max_inversion_time'])
-        print("======================================")
-        self._inversion_runner\
+        ## TODO new runner for subduction needed
+        if ta['config_type'] == 'crustal':
+            inversion_runner = self._gateway.entry_point.getCrustalInversionRunner()
+            inversion_runner.setGutenbergRichterMFDWeights(
+                    float(ta['mfd_equality_weight']),
+                    float(ta['mfd_inequality_weight']))
+
+            if ta['slip_rate_weighting_type'] == 'UNCERTAINTY_ADJUSTED':
+                inversion_runner.setSlipRateUncertaintyConstraint(
+                    ta['slip_rate_weighting_type'],
+                    int(ta['slip_rate_weight']),
+                    int(ta['slip_uncertainty_scaling_factor']))
+            else:
+                #covers UCERF3 style SR constraints
+                inversion_runner.setSlipRateConstraint(ta['slip_rate_weighting_type'],
+                    float(ta['slip_rate_normalized_weight']),
+                    float(ta['slip_rate_unnormalized_weight']))
+
+        elif ta['config_type'] == 'subduction':
+            inversion_runner = self._gateway.entry_point.getSubductionInversionRunner()
+            inversion_runner.setGutenbergRichterMFDWeights(
+                    float(ta['mfd_equality_weight']),
+                    float(ta['mfd_inequality_weight']))\
+                .setSlipRateConstraint(ta['slip_rate_weighting_type'],
+                    float(ta['slip_rate_normalized_weight']),
+                    float(ta['slip_rate_unnormalized_weight']))\
+                .setGutenbergRichterMFD(
+                    float(ta['mfd_mag_gt_5']),
+                    float(ta['mfd_b_value']),
+                    float(ta['mfd_transition_mag']))
+
+        inversion_runner\
             .setInversionSeconds(int(ta['max_inversion_time'] * 60))\
             .setEnergyChangeCompletionCriteria(float(0), float(ta['completion_energy']), float(1))\
             .setNumThreads(int(job_arguments["java_threads"]))\
             .setSyncInterval(30)\
             .setRuptureSetFile(str(PurePath(job_arguments['working_path'], ta['rupture_set'])))
 
-        # mfd = SimpleNamespace(**dict(
-        #     total_rate_m5 = 8.8,
-        #     b_value = 1.0,
-        #     mfd_transition_mag = 7.85,
-        #     mfd_num = 40,
-        #     mfd_min = 5.05,
-        #     mfd_max = 8.95))
 
-        # mfd_equality_constraint_weight = 10
-        # mfd_inequality_constraint_weight = 1000
-
-        # sliprate_weighting = self._gateway.jvm.UCERF3InversionConfiguration.SlipRateConstraintWeightingType
-
-        # .setGutenbergRichterMFD(mfd.total_rate_m5, mfd.b_value, mfd.mfd_transition_mag, mfd.mfd_num, mfd.mfd_min, mfd.mfd_max)
-        # .setSlipRateConstraint(sliprate_weighting.NORMALIZED_BY_SLIP_RATE, float(100), float(10))\
-        # .setSlipRateUncertaintyConstraint(sliprate_weighting.UNCERTAINTY_ADJUSTED, 1000, 2)\
-
-        if ta['config_type'] == 'crustal':
-            self._inversion_runner.setGutenbergRichterMFDWeights(
-                     float(ta['mfd_equality_weight']),
-                     float(ta['mfd_inequality_weight']))
-
-            if ta['slip_rate_weighting_type'] == 'UNCERTAINTY_ADJUSTED':
-                self._inversion_runner.setSlipRateUncertaintyConstraint(
-                    ta['slip_rate_weighting_type'],
-                    int(ta['slip_rate_weight']),
-                    int(ta['slip_uncertainty_scaling_factor']))
-            else:
-                #covers UCERF3 style SR constraints
-                self._inversion_runner.setSlipRateConstraint(ta['slip_rate_weighting_type'],
-                    float(ta['slip_rate_normalized_weight']),
-                    float(ta['slip_rate_unnormalized_weight']))
-
-        self._inversion_runner.configure()\
-            .runInversion()
+        print("Starting inversion of up to %s minutes" % ta['max_inversion_time'])
+        print("======================================")
+        inversion_runner.configure().runInversion()
 
         output_file = str(PurePath(job_arguments['working_path'], f"NZSHM22_InversionSolution-{task_id}.zip"))
         #name the output file
-        # outputfile = self._output_folder.joinpath(self._inversion_runner.getDescriptiveName()+ ".zip")
+        # outputfile = self._output_folder.joinpath(inversion_runner.getDescriptiveName()+ ".zip")
         # print("building %s started at %s" % (outputfile, dt.datetime.utcnow().isoformat()), end=' ')
 
         # output_file = str(PurePath(job_arguments['output_file']))
-        self._inversion_runner.writeSolution(output_file)
+        inversion_runner.writeSolution(output_file)
 
         t1 = dt.datetime.utcnow()
         print("Inversion took %s secs" % (t1-t0).total_seconds())
@@ -137,13 +133,13 @@ class BuilderTask():
 
         metrics = {}
         #fecth metrics and convert Java Map to python dict
-        jmetrics = self._inversion_runner.getSolutionMetrics()
+        jmetrics = inversion_runner.getSolutionMetrics()
         for k in jmetrics:
             metrics[k] = jmetrics[k]
 
-        # metrics['moment_rate'] = self._inversion_runner.momentAndRateMetrics()
-        # metrics['by_fault_name'] = self._inversion_runner.byFaultNameMetrics()
-        # metrics['parent_fault_moment_rates'] = self._inversion_runner.parentFaultMomentRates()
+        # metrics['moment_rate'] = inversion_runner.momentAndRateMetrics()
+        # metrics['by_fault_name'] = inversion_runner.byFaultNameMetrics()
+        # metrics['parent_fault_moment_rates'] = inversion_runner.parentFaultMomentRates()
 
         if self.use_api:
             #record the completed task
