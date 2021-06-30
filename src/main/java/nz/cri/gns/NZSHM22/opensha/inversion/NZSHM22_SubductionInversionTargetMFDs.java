@@ -76,7 +76,7 @@ public class NZSHM22_SubductionInversionTargetMFDs extends InversionTargetMFDs {
 	protected double totalRateM5 = 0.7d; //5d; 40;
 	protected double bValue = 1.1d;
 	protected double mfdTransitionMag = 7.85; // TODO: how to validate this number for NZ? (ref Morgan Page in
-												// USGS/UCERF3) [KKS, CBC]
+										     // USGS/UCERF3) [KKS, CBC]
 
 	protected double mfdEqualityConstraintWt = 10; //10, 100, 1000
 	protected double mfdInequalityConstraintWt = 1000;
@@ -88,12 +88,23 @@ public class NZSHM22_SubductionInversionTargetMFDs extends InversionTargetMFDs {
     public List<MFD_InversionConstraint> getMFDConstraints() {
     	return mfdConstraints;
     }
-    
-      
-   	@SuppressWarnings("unused")
+
+	public NZSHM22_SubductionInversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet,
+		double totalRateM5, double bValue, double mfdTransitionMag) {
+		this.totalRateM5 = totalRateM5;
+		this.bValue = bValue;
+		this.mfdTransitionMag = mfdTransitionMag;
+		this.invRupSet = invRupSet;
+		init();
+	}
+
 	public NZSHM22_SubductionInversionTargetMFDs(NZSHM22_InversionFaultSystemRuptSet invRupSet) {
 		this.invRupSet = invRupSet;
-
+		init();
+	}
+	
+	private void init() {
+		
 		// TODO: we're getting a UCERF3 LTB now, this needs to be replaced with NSHM
 		// equivalent
 		LogicTreeBranch logicTreeBranch = invRupSet.getLogicTreeBranch();
@@ -159,7 +170,6 @@ public class NZSHM22_SubductionInversionTargetMFDs extends InversionTargetMFDs {
 
 		mfdConstraints.add(new MFD_InversionConstraint(targetOnFaultSupraSeisMFD, null));	
 	}
-
 
 	@Override
 	public GutenbergRichterMagFreqDist getTotalTargetGR_NoCal() {

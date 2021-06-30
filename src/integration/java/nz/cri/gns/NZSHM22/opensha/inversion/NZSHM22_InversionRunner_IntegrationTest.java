@@ -91,7 +91,7 @@ public class NZSHM22_InversionRunner_IntegrationTest {
         long syncInterval = 1; // seconds between inversion synchronisations
         File solFile = new File(tempFolder, "testAlpineVernonInversion.zip");
 
-        NZSHM22_CrustalInversionRunner runner = new NZSHM22_CrustalInversionRunner()
+        NZSHM22_CrustalInversionRunner runner = (NZSHM22_CrustalInversionRunner) new NZSHM22_CrustalInversionRunner()
                 .setInversionSeconds(inversionSecs) // or use inversionMinutes
                 .setSyncInterval(syncInterval)
         		.setRuptureSetFile(new File(alpineVernonRupturesUrl.toURI()))
@@ -107,7 +107,7 @@ public class NZSHM22_InversionRunner_IntegrationTest {
 	// see https://stackoverflow.com/questions/156503/how-do-you-assert-that-a-certain-exception-is-thrown-in-junit-4-tests 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetSlipRateConstraintThrowsWithInvalidArgument() {
-        NZSHM22_CrustalInversionRunner runner = new NZSHM22_CrustalInversionRunner()
+        NZSHM22_CrustalInversionRunner runner = (NZSHM22_CrustalInversionRunner) new NZSHM22_CrustalInversionRunner()
         		.setSlipRateConstraint(SlipRateConstraintWeightingType.UNCERTAINTY_ADJUSTED, 1, 2);
 	}
 	

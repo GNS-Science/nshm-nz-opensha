@@ -1,5 +1,6 @@
 package nz.cri.gns.NZSHM22.opensha.inversion;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,12 +12,17 @@ import org.dom4j.DocumentException;
 import org.opensha.sha.earthquake.faultSysSolution.inversion.InversionInputGenerator;
 import org.opensha.sha.earthquake.faultSysSolution.inversion.constraints.InversionConstraint;
 
+import com.google.common.base.Preconditions;
+
 import nz.cri.gns.NZSHM22.opensha.griddedSeismicity.NZSHM22_GridSourceGenerator;
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.SlipEnabledSolution;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.UCERF3InversionConfiguration.SlipRateConstraintWeightingType;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.simulatedAnnealing.ConstraintRange;
 import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
 import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
@@ -24,6 +30,7 @@ import scratch.UCERF3.simulatedAnnealing.completion.CompoundCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.EnergyChangeCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
 import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 
 public abstract class NZSHM22_AbstractInversionRunner {
@@ -43,6 +50,33 @@ public abstract class NZSHM22_AbstractInversionRunner {
 	
 	private Map<String, Double> finalEnergies = new HashMap<String, Double>();
 	private InversionInputGenerator inversionInputGenerator;
+	protected NZSHM22_SubductionInversionConfiguration inversionConfiguration;
+	
+	/*
+	 * Sliprate constraint default settings
+	 */
+	// If normalized, slip rate misfit is % difference for each section (recommended
+	// since it helps fit slow-moving faults).
+	// If unnormalized, misfit is absolute difference.
+	// BOTH includes both normalized and unnormalized constraints.
+	protected SlipRateConstraintWeightingType slipRateWeightingType;// = SlipRateConstraintWeightingType.BOTH; // (recommended:
+																																									// BOTH)
+	// For SlipRateConstraintWeightingType.NORMALIZED (also used for
+	// SlipRateConstraintWeightingType.BOTH) -- NOT USED if UNNORMALIZED!
+	protected double slipRateConstraintWt_normalized;
+	// For SlipRateConstraintWeightingType.UNNORMALIZED (also used for
+	// SlipRateConstraintWeightingType.BOTH) -- NOT USED if NORMALIZED!
+	protected double slipRateConstraintWt_unnormalized;
+
+	/*
+	 * MFD constraint default settings
+	 */
+//	private int mfdNum  = 40;
+//	private double mfdMin = 5.05d;
+//	private double mfdMax = 8.95;
+
+	protected double mfdEqualityConstraintWt; // = 10;
+	protected double mfdInequalityConstraintWt;// = 1000;	
 	
 	/**
 	 * Sets how many minutes the inversion runs for in minutes. Default is 1 minute.
@@ -102,8 +136,7 @@ public abstract class NZSHM22_AbstractInversionRunner {
 	public NZSHM22_AbstractInversionRunner setNumThreads(int numThreads) {
 		this.numThreads = numThreads;
 		return this;
-	}
-	
+	}	
 	
 	/**
 	 * @param inputGen
@@ -113,6 +146,79 @@ public abstract class NZSHM22_AbstractInversionRunner {
 		this.inversionInputGenerator = inputGen;
 		return this;
 	}
+	
+	public NZSHM22_AbstractInversionRunner setRuptureSetFile(String ruptureSetFileName)
+			throws IOException, DocumentException {
+		File rupSetFile = new File(ruptureSetFileName);
+		this.setRuptureSetFile(rupSetFile);
+		return this;
+	}	
+
+	/**
+	 * Sets the FaultModel file
+	 *
+	 * @param ruptureSetFile the rupture file
+	 * @return this builder
+	 * @throws DocumentException
+	 * @throws IOException
+	 */
+	public NZSHM22_AbstractInversionRunner setRuptureSetFile(File ruptureSetFile)
+			throws IOException, DocumentException {
+		FaultSystemRupSet rupSetA = FaultSystemIO.loadRupSet(ruptureSetFile);
+		LogicTreeBranch branch = (LogicTreeBranch) LogicTreeBranch.DEFAULT;
+
+		this.rupSet = new NZSHM22_InversionFaultSystemRuptSet(rupSetA, branch);
+		return this;
+	}	
+
+	/**
+	 * @param mfdEqualityConstraintWt
+	 * @param mfdInequalityConstraintWt
+	 * @return
+	 */
+	public NZSHM22_AbstractInversionRunner setGutenbergRichterMFDWeights(double mfdEqualityConstraintWt,
+			double mfdInequalityConstraintWt) {
+		this.mfdEqualityConstraintWt = mfdEqualityConstraintWt;
+		this.mfdInequalityConstraintWt = mfdInequalityConstraintWt;
+		return this;
+	}
+
+	/**
+	 * If normalized, slip rate misfit is % difference for each section (recommended
+	 * since it helps fit slow-moving faults). If unnormalized, misfit is absolute
+	 * difference. BOTH includes both normalized and unnormalized constraints.
+	 * 
+	 * @param weightingType  a value
+	 *                       fromUCERF3InversionConfiguration.SlipRateConstraintWeightingType
+	 * @param normalizedWt
+	 * @param unnormalizedWt
+	 * @throws IllegalArgumentException if the weighting types is not supported by this constraint
+	 * @return
+	 */
+	public NZSHM22_AbstractInversionRunner setSlipRateConstraint(
+			SlipRateConstraintWeightingType weightingType, double normalizedWt,
+			double unnormalizedWt) {
+		Preconditions.checkArgument(weightingType != SlipRateConstraintWeightingType.UNCERTAINTY_ADJUSTED,
+				"setSlipRateConstraint() using  %s is not supported. Use setSlipRateUncertaintyConstraint() instead.", weightingType);
+		this.slipRateWeightingType = weightingType;
+		this.slipRateConstraintWt_normalized = normalizedWt;
+		this.slipRateConstraintWt_unnormalized = unnormalizedWt;
+		return this;
+	}
+
+	/**
+	 * UCERF3 Slip rate uncertainty constraint
+	 * 
+	 * @param weightingType  a string value from  fromUCERF3InversionConfiguration.SlipRateConstraintWeightingType
+	 * @param normalizedWt
+	 * @param unnormalizedWt
+	 * @throws IllegalArgumentException if the weighting types is not supported by this constraint
+	 * @return
+	 */
+   public NZSHM22_AbstractInversionRunner setSlipRateConstraint(String weightingType, double normalizedWt, double unnormalizedWt) {
+	   setSlipRateConstraint(SlipRateConstraintWeightingType.valueOf(weightingType), normalizedWt, unnormalizedWt);
+       return this;
+   }
 	
 	/**
 	 * Runs the inversion on the specified rupture set. make sure to call
@@ -175,11 +281,10 @@ public abstract class NZSHM22_AbstractInversionRunner {
 			}
 		}
 
-		//TODO, we really do want to store the config and energies now 	
+		//TODO, do we really do want to store the config and energies now? 	
 		solution = new NZSHM22_InversionFaultSystemSolution(rupSet, solution_adjusted, finalEnergies); //, null, energies);
 		return solution;
 	}
-
 	
 	@SuppressWarnings("deprecation")
 	public Map<String, String> getSolutionMetrics() {
@@ -330,6 +435,8 @@ public abstract class NZSHM22_AbstractInversionRunner {
 		}
 		info += "\n";
 		return info;
-	}	
-	
+	}
+
+	protected abstract NZSHM22_AbstractInversionRunner configure();
+
 }

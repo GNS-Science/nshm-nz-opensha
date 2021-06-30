@@ -17,6 +17,7 @@ import org.dom4j.DocumentException;
 import nz.cri.gns.NZSHM22.opensha.hazard.NZSHM22_HazardCalculatorBuilder;
 import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_CrustalInversionRunner;
 import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_InversionFaultSystemSolution;
+import nz.cri.gns.NZSHM22.opensha.inversion.NZSHM22_SubductionInversionRunner;
 import nz.cri.gns.NZSHM22.opensha.ruptures.NZSHM22_AzimuthalRuptureSetBuilder;
 import py4j.GatewayServer;
 import scratch.UCERF3.FaultSystemSolution;
@@ -29,7 +30,8 @@ import scratch.UCERF3.utils.FaultSystemIO;
 public class NZSHM22_PythonGateway {
 
 	static NZSHM22_AbstractRuptureSetBuilder builder;
-    static CachedNSHMInversionRunner runner;
+    static CachedCrustalInversionRunner crustalInversionRunner;
+    static CachedSubductionInversionRunner subductionInversionRunner;
     static NZSHM22_HazardCalculatorBuilder calculator = new NZSHM22_HazardCalculatorBuilder();
     static NZSHM22_InversionDiagnosticsReportBuilder inversionReportBuilder;
 
@@ -58,17 +60,26 @@ public class NZSHM22_PythonGateway {
     }
     
     
-    
     /**
      * Get a new cached inversion runner. For now we want a new one to ensure the
      * setup is clean, but this can maybe be optimised. The produced solution is
      * cached to allow inspection etc.
      */
-    public static NZSHM22_CrustalInversionRunner getRunner() {
-        runner = new CachedNSHMInversionRunner();
-        return runner;
+    public static CachedCrustalInversionRunner getCrustalInversionRunner() {
+        crustalInversionRunner = new CachedCrustalInversionRunner();
+        return crustalInversionRunner;
     }
 
+    /**
+     * Get a new cached inversion runner. For now we want a new one to ensure the
+     * setup is clean, but this can maybe be optimised. The produced solution is
+     * cached to allow inspection etc.
+     */
+    public static CachedSubductionInversionRunner getSubductionInversionRunner() {
+        subductionInversionRunner = new CachedSubductionInversionRunner();
+        return subductionInversionRunner;
+    }
+    
     public static NZSHM22_HazardCalculatorBuilder getCalculator() {
         return calculator;
     }
@@ -241,7 +252,7 @@ public class NZSHM22_PythonGateway {
     /**
      * Python helper that wraps NZSHM22_InversionRunner
      */
-    static class CachedNSHMInversionRunner extends NZSHM22_CrustalInversionRunner {
+    static class CachedCrustalInversionRunner extends NZSHM22_CrustalInversionRunner {
         NZSHM22_InversionFaultSystemSolution solution = null;
 
         /**
@@ -267,6 +278,35 @@ public class NZSHM22_PythonGateway {
             FaultSystemIO.writeSol(solution, solutionFile);
         }
     }
+    /**
+     * Python helper that wraps NZSHM22_InversionRunner
+     */
+    static class CachedSubductionInversionRunner extends NZSHM22_SubductionInversionRunner {
+        NZSHM22_InversionFaultSystemSolution solution = null;
+
+        /**
+         * like run(File ruptureSetFile), but caches the result
+         *
+         * @return the solution
+         * @throws IOException
+         * @throws DocumentException
+         */
+        public NZSHM22_InversionFaultSystemSolution runInversion() throws IOException, DocumentException {
+            solution = super.runInversion();
+            return solution;
+        }
+        
+        /**
+         * Writes the cached solution (see the run method) to file.
+         *
+         * @param solutionFileName the file name
+         * @throws IOException
+         */
+        public void writeSolution(String solutionFileName) throws IOException {
+            File solutionFile = new File(solutionFileName);
+            FaultSystemIO.writeSol(solution, solutionFile);
+        }
+    }    
 
     // TODO: restore this with the required upstream changes in opensha-ucerf3
 //    public static NZSHM22_InversionDiagnosticsReportBuilder createReportBuilder() {

@@ -194,11 +194,11 @@ public class scriptCrustalInversionRunner {
             syncInterval = Long.parseLong(cmd.getOptionValue("syncInterval"));
         }
 
-        NZSHM22_CrustalInversionRunner runner = new NZSHM22_CrustalInversionRunner()
+        NZSHM22_CrustalInversionRunner runner = ((NZSHM22_CrustalInversionRunner) new NZSHM22_CrustalInversionRunner()
                 .setInversionMinutes(inversionMins)
                 .setSyncInterval(syncInterval)
         		.setRuptureSetFile(rupSetFile)
-        		.setGutenbergRichterMFDWeights(10d, 1000d)
+        		.setGutenbergRichterMFDWeights(10d, 1000d))
         		.setSlipRateUncertaintyConstraint(weightingType , 1000, 2)
         		.configure(); //do this last thing before runInversion!
         FaultSystemSolution solution = runner.runInversion();

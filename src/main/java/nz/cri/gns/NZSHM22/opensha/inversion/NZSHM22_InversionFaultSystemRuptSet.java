@@ -49,6 +49,7 @@ public class NZSHM22_InversionFaultSystemRuptSet extends InversionFaultSystemRup
 	@Override
 	public synchronized double getFinalMinMagForSection(int sectIndex) {
 		if (minMagForSectArray == null) {
+			// TODO: experiment to test this with higher than U3 6.0
 			minMagForSectArray = NZSHM22_FaultSystemRupSetCalc.computeMinSeismoMagForSections(this,
 					MIN_MAG_FOR_SEISMOGENIC_RUPS);
 		}
