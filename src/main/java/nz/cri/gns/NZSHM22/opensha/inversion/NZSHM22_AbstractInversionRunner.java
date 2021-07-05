@@ -179,8 +179,8 @@ public abstract class NZSHM22_AbstractInversionRunner {
 	 * since it helps fit slow-moving faults). If unnormalized, misfit is absolute
 	 * difference. BOTH includes both normalized and unnormalized constraints.
 	 * 
-	 * @param weightingType  a value
-	 *                       fromUCERF3InversionConfiguration.SlipRateConstraintWeightingType
+	 * @param weightingType  a value from
+	 *                       UCERF3InversionConfiguration.SlipRateConstraintWeightingType
 	 * @param normalizedWt
 	 * @param unnormalizedWt
 	 * @throws IllegalArgumentException if the weighting types is not supported by
@@ -202,7 +202,7 @@ public abstract class NZSHM22_AbstractInversionRunner {
 	 * UCERF3-style Slip rate constraint
 	 * 
 	 * @param weightingType  a string value from
-	 *                       fromUCERF3InversionConfiguration.SlipRateConstraintWeightingType
+	 *                       UCERF3InversionConfiguration.SlipRateConstraintWeightingType
 	 * @param normalizedWt
 	 * @param unnormalizedWt
 	 * @throws IllegalArgumentException if the weighting types is not supported by
