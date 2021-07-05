@@ -3,7 +3,7 @@
 
 ## 1. Rupture sets
 
-Rupture sets are built using the `run_{TYPE}_rupture_sets.py scripts`. There are three scripts, one each totr Azimuthal, Coulomb and Subduction.
+Rupture sets are built using the `run_{TYPE}_rupture_sets.py scripts`. There are three scripts, one each for Azimuthal, Coulomb and Subduction.
 
 ### 1.1 Producing rupture sets
 
