@@ -564,9 +564,9 @@ public class NZSHM22_CoulombRuptureSetBuilder extends NZSHM22_AbstractRuptureSet
             growingStrat = adaptiveStrat;
         }
        
-        if (minSubSections > 2) {
-        	configBuilder.add(new MinSubSectionsFilter(minSubSections));
-        }
+//        if (minSubSections > 2) {
+//        	configBuilder.add(new MinSubSectionsFilter(minSubSections));
+//        }
         	
         // build our configuration
         PlausibilityConfiguration config = configBuilder.build();

@@ -9,7 +9,7 @@ import org.opensha.sha.earthquake.faultSysSolution.ruptures.ClusterRuptureBuilde
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.PlausibilityConfiguration;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.JumpAzimuthChangeFilter;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.MinSectsPerParentFilter;
-import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.MinSubSectionsFilter;
+//import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.MinSubSectionsFilter;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.plausibility.impl.TotalAzimuthChangeFilter;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.strategies.ClusterConnectionStrategy;
 import org.opensha.sha.earthquake.faultSysSolution.ruptures.strategies.RuptureGrowingStrategy;
@@ -193,72 +193,6 @@ public class NZSHM22_AzimuthalRuptureSetBuilder extends NZSHM22_AbstractRuptureS
 		return this;
 	}
 
-//	/**
-//	 * Sets the aspect ratio boundaries for subduction zone ruptures.
-//	 *
-//	 * @param minAspect the minimum aspect ratio
-//	 * @param maxAspect the maximum aspect ratio
-//	 * @return this builder
-//	 */
-//	public NZSHM22_AzimuthalRuptureSetBuilder setDownDipAspectRatio(double minAspect, double maxAspect) {
-//		this.downDipMinAspect = minAspect;
-//		this.downDipMaxAspect = maxAspect;
-//		return this;
-//	}
-//
-//	/**
-//	 * Sets the aspect ratio boundaries for subduction zone ruptures with elastic
-//	 * aspect ratinos set with depthThreshold.
-//	 *
-//	 * @param minAspect      the minimum aspect ratio
-//	 * @param maxAspect      the maximum aspect ratio
-//	 * @param depthThreshold the threshold (count of rows) from which the maxAspect
-//	 *                       constraint will be ignored
-//	 *
-//	 * @return this builder
-//	 */
-//	public NZSHM22_AzimuthalRuptureSetBuilder setDownDipAspectRatio(double minAspect, double maxAspect, int depthThreshold) {
-//		this.downDipMinAspect = minAspect;
-//		this.downDipMaxAspect = maxAspect;
-//		this.downDipAspectDepthThreshold = depthThreshold;
-//		return this;
-//	}
-//
-//	/**
-//	 * Sets the required rectangularity for subduction zone ruptures. A value of 1
-//	 * means all ruptures need to be rectangular. A value smaller of 1 indicates the
-//	 * minimum percentage of actual section within the rupture rectangle.
-//	 *
-//	 * @param minFill the minimum fill of the rupture rectangle
-//	 * @return this builder
-//	 */
-//	public NZSHM22_AzimuthalRuptureSetBuilder setDownDipMinFill(double minFill) {
-//		this.downDipMinFill = minFill;
-//		return this;
-//	}
-//
-//	/**
-//	 * Sets the position coarseness for subduction zone ruptures.
-//	 *
-//	 * @param epsilon epsilon
-//	 * @return this builder
-//	 */
-//	public NZSHM22_AzimuthalRuptureSetBuilder setDownDipPositionCoarseness(double epsilon) {
-//		this.downDipPositionCoarseness = epsilon;
-//		return this;
-//	}
-//
-//	/**
-//	 * Sets the size coarseness for subduction zone ruptures.
-//	 *
-//	 * @param epsilon epsilon
-//	 * @return this builder
-//	 */
-//	public NZSHM22_AzimuthalRuptureSetBuilder setDownDipSizeCoarseness(double epsilon) {
-//		this.downDipSizeCoarseness = epsilon;
-//		return this;
-//	}
-
 	/**
 	 * @param permutationStrategyClass which strategy to choose
 	 * @return a RuptureGrowingStrategy object
@@ -307,8 +241,8 @@ public class NZSHM22_AzimuthalRuptureSetBuilder extends NZSHM22_AbstractRuptureS
 						maxCumulativeAzimuthChange))	
 				.add(new MinSectsPerParentFilter(minSubSectsPerParent, true, true, connectionStrategy)); 
         
-        if (minSubSections > 2)
-        	configBuilder.add(new MinSubSectionsFilter(minSubSections));
+//        if (minSubSections > 2)
+//        	configBuilder.add(new MinSubSectionsFilter(minSubSections));
         
 		if (faultIdfilterType != null) {
 			configBuilder.add(FaultIdFilter.create(faultIdfilterType, faultIds));
