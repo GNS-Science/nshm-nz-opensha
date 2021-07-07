@@ -9,7 +9,7 @@ from pathlib import PurePath
 #API Setting are needed to sore job details for later reference
 API_URL  = os.getenv('NZSHM22_TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
 API_KEY = os.getenv('NZSHM22_TOSHI_API_KEY', "")
-S3_URL = os.getenv('NZSHM22_TOSHI_S3_URL',"http://localhost:4569")
+S3_URL = os.getenv('NZSHM22_TOSHI_S3_URL',"http://localhost:4569/")
 
 USE_API = os.getenv('NZSHM22_TOSHI_API_ENABLED' , False) == "1"
 

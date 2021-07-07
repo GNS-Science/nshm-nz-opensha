@@ -57,7 +57,7 @@ def run_tasks(general_task_id, solutions):
             java_gateway_port = task_factory.get_next_port(),
             working_path = str(WORK_PATH),
             root_folder = OPENSHA_ROOT,
-            general_task_id = general_task_id,
+            #general_task_id = general_task_id,
             use_api = USE_API,
             )
 
@@ -93,29 +93,7 @@ if __name__ == "__main__":
     TASK_TITLE = "Inversion diags"
     TASK_DESCRIPTION = """
     """
-
-    if USE_API:
-        headers={"x-api-key":API_KEY}
-        file_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-        general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
-
-        #get input files from API
-        inversion_task_id = "R2VuZXJhbFRhc2s6NjgzVkR4emY="
-
-        file_generator = get_output_file_ids(general_api, inversion_task_id) #
-        solutions = download_files(file_api, file_generator, str(WORK_PATH), overwrite=True)
-
-        print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
-
-    print('SOLUTIONS', solutions)
-
     pool = Pool(WORKER_POOL_SIZE)
-
-    scripts = []
-    for script_file in run_tasks(GENERAL_TASK_ID, solutions):
-        print('scheduling: ', script_file)
-        scripts.append(script_file)
-
     def call_script(script_name):
         print("call_script with:", script_name)
         if CLUSTER_MODE:
@@ -123,11 +101,28 @@ if __name__ == "__main__":
         else:
             check_call(['bash', script_name])
 
-    print('task count: ', len(scripts))
-    print('worker count: ', WORKER_POOL_SIZE)
+    headers={"x-api-key":API_KEY}
+    file_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+    general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
-    pool.map(call_script, scripts)
-    pool.close()
-    pool.join()
+    for inversion_task_id in ['R2VuZXJhbFRhc2s6ODY3QXdIQVE=']:#'R2VuZXJhbFRhc2s6ODMwajVjdlY=',
+        #get input files from API
+        #inversion_task_id = "R2VuZXJhbFRhc2s6NzU2c0J0czM="
+
+        file_generator = get_output_file_ids(general_api, inversion_task_id) #
+        solutions = download_files(file_api, file_generator, str(WORK_PATH), overwrite=False)
+
+
+        scripts = []
+        for script_file in run_tasks(GENERAL_TASK_ID, solutions):
+            print('scheduling: ', script_file)
+            scripts.append(script_file)
+
+        print('task count: ', len(scripts))
+        print('worker count: ', WORKER_POOL_SIZE)
+
+        pool.map(call_script, scripts)
+        pool.close()
+        pool.join()
 
     print("Done! in %s secs" % (dt.datetime.utcnow() - t0).total_seconds())

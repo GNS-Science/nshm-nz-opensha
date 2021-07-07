@@ -104,8 +104,11 @@ if __name__ == "__main__":
     USE_API = False
 
     #If using API give this task a descriptive setting...
-    TASK_TITLE = "Inversions on TVZ/SansTVZ MFDs, Coulomb D90, MFD vs U3 NORMALIZED "
+    TASK_TITLE = "Inversions on 2010 depth TVZ/SansTVZ MFDs, Coulomb, MFD vs U3 NORMALIZED "
     TASK_DESCRIPTION = """
+    As per D90 but this time with Stirling 2010 depths. Note these actaully generate more ruptures as
+    the smaller depth leads to more sub-sections. So we're using thinned 0.2 here.
+
     MFD vs slip rate experiment using UCERF3 SR NORMALIZED constraints. 24 permutations, 1 round.
 
      - completion_energies = [0.0,] (disabled)
@@ -114,7 +117,7 @@ if __name__ == "__main__":
      - mfd_inequality_weights = [1e2, 1e3, 1e4]
 
      - slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',]
-     - slip_rate_normalized_weights = [1, 10, 1e2, 1e4] #1, 10]
+     - slip_rate_normalized_weights = [1, 10, 1e2, 1e4]
      - slip_rate_unnormalized_weights = [0,] # 1e2, 1e3, 1e4]
     """
     GENERAL_TASK_ID = None
@@ -128,10 +131,14 @@ if __name__ == "__main__":
     #upstream_task_id = "R2VuZXJhbFRhc2s6Mjk2MmlTNEs=" #Azimuthal
     #upstream_task_id = "R2VuZXJhbFRhc2s6OTMyNDRibg==" #COulomb NZ CFM 0.3 & 0.9 with current UCERF4 defaults
     #upstream_task_id = "R2VuZXJhbFRhc2s6MjUzQjdjOU4=" #TEST API
+    #upstream_task_id = "R2VuZXJhbFRhc2s6MGk5M3FL" #thinned 0.2 has
 
 
-    file_id = "RmlsZTozMDMuMEJCOVVY"
-    file_id = "RmlsZToxMzY1LjBzZzRDeA==" #TEST (Subduction)
+    #file_id = "RmlsZTozMDMuMEJCOVVY"
+    #file_id = "RmlsZToxMzY1LjBzZzRDeA==" #TEST (Subduction)
+    file_id = "RmlsZTo4NTkuMDM2Z2Rw" #2010_Coloumb thinned 0.2 800K ruptures
+    #file_id = "RmlsZTo4NjIuMGpWempu"
+    #file_id = "RmlsZTo4NjUuMHJOVzk4" #2010_Coloumb thinned 0.0 2.6m ruptures
 
     """
     CHOOSE ONE OF:
@@ -141,6 +148,7 @@ if __name__ == "__main__":
     """
     #for a single rupture set, pass a valid FileID
     file_generator = get_output_file_id(file_api, file_id) #for file by file ID
+    #file_generator = get_output_file_ids(general_api, upstream_task_id)
 
     rupture_sets = download_files(file_api, file_generator, str(WORK_PATH), overwrite=True)
 
@@ -157,7 +165,7 @@ if __name__ == "__main__":
 
     rounds = range(1)
     completion_energies = [0.0,] # 0.005]
-    max_inversion_times = [1, ] #8*60,] #3*60,]  #units are minutes
+    max_inversion_times = [1, ]#8*60,] #3*60,]  #units are minutes
     #max_inversion_times.reverse()
 
     mfd_equality_weights = [1e2, 1e3]
