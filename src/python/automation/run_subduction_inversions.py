@@ -107,20 +107,25 @@ if __name__ == "__main__":
     USE_API = False
 
     #If using API give this task a descriptive setting...
-    TASK_TITLE = "Inversions on 30km Subduction,zone "
+    TASK_TITLE = "Inversions on shortened 30km Subduction zone"
     TASK_DESCRIPTION = """
     basic MFD vs slip rate experiment using NORMALIZED constraints.
-     - rounds = range(1)
-     - completion_energies = [0.0,]
-     - max_inversion_times = [4*60, ] #8*60,] #3*60,]  #units are minutes
-     - mfd_mag_gt_5s = [0.7, ] #total rate mag>5
-     - mfd_b_values = [1.1, ]
-     - mfd_transition_mags = [7.85, ]
-     - mfd_equality_weights = [1e2, 1e3, 1e4]
-     - mfd_inequality_weights = [1e2, 1e3, 1e4]
-     - slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',] #UNCERTAINTY_ADJUSTED',]
-     - slip_rate_normalized_weights = [1, ] #10, 1e2, 1e4] #1, 10]
-     - slip_rate_unnormalized_weights = [1e3,] # 1e2, 1e3, 1e4]
+    rounds = 1
+    completion_energies = [0.0]
+    max_inversion_times = [4*60, ]
+
+    mfd_mag_gt_5s = [29,]
+    mfd_b_values = [ 0.94, 1.0, 1.05]
+    mfd_transition_mags = [7.85, ]
+
+    mfd_equality_weights = [1e2, 1e3, 1e4]
+    mfd_inequality_weights = [1e2, 1e3, 1e4]
+
+    slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',]
+
+    #these are used for BOTH, NORMALIZED and UNNORMALIZED
+    slip_rate_normalized_weights = [1, 10, 1e2, 1e3, 1e4]
+    slip_rate_unnormalized_weights = [0,]
     """
     GENERAL_TASK_ID = None
 
@@ -131,7 +136,7 @@ if __name__ == "__main__":
 
     #file_id = "RmlsZToxNDkzLjBmbkh4eA=="
     file_id = "RmlsZToxNTMwLjBxVU5iaQ==" #TEST
-
+    file_id = "RmlsZToyMzk3LjByR0pheQ=="
     """
     CHOOSE ONE OF:
 
@@ -155,12 +160,12 @@ if __name__ == "__main__":
     print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     rounds = range(1)
-    completion_energies = [0.0] # 0.005]
-    max_inversion_times = [4*60, ] #8*60,] #3*60,]  #units are minutes
+    completion_energies = [0.0]
+    max_inversion_times = [1,] #8*60,] #3*60,]  #units are minutes
     #max_inversion_times.reverse()
 
-    mfd_mag_gt_5s = [0.7, ] #total rate mag>5
-    mfd_b_values = [1.1, ]
+    mfd_mag_gt_5s = [29, ] #total rate mag>5
+    mfd_b_values = [0.94, 1.0, 1.05]
     mfd_transition_mags = [7.85, ]
 
     mfd_equality_weights = [1e2, 1e3, 1e4]
@@ -169,8 +174,8 @@ if __name__ == "__main__":
     slip_rate_weighting_types = ['NORMALIZED_BY_SLIP_RATE',] #UNCERTAINTY_ADJUSTED',]
 
     #these are used for BOTH, NORMALIZED and UNNORMALIZED
-    slip_rate_normalized_weights = [1, ] #10, 1e2, 1e4] #1, 10]
-    slip_rate_unnormalized_weights = [1e3,] # 1e2, 1e3, 1e4]
+    slip_rate_normalized_weights = [1, 10, 1e2, 1e3, 1e4] #1, 10]
+    slip_rate_unnormalized_weights = [0,] # 1e2, 1e3, 1e4]
 
     pool = Pool(WORKER_POOL_SIZE)
 
