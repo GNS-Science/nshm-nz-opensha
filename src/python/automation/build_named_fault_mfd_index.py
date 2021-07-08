@@ -193,7 +193,7 @@ class NamedFaultIndexBuilder():
 
 def main():
     #NamedFaultIndexBuilder
-    meta_builder = NamedFaultIndexBuilder(path = WORK_PATH + "/../DATA13")
+    meta_builder = NamedFaultIndexBuilder(path = WORK_PATH + "/../DATA15")
 
     solution_infos = meta_builder.build()
     for info in solution_infos:

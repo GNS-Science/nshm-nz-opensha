@@ -105,13 +105,14 @@ if __name__ == "__main__":
     file_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
     general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
 
-    for inversion_task_id in ['R2VuZXJhbFRhc2s6ODY3QXdIQVE=']:#'R2VuZXJhbFRhc2s6ODMwajVjdlY=',
+    #DONE 'R2VuZXJhbFRhc2s6OTI5cDNicTY=',
+    for inversion_task_id in ['R2VuZXJhbFRhc2s6OTU0TEg1WXk=']:
+        #'R2VuZXJhbFRhc2s6ODMwajVjdlY=',
         #get input files from API
         #inversion_task_id = "R2VuZXJhbFRhc2s6NzU2c0J0czM="
 
         file_generator = get_output_file_ids(general_api, inversion_task_id) #
         solutions = download_files(file_api, file_generator, str(WORK_PATH), overwrite=False)
-
 
         scripts = []
         for script_file in run_tasks(GENERAL_TASK_ID, solutions):
@@ -122,7 +123,8 @@ if __name__ == "__main__":
         print('worker count: ', WORKER_POOL_SIZE)
 
         pool.map(call_script, scripts)
-        pool.close()
-        pool.join()
+
+    pool.close()
+    pool.join()
 
     print("Done! in %s secs" % (dt.datetime.utcnow() - t0).total_seconds())
