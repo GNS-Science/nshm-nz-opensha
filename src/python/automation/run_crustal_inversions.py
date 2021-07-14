@@ -101,7 +101,7 @@ if __name__ == "__main__":
     WORKER_POOL_SIZE = 1
     JVM_HEAP_MAX = 30
     JAVA_THREADS = 4
-    USE_API = False
+    #USE_API = False
 
     #If using API give this task a descriptive setting...
     TASK_TITLE = "Inversions on TVZ/SansTVZ MFDs, Coulomb D90, MFD vs U3 NORMALIZED "
@@ -131,7 +131,8 @@ if __name__ == "__main__":
 
 
     file_id = "RmlsZTozMDMuMEJCOVVY"
-    file_id = "RmlsZToxMzY1LjBzZzRDeA==" #TEST (Subduction)
+    file_id = "RmlsZTo2LjB2NHVOVA=="
+    #file_id = "RmlsZToxMzY1LjBzZzRDeA==" #TEST (Subduction)
 
     """
     CHOOSE ONE OF:

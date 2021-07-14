@@ -1,4 +1,4 @@
-
+from datetime import datetime as dt
 from nshm_toshi_client.toshi_client_base import ToshiClientBase
 import copy
 
@@ -187,3 +187,47 @@ class ToshiApi(ToshiClientBase):
         input_variables = dict(id=id)
         executed = self.run_query(qry, input_variables)
         return executed['node']
+
+
+
+    def create_table(self, rows, column_headers, column_types, object_id, table_name, created=None):
+
+        created = created or dt.utcnow().isoformat() + 'Z'
+
+        rowlen = len(column_headers)
+        assert len(column_types) == rowlen
+        for t in column_types:
+            assert t in "string,double,integer,boolean".split(',')
+        for row in rows:
+            assert len(row) == rowlen
+            #when do we check the coercions??
+
+        input_variables = {
+          "headers": column_headers,
+          "object_id": object_id,
+          "rows": rows,
+          "column_types": column_types,
+          "table_name": table_name,
+          "created": created
+        }
+
+        qry = '''
+        mutation create_table ($rows: [[String]]!, $object_id: ID!, $table_name: String!, $headers: [String]!, $column_types: [RowItemType]!, $created: DateTime!) {
+          create_table(input: {
+            name: $table_name
+            created: $created
+            object_id: $object_id
+            column_headers: $headers
+            column_types: $column_types
+            rows: $rows
+            })
+          {
+            table {
+              id
+            }
+          }
+        }'''
+
+        #print(qry)
+        executed = self.run_query(qry, input_variables)
+        return executed['create_table']['table']

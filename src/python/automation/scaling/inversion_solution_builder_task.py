@@ -14,6 +14,10 @@ from types import SimpleNamespace
 from nshm_toshi_client.rupture_generation_task import RuptureGenerationTask
 from nshm_toshi_client.general_task import GeneralTask
 from nshm_toshi_client.task_relation import TaskRelation
+
+from scaling.toshi_api import ToshiApi
+
+
 import time
 
 API_URL  = os.getenv('NZSHM22_TOSHI_API_URL', "http://127.0.0.1:5000/graphql")
@@ -39,6 +43,8 @@ class BuilderTask():
             self._ruptgen_api = RuptureGenerationTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
             self._general_api = GeneralTask(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
             self._task_relation_api = TaskRelation(API_URL, None, with_schema_validation=True, headers=headers)
+            self._toshi_api = ToshiApi(API_URL, S3_URL, None, with_schema_validation=True, headers=headers)
+
 
     def run(self, task_arguments, job_arguments):
 
@@ -106,11 +112,13 @@ class BuilderTask():
                     float(ta['mfd_transition_mag']))
 
         inversion_runner\
-            .setInversionSeconds(int(ta['max_inversion_time'] * 60))\
+            .setInversionSeconds(10)\
             .setEnergyChangeCompletionCriteria(float(0), float(ta['completion_energy']), float(1))\
             .setNumThreads(int(job_arguments["java_threads"]))\
             .setSyncInterval(30)\
             .setRuptureSetFile(str(PurePath(job_arguments['working_path'], ta['rupture_set'])))
+
+        #int(ta['max_inversion_time'] * 60))\
 
 
         print("Starting inversion of up to %s minutes" % ta['max_inversion_time'])
@@ -124,6 +132,7 @@ class BuilderTask():
 
         # output_file = str(PurePath(job_arguments['output_file']))
         inversion_runner.writeSolution(output_file)
+
 
         t1 = dt.datetime.utcnow()
         print("Inversion took %s secs" % (t1-t0).total_seconds())
@@ -159,6 +168,23 @@ class BuilderTask():
             self._ruptgen_api.upload_task_file(task_id, java_log_file, 'WRITE')
             pyth_log_file = self._output_folder.joinpath(f"python_script.{job_arguments['java_gateway_port']}.log")
             self._ruptgen_api.upload_task_file(task_id, pyth_log_file, 'WRITE')
+
+
+            # now get the MFDS...
+            if ta['config_type'] == 'crustal':
+                table_rows = inversion_runner.getTabularSolutionMfds()
+                rows = []
+                for row in table_rows:
+                    rows.append([x for x in row])
+
+                column_headers = ["series", "series_name", "X", "Y"]
+                column_types = ["integer","string","double","double"]
+                # print(table_rows)
+
+                result = self._toshi_api.create_table(rows, column_headers, column_types,
+                    object_id=task_id,
+                    table_name="Inversion Solution MFD table")
+                print("created table: " , result['id'])
 
         else:
             print(metrics)
