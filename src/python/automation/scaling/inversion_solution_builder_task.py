@@ -160,9 +160,6 @@ class BuilderTask():
             }
             self._ruptgen_api.complete_task(done_args, metrics)
 
-            #upload the task output
-            self._ruptgen_api.upload_task_file(task_id, output_file, 'WRITE', meta=task_arguments)
-
             #and the log files, why not
             java_log_file = self._output_folder.joinpath(f"java_app.{job_arguments['java_gateway_port']}.log")
             self._ruptgen_api.upload_task_file(task_id, java_log_file, 'WRITE')
@@ -171,6 +168,7 @@ class BuilderTask():
 
 
             # now get the MFDS...
+            mfd_table_id = None
             if ta['config_type'] == 'crustal':
                 table_rows = inversion_runner.getTabularSolutionMfds()
                 rows = []
@@ -184,7 +182,14 @@ class BuilderTask():
                 result = self._toshi_api.create_table(rows, column_headers, column_types,
                     object_id=task_id,
                     table_name="Inversion Solution MFD table")
-                print("created table: " , result['id'])
+                mfd_table_id = result['id'])
+                print("created table: ", result['id'])
+
+            #WIP CBC
+            #upload the task output
+            self._ruptgen_api.upload_task_file(task_id, output_file, 'WRITE', meta=task_arguments)
+
+
 
         else:
             print(metrics)
