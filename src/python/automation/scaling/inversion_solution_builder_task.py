@@ -86,6 +86,7 @@ class BuilderTask():
             inversion_runner.setGutenbergRichterMFDWeights(
                     float(ta['mfd_equality_weight']),
                     float(ta['mfd_inequality_weight']))
+            inversion_runner.setMinMagForSeismogenicRups(float(ta['seismogenic_min_mag']))
 
             if ta['slip_rate_weighting_type'] == 'UNCERTAINTY_ADJUSTED':
                 inversion_runner.setSlipRateUncertaintyConstraint(
@@ -112,14 +113,11 @@ class BuilderTask():
                     float(ta['mfd_transition_mag']))
 
         inversion_runner\
-            .setInversionSeconds(10)\
+            .setInversionSeconds(int(ta['max_inversion_time'] * 60))\
             .setEnergyChangeCompletionCriteria(float(0), float(ta['completion_energy']), float(1))\
             .setNumThreads(int(job_arguments["java_threads"]))\
             .setSyncInterval(30)\
             .setRuptureSetFile(str(PurePath(job_arguments['working_path'], ta['rupture_set'])))
-
-        #int(ta['max_inversion_time'] * 60))\
-
 
         print("Starting inversion of up to %s minutes" % ta['max_inversion_time'])
         print("======================================")
@@ -167,23 +165,23 @@ class BuilderTask():
             self._ruptgen_api.upload_task_file(task_id, pyth_log_file, 'WRITE')
 
 
-            # now get the MFDS...
-            mfd_table_id = None
-            if ta['config_type'] == 'crustal':
-                table_rows = inversion_runner.getTabularSolutionMfds()
-                rows = []
-                for row in table_rows:
-                    rows.append([x for x in row])
+            # # now get the MFDS...
+            # mfd_table_id = None
+            # if ta['config_type'] == 'crustal':
+            #     table_rows = inversion_runner.getTabularSolutionMfds()
+            #     rows = []
+            #     for row in table_rows:
+            #         rows.append([x for x in row])
 
-                column_headers = ["series", "series_name", "X", "Y"]
-                column_types = ["integer","string","double","double"]
-                # print(table_rows)
+            #     column_headers = ["series", "series_name", "X", "Y"]
+            #     column_types = ["integer","string","double","double"]
+            #     # print(table_rows)
 
-                result = self._toshi_api.create_table(rows, column_headers, column_types,
-                    object_id=task_id,
-                    table_name="Inversion Solution MFD table")
-                mfd_table_id = result['id'])
-                print("created table: ", result['id'])
+            #     result = self._toshi_api.create_table(rows, column_headers, column_types,
+            #         object_id=task_id,
+            #         table_name="Inversion Solution MFD table")
+            #     mfd_table_id = result['id']
+            #     print("created table: ", result['id'])
 
             #WIP CBC
             #upload the task output
