@@ -35,7 +35,7 @@ public class FocalMechGridsImporter {
 
     static Map<String, Mechs> mechs;
 
-    static Map<Mechs,Map<String, Double>> weights;
+    static Map<Mechs, Map<Mechs, Double>> weights;
 
     static {
         mechs = new HashMap<>();
@@ -52,7 +52,22 @@ public class FocalMechGridsImporter {
         mechs.put("rs", Mechs.MIXED);
 
         weights = Map.of(
-                Mechs.NORMAL, Map.of("",1.0));
+                Mechs.NORMAL, Map.of(
+                        Mechs.NORMAL, 1.0,
+                        Mechs.REVERSE, 0.0,
+                        Mechs.STRIKESLIP, 0.0),
+                Mechs.REVERSE, Map.of(
+                        Mechs.NORMAL, 0.0,
+                        Mechs.REVERSE, 1.0,
+                        Mechs.STRIKESLIP, 0.0),
+                Mechs.STRIKESLIP, Map.of(
+                        Mechs.NORMAL, 0.0,
+                        Mechs.REVERSE, 0.0,
+                        Mechs.STRIKESLIP, 1.0),
+                Mechs.MIXED, Map.of(
+                        Mechs.NORMAL, 0.0,
+                        Mechs.REVERSE, 0.5,
+                        Mechs.STRIKESLIP, 0.5));
     }
 
     public static List<GridPoint> readFile(String fileName) throws FileNotFoundException {
