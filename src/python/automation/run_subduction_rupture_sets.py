@@ -128,13 +128,14 @@ if __name__ == "__main__":
         print("GENERAL_TASK_ID:", GENERAL_TASK_ID)
 
     ##Test parameters
-    models = ["SBD_0_1_HKR_KRM_30", "SBD_0_1_HKR_LR_30"] #"SBD_0_1_HKR_KRM_10"]
+
+    models = ["SBD_0_1_HKR_LR_30_FEC", ] #"SBD_0_1_HKR_KRM_10"]
     min_aspect_ratios = [2.0,]
     max_aspect_ratios = [5.0,]
     aspect_depth_thresholds = [5,]
-    min_fill_ratios = [0.2, 0.1]
-    growth_position_epsilons = [0.0,] #0.02, 0.01]
-    growth_size_epsilons = [0.0, ] #0.02, 0.01]
+    min_fill_ratios = [0.1]
+    growth_position_epsilons = [0.0 ,] #0.02, 0.01]
+    growth_size_epsilons = [0.0 ] #0.02, 0.01]
     scaling_relationships = ["TMG_SUB_2017"]
     deformation_models = ['GLOBAL_SLIP_RATE_10MM']
 
