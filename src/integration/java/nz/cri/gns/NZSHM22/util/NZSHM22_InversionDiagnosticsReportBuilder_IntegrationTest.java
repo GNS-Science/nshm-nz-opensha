@@ -38,9 +38,11 @@ public class NZSHM22_InversionDiagnosticsReportBuilder_IntegrationTest {
 		
 		for (File folder : tmp_folders) {
 			File[] files = folder.listFiles();
-			for (File f : files) {
-				f.delete();
-			}		
+			if (files != null) {
+			    for (File f : files) {
+				    f.delete();
+			    }
+			}
 			Files.deleteIfExists(folder.toPath());
 		}
 	}
