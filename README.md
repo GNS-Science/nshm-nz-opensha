@@ -1,3 +1,5 @@
+**ALERT** this repo is superceded by https://github.com/GNS-Science/nzshm-opensha
+
 # nshm-nz-opensha
 NSHM NZ Programme opensha applications (patterned on opensha-ucerf3 &amp; opensha-dev)
 
